@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+    restart: always
+
+  web-app:
+    build: ./web-app
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+  admin-app:
+    build: ./admin-app
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: always
