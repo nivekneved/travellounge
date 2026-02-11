@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
 import { Package, MapPin, Calendar, Users, ArrowRight, Check } from 'lucide-react-native';
-import axios from 'axios';
+import api from '../services/api';
 
 const STAGES = [
     { id: 'destination', label: 'Start', icon: MapPin },
@@ -31,7 +31,7 @@ export default function PackageBuilderScreen({ navigation }) {
 
     const handleSubmit = async () => {
         try {
-            await axios.post('http://10.0.2.2:5000/api/bookings/package-request', {
+            await api.post('/bookings/package-request', {
                 customer: {
                     name: formData.name,
                     email: formData.email,
@@ -84,7 +84,7 @@ export default function PackageBuilderScreen({ navigation }) {
                         return (
                             <View key={s.id} className="items-center">
                                 <View className={`w-10 h-10 rounded-2xl items-center justify-center ${isActive ? 'bg-primary shadow-lg shadow-primary/30' :
-                                        isCompleted ? 'bg-black' : 'bg-gray-50'
+                                    isCompleted ? 'bg-black' : 'bg-gray-50'
                                     }`}>
                                     {isCompleted ? <Check size={16} color="#fff" /> : <Icon size={16} color={isActive ? '#fff' : '#9ca3af'} />}
                                 </View>

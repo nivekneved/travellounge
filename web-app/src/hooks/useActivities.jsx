@@ -9,7 +9,7 @@ export const useActivities = (categoryFilter = null) => {
     useEffect(() => {
         const fetchActivities = async () => {
             try {
-                console.log('[useActivities] Fetching with filter:', categoryFilter);
+
                 let query = supabase.from('services').select('*').eq('type', 'activity');
 
                 if (categoryFilter) {
@@ -18,7 +18,7 @@ export const useActivities = (categoryFilter = null) => {
 
                 const { data, error } = await query;
                 if (error) throw error;
-                console.log('[useActivities] Fetched data:', data);
+
 
                 setActivities(data.map(a => ({
                     id: a.id,

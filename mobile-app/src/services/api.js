@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 
@@ -20,11 +19,31 @@ const getBaseUrl = () => {
     return 'http://localhost:5000/api';
 };
 
-const api = axios.create({
-    baseURL: getBaseUrl(),
-    headers: {
-        'Content-Type': 'application/json',
+const api = {
+    post: async (endpoint, data) => {
+        const baseUrl = getBaseUrl();
+        const response = await fetch(`${baseUrl}${endpoint}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `API Error: ${response.status}`);
+        }
+        return response.json();
     },
-});
+    get: async (endpoint) => {
+        const baseUrl = getBaseUrl();
+        const response = await fetch(`${baseUrl}${endpoint}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `API Error: ${response.status}`);
+        }
+        return response.json();
+    }
+};
 
 export default api;

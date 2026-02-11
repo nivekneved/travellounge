@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
 import Button from '../components/Button';
 import PageHero from '../components/PageHero';
 import { supabase } from '../utils/supabase';
@@ -41,7 +40,14 @@ const Contact = () => {
         };
 
         try {
-            await axios.post('http://localhost:5000/api/contact', data);
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const response = await fetch(`${apiBase}/contact`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) throw new Error('Failed to send');
             toast.success('Message sent! We will reply shortly.');
             e.target.reset();
         } catch (error) {

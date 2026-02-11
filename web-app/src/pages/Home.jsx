@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Users, Globe, Compass } from 'lucide-react';
 import HeroSlider from '../components/HeroSlider';
@@ -25,20 +24,17 @@ const Home = () => {
     const { data, isLoading, error } = useQuery({
         queryKey: ['services', 'featured', page],
         queryFn: async () => {
-            try {
-                const { data } = await axios.get('http://localhost:5000/api/services', {
-                    params: {
-                        limit: 9, // 3x3 grid
-                        page: page,
-                        featured: true // Request only featured items
-                    }
-                });
-                console.log('Homepage API Response:', data);
-                return data;
-            } catch (err) {
-                console.error('Homepage API Error:', err);
-                throw err;
-            }
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const params = new URLSearchParams({
+                limit: 9,
+                page: page,
+                featured: true
+            });
+
+            const response = await fetch(`${apiBase}/services?${params}`);
+            if (!response.ok) throw new Error('Failed to fetch services');
+            const data = await response.json();
+            return data;
         },
         keepPreviousData: true
     });

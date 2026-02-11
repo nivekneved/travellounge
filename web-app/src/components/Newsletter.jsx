@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { Mail, Send, CheckCircle2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +19,14 @@ const Newsletter = () => {
 
         setLoading(true);
         try {
-            await axios.post('http://localhost:5000/api/newsletter', { email, consent });
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const response = await fetch(`${apiBase}/newsletter`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, consent })
+            });
+
+            if (!response.ok) throw new Error('Failed to subscribe');
             setSubscribed(true);
             toast.success('Welcome to the island club!');
         } catch (error) {

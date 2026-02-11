@@ -5,7 +5,6 @@ import Button from '../components/Button';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { supabase } from '../utils/supabase';
-import axios from 'axios';
 
 const MySwal = withReactContent(Swal);
 
@@ -78,20 +77,27 @@ const BookingPage = () => {
         setStatus('loading');
 
         try {
-            await axios.post('http://localhost:5000/api/bookings', {
-                customer: {
-                    name: formData.name,
-                    email: formData.email,
-                    phone: formData.phone
-                },
-                service_id: serviceId || 'custom-booking',
-                booking_details: {
-                    productName: serviceName,
-                    ...formData,
-                    estimatedTotal: calculateTotal()
-                },
-                consent: formData.consent
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const response = await fetch(`${apiBase}/bookings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer: {
+                        name: formData.name,
+                        email: formData.email,
+                        phone: formData.phone
+                    },
+                    service_id: serviceId || 'custom-booking',
+                    booking_details: {
+                        productName: serviceName,
+                        ...formData,
+                        estimatedTotal: calculateTotal()
+                    },
+                    consent: formData.consent
+                })
             });
+
+            if (!response.ok) throw new Error('Failed to book');
 
             setStatus('success');
 

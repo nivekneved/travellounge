@@ -186,7 +186,7 @@ exports.createService = async (req, res) => {
 
         const { data, error } = await supabase
             .from('services')
-            .insert([productData])
+            .insert([serviceData])
             .select()
             .single();
 

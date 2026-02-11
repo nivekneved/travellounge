@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Package, Calendar, Users, Sparkles } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
 import Button from '../components/Button';
 
 const PackageBuilder = () => {
@@ -27,21 +26,28 @@ const PackageBuilder = () => {
         setLoading(true);
 
         try {
-            await axios.post('http://localhost:5000/api/bookings/package-request', {
-                customer: {
-                    name: formData.name,
-                    email: formData.email,
-                    phone: formData.phone
-                },
-                package_details: {
-                    destination: formData.destination,
-                    duration: formData.duration,
-                    travelers: formData.travelers,
-                    budget: formData.budget,
-                    preferences: formData.preferences
-                },
-                consent: true
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const response = await fetch(`${apiBase}/bookings/package-request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer: {
+                        name: `${formData.firstName} ${formData.lastName}`.trim(),
+                        email: formData.email,
+                        phone: formData.phone
+                    },
+                    package_details: {
+                        destination: formData.country,
+                        duration: formData.nights,
+                        travelers: (parseInt(formData.adults || 0) + parseInt(formData.children || 0)),
+                        budget: 'TBD',
+                        preferences: formData.moreInfo
+                    },
+                    consent: formData.agreeTerms
+                })
             });
+
+            if (!response.ok) throw new Error('Failed to submit');
 
             toast.success('Your request has been sent! Our agents will contact you shortly.');
             setFormData({

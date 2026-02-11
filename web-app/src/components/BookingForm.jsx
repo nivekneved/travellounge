@@ -121,7 +121,7 @@ const BookingForm = ({ serviceId, productName, price, initialCheckIn, initialChe
         setStatus('loading');
         try {
             // Direct Supabase Insert (Primary Architecture)
-            const { error } = await supabase.from('bookings').insert([{
+            const { data, error } = await supabase.from('bookings').insert([{
                 customer_info: {
                     name: formData.name,
                     email: formData.email,
@@ -146,19 +146,20 @@ const BookingForm = ({ serviceId, productName, price, initialCheckIn, initialChe
 
             // Trigger Backend for Emails (Crucial Functionality)
             // We fire-and-forget this to not block the UI success state
-            try {
-                // Restore axios for this specific purpose as authorized
-                const axios = require('axios');
-                axios.post('http://localhost:5000/api/bookings/notify', {
+            const notifyUrl = import.meta.env.VITE_API_URL
+                ? `${import.meta.env.VITE_API_URL}/bookings/notify`
+                : 'http://localhost:5000/api/bookings/notify';
+
+            fetch(notifyUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
                     booking_id: data ? data[0]?.id : null,
                     customer: { name: formData.name, email: formData.email },
                     productName,
                     totalPrice: calculateTotal()
-                }).catch(err => console.error('Email trigger failed silently:', err));
-            } catch (e) {
-                // Ignore import errors if axios not available in scope, ensuring DB insert is respected
-                console.warn('Axios not actionable for email trigger');
-            }
+                })
+            }).catch(err => console.error('Email trigger failed silently:', err));
 
             toast.success('Your paradise request is on its way!', { icon: '🌴' });
             setStatus('success');
