@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { Calendar, Users, CheckCircle, ArrowRight, Shield, CreditCard, Info, ArrowLeft, Star, Clock, Loader2 } from 'lucide-react';
+import { Calendar, Users, CheckCircle, ArrowRight, Shield, CreditCard, Info, ArrowLeft, Star, Clock, Loader2, Gem, ListChecks, Map, MapPin } from 'lucide-react';
 import Button from '../components/Button';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { supabase } from '../utils/supabase';
+import { useQuery } from '@tanstack/react-query';
 
 const MySwal = withReactContent(Swal);
 
@@ -16,7 +17,30 @@ const BookingPage = () => {
     const serviceName = searchParams.get('serviceName') || 'Premium Service';
     const serviceId = searchParams.get('serviceId');
     const basePrice = searchParams.get('price') ? parseInt(searchParams.get('price')) : 0;
-    const image = searchParams.get('image') || "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200&auto=format&fit=crop";
+    const initialImage = searchParams.get('image') || "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200";
+
+    // Metadata from URL (mostly for Hotels)
+    const roomType = searchParams.get('roomType');
+    const urlMaxOccupancy = searchParams.get('maxOccupancy');
+    const urlMealPlan = searchParams.get('mealPlan');
+    const urlCancellation = searchParams.get('cancellationPolicy');
+    const urlDeposit = searchParams.get('depositPolicy');
+
+    // Fetch full service details for more context
+    const { data: service, isLoading: isServiceLoading } = useQuery({
+        queryKey: ['service-details', serviceId],
+        queryFn: async () => {
+            if (!serviceId) return null;
+            const { data, error } = await supabase
+                .from('services')
+                .select('*')
+                .eq('id', serviceId)
+                .single();
+            if (error) throw error;
+            return data;
+        },
+        enabled: !!serviceId
+    });
 
     // Form State
     const [step, setStep] = useState(1);
@@ -56,9 +80,23 @@ const BookingPage = () => {
     };
 
     const calculateTotal = () => {
-        // Simple logic: Price * Travelers (or Nights if date range)
-        // For now assuming Price per Person for simplicity as per most service cards
-        return (basePrice * formData.travelers).toLocaleString();
+        const travelers = parseInt(formData.travelers) || 1;
+
+        // If we have both dates, calculate nights (mostly for hotels)
+        if (formData.checkIn && formData.checkOut) {
+            const start = new Date(formData.checkIn);
+            const end = new Date(formData.checkOut);
+            const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+            if (nights > 0) {
+                // For hotels, price is usually per room per night, but here we treat it as per package/person * nights
+                // unless it's a specific stay package
+                return (basePrice * travelers * nights).toLocaleString();
+            }
+        }
+
+        // Fallback or per-person service (Activities/Day Packages)
+        return (basePrice * travelers).toLocaleString();
     };
 
     const handleSubmit = async (e) => {
@@ -143,39 +181,103 @@ const BookingPage = () => {
                     <div className="lg:col-span-4 order-2 lg:order-1">
                         <div className="bg-white rounded-3xl shadow-xl overflow-hidden sticky top-32 border border-gray-100">
                             <div className="relative h-48">
-                                <img src={image} alt={serviceName} className="w-full h-full object-cover" />
+                                <img src={service?.images?.[0] || initialImage} alt={serviceName} className="w-full h-full object-cover" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                                 <div className="absolute bottom-4 left-4 text-white">
-                                    <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">You are booking</p>
+                                    <p className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">Quote Summary</p>
                                     <h2 className="text-2xl font-black leading-tight">{serviceName}</h2>
+                                    {service?.location && (
+                                        <p className="text-xs flex items-center gap-1 opacity-90 mt-1">
+                                            <MapPin size={12} /> {service.location}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
 
                             <div className="p-6 space-y-6">
                                 <div className="space-y-4">
-                                    <div className="flex justify-between items-center pb-4 border-b border-gray-100">
-                                        <div className="flex items-center gap-3 text-gray-600">
-                                            <Calendar size={18} className="text-primary" />
-                                            <span className="font-medium">Date</span>
+                                    {/* Selected Details */}
+                                    <div className="space-y-3 pb-6 border-b border-gray-100">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-3 text-gray-600">
+                                                <Calendar size={18} className="text-primary" />
+                                                <span className="font-medium text-sm">Target Date</span>
+                                            </div>
+                                            <span className="font-bold text-gray-900 text-sm">{formData.checkIn || 'Not set'}</span>
                                         </div>
-                                        <span className="font-bold text-gray-900">{formData.checkIn || 'Select Date'}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center pb-4 border-b border-gray-100">
-                                        <div className="flex items-center gap-3 text-gray-600">
-                                            <Users size={18} className="text-primary" />
-                                            <span className="font-medium">Guests</span>
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-3 text-gray-600">
+                                                <Users size={18} className="text-primary" />
+                                                <span className="font-medium text-sm">Guests</span>
+                                            </div>
+                                            <span className="font-bold text-gray-900 text-sm">{formData.travelers} Persons</span>
                                         </div>
-                                        <span className="font-bold text-gray-900">{formData.travelers} People</span>
+                                        {roomType && (
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-3 text-gray-600">
+                                                    <Gem size={18} className="text-primary" />
+                                                    <span className="font-medium text-sm">Room</span>
+                                                </div>
+                                                <span className="font-bold text-gray-900 text-sm">{roomType}</span>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="flex justify-between items-center pt-2">
-                                        <span className="text-lg font-bold text-gray-900">Total Estimated</span>
+
+                                    {/* Dynamic Product Metadata */}
+                                    <div className="space-y-4 pt-2">
+                                        {/* Policies */}
+                                        {(urlCancellation || urlMealPlan || service?.pricing?.includes) && (
+                                            <div className="space-y-3">
+                                                <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest">Included & Policies</h4>
+                                                {urlMealPlan && (
+                                                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                                                        <CheckCircle size={14} className="text-green-500" />
+                                                        <span>{urlMealPlan}</span>
+                                                    </div>
+                                                )}
+                                                {urlCancellation && (
+                                                    <div className="flex items-start gap-2 text-sm text-gray-700">
+                                                        <Shield size={14} className="text-blue-500 mt-0.5" />
+                                                        <span>{urlCancellation}</span>
+                                                    </div>
+                                                )}
+                                                {service?.inclusions?.slice(0, 3).map((inc, i) => (
+                                                    <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
+                                                        <CheckCircle size={14} className="text-green-500" />
+                                                        <span>{inc}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {/* Itinerary Snippet */}
+                                        {service?.itinerary && service.itinerary.length > 0 && (
+                                            <div className="space-y-3 pt-2">
+                                                <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest">Itinerary Overview</h4>
+                                                <div className="space-y-2">
+                                                    {service.itinerary.slice(0, 3).map((day, i) => (
+                                                        <div key={i} className="flex items-start gap-3 pl-2 border-l-2 border-gray-100">
+                                                            <span className="text-[10px] font-black text-primary mt-1">D{day.day}</span>
+                                                            <span className="text-xs text-gray-600 line-clamp-1">{day.title || day.port || day.activities}</span>
+                                                        </div>
+                                                    ))}
+                                                    {service.itinerary.length > 3 && (
+                                                        <p className="text-[10px] text-gray-400 italic">+{service.itinerary.length - 3} more days...</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex justify-between items-center pt-8 border-t border-gray-100">
+                                        <span className="text-lg font-bold text-gray-900">Est. Total</span>
                                         <span className="text-2xl font-black text-primary">Rs {calculateTotal()}</span>
                                     </div>
                                 </div>
 
-                                <div className="bg-gray-50 p-4 rounded-xl text-xs text-gray-500 leading-relaxed flex gap-2">
+                                <div className="bg-red-50 p-4 rounded-xl text-[11px] text-gray-600 leading-relaxed flex gap-3 border border-red-100">
                                     <Info size={16} className="text-primary flex-shrink-0 mt-0.5" />
-                                    <p>You won't be charged yet. We'll check availability and send you a payment link.</p>
+                                    <p>Our experts will review your selected options and contact you with the best available rates and custom upgrades.</p>
                                 </div>
                             </div>
                         </div>

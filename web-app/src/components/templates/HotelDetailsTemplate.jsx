@@ -1,5 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { Building2, Star, MapPin, ArrowLeft, Heart, CheckCircle, Maximize, Waves, Users, Coffee, Utensils, Wifi, Dumbbell, Car, Sun, Tv, Wind, ShieldCheck, CreditCard } from 'lucide-react';
+import { Building2, Star, MapPin, ArrowLeft, Heart, Share2, CheckCircle, Maximize, Waves, Users, Coffee, Utensils, Wifi, Dumbbell, Car, Sun, Tv, Wind, ShieldCheck, CreditCard } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import Button from '../Button';
@@ -30,7 +31,13 @@ const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
             serviceName: room ? `${hotel.name} - ${room.name}` : hotel.name,
             serviceId: hotel.id,
             price: (room ? room.price : hotel.price).replace(/,/g, ''),
-            image: room ? room.image : hotel.image
+            image: room ? room.image : hotel.image,
+            // Pass room details and policies
+            roomType: room ? room.name : '',
+            maxOccupancy: room ? (room.maxOccupancy || 2).toString() : '',
+            mealPlan: room ? (room.mealPlan || 'Room Only') : '',
+            cancellationPolicy: room ? (room.cancellationPolicy || '') : (hotel.cancellationPolicy || ''),
+            depositPolicy: room ? (room.depositPolicy || '') : (hotel.depositPolicy || '')
         });
         navigate(`/booking?${params.toString()}`);
     };
@@ -44,6 +51,28 @@ const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
             timer: 2000,
             showConfirmButton: false
         });
+    };
+
+    const handleShare = async () => {
+        const shareData = {
+            title: hotel.name,
+            text: hotel.description,
+            url: window.location.href,
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                toast.success('Link copied to clipboard!');
+            }
+        } catch (err) {
+            console.error('Error sharing:', err);
+            if (err.name !== 'AbortError') {
+                toast.error('Failed to share');
+            }
+        }
     };
 
     if (!hotel) {
@@ -236,10 +265,18 @@ const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
 
                             <button
                                 onClick={handleSaveHotel}
-                                className="w-full border-2 border-primary text-primary font-bold py-4 px-8 rounded-full hover:bg-primary/5 transition-all flex items-center justify-center gap-2"
+                                className="w-full border-2 border-primary text-primary font-bold py-4 px-8 rounded-full hover:bg-primary/5 transition-all flex items-center justify-center gap-2 mb-4"
                             >
                                 <Heart size={20} />
                                 Save Hotel
+                            </button>
+
+                            <button
+                                onClick={handleShare}
+                                className="w-full border-2 border-gray-200 text-gray-700 font-bold py-4 px-8 rounded-full hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
+                            >
+                                <Share2 size={20} />
+                                Share This
                             </button>
 
                             <div className="mt-8 pt-8 border-t border-gray-200">

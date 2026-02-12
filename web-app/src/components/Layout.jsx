@@ -349,13 +349,13 @@ const Layout = ({ children }) => {
             <QuickActions />
 
 
-            {/* Footer - WHITE BACKGROUND */}
-            <footer className="mt-auto border-t border-gray-200 bg-white pt-20 pb-10">
+            {/* Footer - LIGHT GREY BACKGROUND */}
+            <footer className="mt-auto border-t border-gray-200 bg-gray-50 pt-20 pb-10">
 
                 <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
                     {/* Column 1: Brand */}
                     <div>
-                        <img src="/logo.png" alt="Travel Lounge" className="h-16 mb-6 -ml-3" />
+                        <img src="/logo.png" alt="Travel Lounge" className="h-16 mb-6 -ml-8" />
                         <p className="text-gray-600 leading-relaxed mb-6">
                             Your premium gateway to the paradise island of Mauritius. Bespoke travel experiences crafted with passion.
                         </p>

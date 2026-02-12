@@ -46,7 +46,7 @@ export default function ProductDetailsScreen({ route, navigation }) {
                 message: `Check out ${name} on Travel Lounge Mauritius! ${price}`,
             });
         } catch (error) {
-            console.log(error.message);
+            console.error('Error sharing:', error);
         }
     };
 

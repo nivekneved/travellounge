@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Home, MapPin, Star, ArrowLeft, CheckCircle, Wifi, Coffee, Utensils, Info, Heart } from 'lucide-react';
 import Button from '../components/Button';
 
@@ -102,8 +102,20 @@ const guestHouses = [
 ];
 
 const RodriguesGuestHouseDetails = () => {
+    const navigate = useNavigate();
     const { id } = useParams();
     const guestHouse = guestHouses.find(gh => gh.id === parseInt(id)) || guestHouses[0];
+
+    const handleBook = () => {
+        const params = new URLSearchParams({
+            serviceName: guestHouse.name,
+            serviceId: `gh-${guestHouse.id}`,
+            price: guestHouse.price.replace(/,/g, ''),
+            image: guestHouse.image,
+            location: guestHouse.location
+        });
+        navigate(`/booking?${params.toString()}`);
+    };
 
     if (!guestHouse) {
         return (
@@ -226,7 +238,7 @@ const RodriguesGuestHouseDetails = () => {
                             </div>
 
                             <Button
-                                to="/contact"
+                                onClick={handleBook}
                                 className="w-full py-4 mb-4"
                             >
                                 Book Stay

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Bed, Calendar, Star, ArrowLeft, CheckCircle, Wifi, Utensils, Waves, Heart } from 'lucide-react';
 
 const hotelStays = [
@@ -54,8 +54,19 @@ const hotelStays = [
 ];
 
 const HotelStayDetails = () => {
+    const navigate = useNavigate();
     const { id } = useParams();
     const stay = hotelStays.find(s => s.id === parseInt(id)) || hotelStays[0];
+
+    const handleBook = () => {
+        const params = new URLSearchParams({
+            serviceName: `${stay.hotel} - ${stay.name}`,
+            serviceId: `stay-${stay.id}`,
+            price: stay.price.replace(/,/g, ''),
+            image: stay.image
+        });
+        navigate(`/booking?${params.toString()}`);
+    };
 
     if (!stay) {
         return (
@@ -154,12 +165,12 @@ const HotelStayDetails = () => {
                                 <span className="text-gray-500">for 2 adults</span>
                             </div>
 
-                            <Link
-                                to="/contact"
+                            <button
+                                onClick={handleBook}
                                 className="block w-full bg-primary text-white text-center font-bold py-4 px-8 rounded-full hover:bg-red-700 transition-all hover:scale-105 mb-4"
                             >
                                 Book Now
-                            </Link>
+                            </button>
 
                             <button className="w-full border-2 border-primary text-primary font-bold py-4 px-8 rounded-full hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
                                 <Heart size={20} />

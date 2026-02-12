@@ -5,8 +5,8 @@ import { supabase } from '../utils/supabase';
 import { MapPin, Star, Calendar, Users, Heart, Share2, ArrowLeft, Wifi, Tv, Coffee, Wind, Utensils, Waves, Car, Dumbbell, Trees, Activity, X } from 'lucide-react';
 import Button from '../components/Button';
 import { useWishlist } from '../context/WishlistContext';
-import { Link } from 'react-router-dom';
-import BookingForm from '../components/BookingForm';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 
 const AMENITY_ICONS = {
     'wifi': Wifi,
@@ -27,11 +27,11 @@ const AMENITY_ICONS = {
 
 const ServiceDetails = () => {
     const { id } = useParams();
-    const { toggleWishlist, isInWishlist } = useWishlist();
+    const navigate = useNavigate();
+    const { isInWishlist, toggleWishlist } = useWishlist();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [selectedDate, setSelectedDate] = useState('');
     const [guestCount, setGuestCount] = useState(1);
-    const [showBookingForm, setShowBookingForm] = useState(false);
 
     // Fetch product from API
     const { data: product, isLoading, error } = useQuery({
@@ -91,7 +91,36 @@ const ServiceDetails = () => {
     } = product;
 
     const handleBooking = () => {
-        setShowBookingForm(true);
+        const params = new URLSearchParams({
+            serviceName: product.name,
+            serviceId: product.id,
+            price: (product.pricing?.price || 0).toString(),
+            image: product.images?.[0] || ''
+        });
+        navigate(`/booking?${params.toString()}`);
+    };
+
+    const handleShare = async () => {
+        const shareData = {
+            title: name,
+            text: description,
+            url: window.location.href,
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                toast.success('Link copied to clipboard!');
+            }
+        } catch (err) {
+            console.error('Error sharing:', err);
+            // Don't show error if user cancelled
+            if (err.name !== 'AbortError') {
+                toast.error('Failed to share');
+            }
+        }
     };
 
     return (
@@ -110,7 +139,10 @@ const ServiceDetails = () => {
                         >
                             <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
                         </button>
-                        <button className="p-3 rounded-full bg-white text-gray-700 shadow-md">
+                        <button 
+                            onClick={handleShare}
+                            className="p-3 rounded-full bg-white text-gray-700 shadow-md hover:bg-gray-50 transition-colors"
+                        >
                             <Share2 size={20} />
                         </button>
                     </div>
@@ -299,28 +331,6 @@ const ServiceDetails = () => {
                 </div>
             </div>
 
-            {/* Booking Form Modal */}
-            {showBookingForm && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-                    <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto relative shadow-2xl">
-                        <button
-                            onClick={() => setShowBookingForm(false)}
-                            className="absolute top-6 right-6 p-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 transition-all z-10"
-                            aria-label="Close booking form"
-                        >
-                            <X size={24} />
-                        </button>
-                        <div className="p-8">
-                            <BookingForm
-                                serviceId={product._id}
-                                productName={product.name}
-                                initialCheckIn={selectedDate}
-                                initialCheckOut={selectedDate}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
