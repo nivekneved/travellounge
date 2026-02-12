@@ -35,6 +35,8 @@ const DestinationDetails = lazy(() => import('./pages/DestinationDetails'));
 const VisaServices = lazy(() => import('./pages/VisaServices'));
 const BookingPage = lazy(() => import('./pages/BookingPage'));
 const Flights = lazy(() => import('./pages/Flights'));
+const Excursions = lazy(() => import('./pages/Excursions'));
+const Transfers = lazy(() => import('./pages/Transfers'));
 
 const queryClient = new QueryClient();
 
@@ -80,6 +82,8 @@ function App() {
                 <Route path="/booking" element={<BookingPage />} />
                 <Route path="/activities" element={<Activities />} />
                 <Route path="/hotels" element={<MauritiusHotels />} />
+                <Route path="/excursions" element={<Excursions />} />
+                <Route path="/transfers" element={<Transfers />} />
                 <Route path="/rodrigues-guest-houses" element={<RodriguesGuestHouses />} />
                 <Route path="/rodrigues-hotels" element={<RodriguesHotels />} />
                 <Route path="/visa-services" element={<VisaServices />} />

@@ -7,10 +7,10 @@ import Button from './Button';
 const STATIC_SLIDES = [
     {
         id: 1,
-        image_url: "https://images.unsplash.com/photo-1508009603885-50cf7c579367?q=80&w=1920&auto=format&fit=crop",
+        image_url: "https://images.unsplash.com/photo-1563492063799-9ae2816d1b33?q=80&w=1920&auto=format&fit=crop",
         subtitle: "YOUR TRUSTED HOLIDAY PARTNER",
         title: "Visit Bangkok",
-        description: "Experience the vibrant energy, stunning temples, and world-class street food of Thailand's capital.",
+        description: "Experience the vibrant energy, stunning nightlife, and world-class street food of Thailand's capital.",
         cta_text: "Explore Bangkok",
         cta_link: "/search?search=Bangkok"
     },

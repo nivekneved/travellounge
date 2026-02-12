@@ -207,7 +207,7 @@ const Flights = () => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {flights?.map((flight) => (
+                            {filteredFlights?.map((flight) => (
                                 <div key={flight.id} className="bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
                                     <div className="p-6">
                                         <div className="flex justify-between items-start mb-4">
