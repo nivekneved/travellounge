@@ -12,6 +12,7 @@ import { useActivities } from '../hooks/useActivities';
 import PageHero from '../components/PageHero';
 import TrustSection from '../components/TrustSection';
 import ListingHeader from '../components/ListingHeader';
+import Pagination from '../components/Pagination';
 
 const Activities = () => {
     const [searchParams] = useSearchParams();
@@ -25,13 +26,15 @@ const Activities = () => {
         category: initialCategory ? [initialCategory] : [],
         amenities: []
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 9;
 
     const locations = [...new Set(activities.map(a => a.location))];
     const categories = [...new Set(activities.map(a => a.category))];
     const allAmenities = [...new Set(activities.flatMap(a => a.amenities))];
 
     const filteredActivities = useMemo(() => {
-        return activities.filter(activity => {
+        const filtered = activities.filter(activity => {
             const price = parseInt(activity.price.replace(/,/g, ''));
             const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
 
@@ -42,13 +45,20 @@ const Activities = () => {
 
             return matchesPrice && matchesLocation && matchesCategory && matchesAmenities;
         });
+        setCurrentPage(1); // Reset to first page on filter change
+        return filtered;
     }, [activities, filters, priceRange]);
+
+    const paginatedActivities = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredActivities.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredActivities, currentPage]);
 
     if (loading) return <LoadingSpinner message="Loading activities..." />;
     if (error) return <ErrorMessage error={error} title="Failed to load activities" />;
 
     return (
-        <div className="bg-white min-h-screen pt-32 pb-20">
+        <div className="bg-white min-h-screen pb-20">
             {/* Hero Section */}
             <PageHero
                 title="Island Activities"
@@ -57,7 +67,7 @@ const Activities = () => {
                 icon={Waves}
             />
 
-            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar */}
                     <div className="w-full lg:w-1/4">
@@ -84,8 +94,8 @@ const Activities = () => {
                         />
 
                         {/* Grid/List */}
-                        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2' : 'grid-cols-1'} gap-8`}>
-                            {filteredActivities.map((activity, index) => (
+                        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-8`}>
+                            {paginatedActivities.map((activity, index) => (
                                 <div
                                     key={activity.id}
                                     style={{
@@ -169,6 +179,14 @@ const Activities = () => {
                                 </div>
                             ))}
                         </div>
+
+                        {/* Pagination */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={filteredActivities.length}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                        />
 
                         {filteredActivities.length === 0 && (
                             <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-300">

@@ -23,7 +23,6 @@ const BookingManager = () => {
             if (error) throw error;
             setBookings(data || []);
         } catch (error) {
-            console.error('Error fetching bookings', error);
             toast.error(`Failed to load bookings: ${error.message}`);
         } finally {
             setLoading(false);
@@ -45,7 +44,6 @@ const BookingManager = () => {
                 setSelectedBooking({ ...selectedBooking, status });
             }
         } catch (error) {
-            console.error('Error updating status:', error);
             toast.error(`Error updating status: ${error.message}`);
         }
     };

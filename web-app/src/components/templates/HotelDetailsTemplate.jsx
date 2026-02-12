@@ -1,5 +1,5 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { Building2, Star, MapPin, ArrowLeft, Heart, CheckCircle, Maximize, Waves } from 'lucide-react';
+import { Building2, Star, MapPin, ArrowLeft, Heart, CheckCircle, Maximize, Waves, Users, Coffee, Utensils, Wifi, Dumbbell, Car, Sun, Tv, Wind, ShieldCheck, CreditCard } from 'lucide-react';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import Button from '../Button';
@@ -8,6 +8,21 @@ const MySwal = withReactContent(Swal);
 
 const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
     const navigate = useNavigate();
+
+    // Map icon names to Lucide components
+    const IconMap = {
+        Waves: <Waves size={24} />,
+        Wifi: <Wifi size={24} />,
+        Dumbbell: <Dumbbell size={24} />,
+        Utensils: <Utensils size={24} />,
+        Coffee: <Coffee size={24} />,
+        Car: <Car size={24} />,
+        Sun: <Sun size={24} />,
+        Tv: <Tv size={24} />,
+        Wind: <Wind size={24} />,
+        Building2: <Building2 size={24} />,
+        CheckCircle: <CheckCircle size={24} />
+    };
 
     // Handle booking specific room or general hotel booking
     const handleBookRoom = (room) => {
@@ -33,7 +48,7 @@ const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
 
     if (!hotel) {
         return (
-            <div className="min-h-screen flex items-center justify-center pt-32">
+            <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <h2 className="text-3xl font-bold text-gray-900 mb-4">Hotel Not Found</h2>
                     <Link to={backLink} className="text-primary hover:underline">← {backText}</Link>
@@ -43,9 +58,9 @@ const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
     }
 
     return (
-        <div className="min-h-screen bg-white pt-32 pb-20">
+        <div className="min-h-screen bg-white pb-20">
             {/* Header */}
-            <div className="w-full px-4 md:px-8 mb-8">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 mb-8">
                 <Link to={backLink} className="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors mb-6">
                     <ArrowLeft size={20} />
                     <span>{backText}</span>
@@ -61,7 +76,7 @@ const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 text-white">
-                    <div className="w-full max-w-6xl mx-auto">
+                    <div className="w-full max-w-[1400px] mx-auto">
                         <div className="flex items-center gap-3 mb-4">
                             <Building2 size={32} className="text-primary" />
                             <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
@@ -84,8 +99,8 @@ const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
             </div>
 
             {/* Content */}
-            <div className="w-full px-4 md:px-8">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     {/* Main Content */}
                     <div className="lg:col-span-2">
                         {/* Description */}
@@ -101,7 +116,7 @@ const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
                                 {hotel.amenities?.map((amenity, index) => (
                                     <div key={index} className="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-2xl hover:bg-white hover:shadow-lg transition-all border border-gray-100">
                                         <div className="text-primary mb-3">
-                                            {amenity.icon}
+                                            {IconMap[amenity.icon] || <CheckCircle size={24} />}
                                         </div>
                                         <span className="text-gray-700 font-medium text-center">{amenity.name}</span>
                                     </div>
@@ -138,18 +153,45 @@ const HotelDetailsTemplate = ({ hotel, backLink, backText }) => {
 
                                                     <div className="flex flex-wrap gap-4 mb-6 text-gray-600">
                                                         <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full text-sm">
-                                                            <Maximize size={16} />
+                                                            <Users size={16} className="text-primary" />
+                                                            <span>Max {room.maxOccupancy || 2} Guests</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full text-sm">
+                                                            <Coffee size={16} className="text-primary" />
+                                                            <span>{room.mealPlan || 'Room Only'}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full text-sm">
+                                                            <Maximize size={16} className="text-primary" />
                                                             <span>{room.size}</span>
                                                         </div>
                                                         <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full text-sm">
-                                                            <Maximize size={16} className="rotate-45" />
-                                                            <span>{room.bed}</span>
-                                                        </div>
-                                                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full text-sm">
-                                                            <Waves size={16} />
+                                                            <Waves size={16} className="text-primary" />
                                                             <span>{room.view}</span>
                                                         </div>
                                                     </div>
+
+                                                    {(room.cancellationPolicy || room.depositPolicy) && (
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-red-50/50 rounded-2xl border border-red-100/50 text-sm">
+                                                            {room.cancellationPolicy && (
+                                                                <div className="flex items-start gap-2">
+                                                                    <ShieldCheck size={16} className="text-primary mt-0.5" />
+                                                                    <div>
+                                                                        <span className="font-bold text-gray-900 block">Cancellation</span>
+                                                                        <span className="text-gray-600">{room.cancellationPolicy}</span>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            {room.depositPolicy && (
+                                                                <div className="flex items-start gap-2">
+                                                                    <CreditCard size={16} className="text-primary mt-0.5" />
+                                                                    <div>
+                                                                        <span className="font-bold text-gray-900 block">Payment</span>
+                                                                        <span className="text-gray-600">{room.depositPolicy}</span>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
 
                                                     <div className="flex flex-wrap gap-2 mb-6">
                                                         {room.features.map((feature, i) => (

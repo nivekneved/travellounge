@@ -28,7 +28,6 @@ export const useGroupTours = (categoryFilter = null) => {
                     category: t.category
                 })));
             } catch (err) {
-                console.error('[useGroupTours]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);

@@ -24,6 +24,8 @@ const SEOManager = () => {
         ogImage: ''
     });
 
+    const [isInitialized, setIsInitialized] = useState(false);
+
     // Fetch SEO Settings
     const { data: seoSettings, isLoading, isError, error: queryError } = useQuery({
         queryKey: ['site_settings', 'seo_global'],
@@ -34,7 +36,7 @@ const SEOManager = () => {
                 .eq('key', 'seo_global')
                 .single();
 
-            if (error && error.code !== 'PGRST116') throw error; // Ignor not found
+            if (error && error.code !== 'PGRST116') throw error;
             return data?.value || {
                 siteTitle: 'Travel Lounge | Luxury Travel Agency Mauritius',
                 metaDescription: 'Discover exclusive holiday packages, cruises, and custom travel experiences with Travel Lounge Mauritius.',
@@ -50,11 +52,11 @@ const SEOManager = () => {
         }
     }, [isError, queryError]);
 
-    useEffect(() => {
-        if (seoSettings) {
-            setFormData(seoSettings);
-        }
-    }, [seoSettings]);
+    // Initialize form data when settings are loaded
+    if (seoSettings && !isInitialized && !isLoading) {
+        setFormData(seoSettings);
+        setIsInitialized(true);
+    }
 
     const updateMutation = useMutation({
         mutationFn: async (newSettings) => {

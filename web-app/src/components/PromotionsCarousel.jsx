@@ -132,10 +132,10 @@ const PromotionsCarousel = () => {
                     const { current } = scrollRef;
                     const maxScrollLeft = current.scrollWidth - current.clientWidth;
 
-                    if (current.scrollLeft >= maxScrollLeft) {
+                    if (current.scrollLeft >= maxScrollLeft - 10) { // Added tolerance
                         current.scrollTo({ left: 0, behavior: 'smooth' });
                     } else {
-                        scroll('right');
+                        current.scrollBy({ left: 400, behavior: 'smooth' });
                     }
                 }
             }, 5000);

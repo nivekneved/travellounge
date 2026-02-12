@@ -24,7 +24,6 @@ const ReviewModerator = () => {
             if (error) throw error;
             setReviews(data || []);
         } catch (error) {
-            console.error('Error fetching reviews:', error);
             toast.error(`Error fetching reviews: ${error.message}`);
         } finally {
             setLoading(false);
@@ -43,7 +42,6 @@ const ReviewModerator = () => {
             toast.success(`Review ${status}`);
             fetchReviews();
         } catch (error) {
-            console.error('Error moderating review:', error);
             toast.error(`Error updating review: ${error.message}`);
         }
     };

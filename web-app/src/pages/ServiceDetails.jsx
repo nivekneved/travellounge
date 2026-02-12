@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
-import { MapPin, Star, Calendar, Users, Camera, Heart, Share2, ArrowLeft, Wifi, Tv, Coffee, Wind, Utensils, Waves, Car, Dumbbell, Trees, Activity, X } from 'lucide-react';
+import { MapPin, Star, Calendar, Users, Heart, Share2, ArrowLeft, Wifi, Tv, Coffee, Wind, Utensils, Waves, Car, Dumbbell, Trees, Activity, X } from 'lucide-react';
 import Button from '../components/Button';
 import { useWishlist } from '../context/WishlistContext';
 import { Link } from 'react-router-dom';
@@ -25,7 +25,7 @@ const AMENITY_ICONS = {
     'beach': Trees, // Standardizing to something generic if not found
 };
 
-const ProductDetails = () => {
+const ServiceDetails = () => {
     const { id } = useParams();
     const { toggleWishlist, isInWishlist } = useWishlist();
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -85,8 +85,9 @@ const ProductDetails = () => {
         category,
         pricing,
         features = [],
-        included = [],
-        excluded = []
+        inclusions = [],
+        exclusions = [],
+        itinerary = []
     } = product;
 
     const handleBooking = () => {
@@ -165,7 +166,9 @@ const ProductDetails = () => {
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                     {features.map((feature, idx) => (
                                         <div key={idx} className="flex items-center gap-2 text-gray-700">
-                                            <Camera size={18} />
+                                            <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                                <Star size={12} fill="currentColor" />
+                                            </div>
                                             <span>{feature}</span>
                                         </div>
                                     ))}
@@ -177,7 +180,7 @@ const ProductDetails = () => {
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 mb-3">What's Included</h3>
                                     <ul className="space-y-2">
-                                        {included.map((item, idx) => (
+                                        {inclusions.map((item, idx) => (
                                             <li key={idx} className="flex items-start gap-2 text-gray-700">
                                                 <span className="text-green-500">✓</span>
                                                 <span>{item}</span>
@@ -189,7 +192,7 @@ const ProductDetails = () => {
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 mb-3">What's Not Included</h3>
                                     <ul className="space-y-2">
-                                        {excluded.map((item, idx) => (
+                                        {exclusions.map((item, idx) => (
                                             <li key={idx} className="flex items-start gap-2 text-gray-700">
                                                 <span className="text-red-500">✕</span>
                                                 <span>{item}</span>
@@ -198,6 +201,36 @@ const ProductDetails = () => {
                                     </ul>
                                 </div>
                             </div>
+
+                            {/* Itinerary */}
+                            {itinerary && itinerary.length > 0 && (
+                                <div className="mb-8 border-t border-gray-100 pt-8">
+                                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                            <Calendar size={18} />
+                                        </div>
+                                        Daily Itinerary
+                                    </h3>
+                                    <div className="space-y-4">
+                                        {itinerary.map((day, index) => (
+                                            <div
+                                                key={index}
+                                                className="bg-gray-50 rounded-2xl p-6 border border-gray-100 hover:border-primary/20 transition-all"
+                                            >
+                                                <div className="flex items-start gap-6">
+                                                    <div className="flex-shrink-0 w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center font-black text-lg border border-primary/20">
+                                                        {day.day}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h4 className="text-lg font-bold text-gray-900 mb-1">{day.port || day.title}</h4>
+                                                        <p className="text-gray-600 text-sm leading-relaxed">{day.activities || day.description}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -292,4 +325,4 @@ const ProductDetails = () => {
     );
 };
 
-export default ProductDetails;
+export default ServiceDetails;

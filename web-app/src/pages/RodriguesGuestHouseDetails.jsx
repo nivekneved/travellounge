@@ -117,9 +117,9 @@ const RodriguesGuestHouseDetails = () => {
     }
 
     return (
-        <div className="min-h-screen bg-white pt-32 pb-20">
+        <div className="min-h-screen bg-white pb-20">
             {/* Header */}
-            <div className="w-full px-4 md:px-8 mb-8">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 mb-8">
                 <Link to="/rodrigues-guest-houses" className="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors mb-6">
                     <ArrowLeft size={20} />
                     <span>Back to Guest Houses</span>
@@ -135,7 +135,7 @@ const RodriguesGuestHouseDetails = () => {
                 />
                 <div className="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 text-white">
-                    <div className="w-full max-w-6xl mx-auto">
+                    <div className="w-full max-w-[1400px] mx-auto">
                         <div className="flex items-center gap-3 mb-4">
                             <Home size={32} className="text-primary" />
                             <div className="flex items-center gap-2">
@@ -153,8 +153,8 @@ const RodriguesGuestHouseDetails = () => {
             </div>
 
             {/* Content */}
-            <div className="w-full px-4 md:px-8">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     {/* Main Content */}
                     <div className="lg:col-span-2">
                         {/* Description */}

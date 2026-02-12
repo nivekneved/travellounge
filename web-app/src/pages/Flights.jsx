@@ -72,7 +72,7 @@ const Flights = () => {
     ];
 
     return (
-        <div className="bg-white min-h-screen pt-20 pb-20">
+        <div className="bg-white min-h-screen pb-20">
             {/* Hero Section */}
             <PageHero
                 title="Search Flights"
@@ -82,7 +82,7 @@ const Flights = () => {
             />
 
             {/* Content Container */}
-            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 -mt-32 relative z-10">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-12 md:pt-20 relative z-10">
                 {/* Search Box */}
                 <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-10 mb-20 animate-in slide-in-from-bottom-16 duration-700">
                     <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
@@ -207,7 +207,7 @@ const Flights = () => {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {filteredFlights?.map((flight) => (
+                            {flights?.map((flight) => (
                                 <div key={flight.id} className="bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
                                     <div className="p-6">
                                         <div className="flex justify-between items-start mb-4">

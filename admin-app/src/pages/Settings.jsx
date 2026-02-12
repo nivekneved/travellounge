@@ -42,7 +42,6 @@ const Settings = () => {
                 setSettings(newSettings);
             }
         } catch (error) {
-            console.error('Failed to fetch settings:', error);
             toast.error(`Failed to load settings: ${error.message}`);
         }
     };
@@ -65,7 +64,6 @@ const Settings = () => {
             setTimeout(() => setStatus(''), 2000);
             toast.success(`${key} updated`);
         } catch (error) {
-            console.error('Save error:', error);
             toast.error(`Failed to save ${key}`);
         }
     };
@@ -100,7 +98,6 @@ const Settings = () => {
             toast.dismiss();
             toast.success('Data exported successfully');
         } catch (error) {
-            console.error('GDPR Export Error:', error);
             toast.error('Failed to export data');
         }
     };
@@ -138,7 +135,6 @@ const Settings = () => {
             toast.dismiss();
             toast.success('User data permanently erased');
         } catch (error) {
-            console.error('GDPR Delete Error:', error);
             toast.error('Failed to delete data: ' + error.message);
         }
     };

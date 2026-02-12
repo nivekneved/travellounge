@@ -32,7 +32,6 @@ const PromotionManager = () => {
             if (error) throw error;
             setPromotions(data || []);
         } catch (error) {
-            console.error('Error fetching promotions:', error);
             toast.error(`Failed to load promotions: ${error.message}`);
         } finally {
             setLoading(false);
@@ -69,7 +68,6 @@ const PromotionManager = () => {
             closeModal();
             fetchPromotions();
         } catch (error) {
-            console.error('Error saving promotion:', error);
             toast.error(`Error saving promotion: ${error.message}`);
         }
     };
@@ -87,7 +85,6 @@ const PromotionManager = () => {
             toast.success('Promotion deleted');
             fetchPromotions();
         } catch (error) {
-            console.error('Error deleting promotion:', error);
             toast.error(`Error deleting promotion: ${error.message}`);
         }
     };

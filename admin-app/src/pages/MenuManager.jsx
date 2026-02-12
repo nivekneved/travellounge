@@ -147,7 +147,6 @@ const MenuManager = () => {
                 selectMenu(data[0]);
             }
         } catch (error) {
-            console.error('Error fetching menus:', error);
             toast.error(`Failed to load menus: ${error.message}`);
         } finally {
             setLoading(false);
@@ -244,7 +243,6 @@ const MenuManager = () => {
             toast.success('Menu updated successfully');
             fetchMenus();
         } catch (error) {
-            console.error('Error saving menu:', error);
             toast.error('Invalid JSON or update failed');
         }
     };
@@ -282,7 +280,6 @@ const MenuManager = () => {
             toast.success('Default menus initialized');
             fetchMenus();
         } catch (error) {
-            console.error('Error initializing menus:', error);
             toast.error('Error initializing menus');
         }
     };

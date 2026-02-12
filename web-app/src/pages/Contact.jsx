@@ -67,7 +67,7 @@ const Contact = () => {
     }
 
     return (
-        <div className="bg-white min-h-screen pt-32 pb-20">
+        <div className="bg-white min-h-screen pb-20">
             <PageHero
                 title={t('contact.title')}
                 subtitle={t('contact.subtitle')}

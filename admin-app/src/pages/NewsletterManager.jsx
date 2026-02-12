@@ -139,7 +139,7 @@ const NewsletterManager = () => {
                                         </span>
                                     </td>
                                     <td className="py-4 px-6 text-sm text-gray-500">
-                                        {format(new Date(sub.created_at || Date.now()), 'MMM d, yyyy')}
+                                        {sub.created_at ? format(new Date(sub.created_at), 'MMM d, yyyy') : 'N/A'}
                                     </td>
                                     <td className="py-4 px-6 text-right">
                                         <button className="text-gray-400 hover:text-red-600 transition-colors">Unsubscribe</button>

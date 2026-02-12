@@ -28,7 +28,6 @@ export const useDestinations = () => {
                     includes: d.description?.split('. ')?.[1]?.replace('Includes ', '')?.split(', ') || []
                 })));
             } catch (err) {
-                console.error('[useDestinations]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);

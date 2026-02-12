@@ -32,7 +32,6 @@ export const useDayPackages = (locationFilter = null) => {
                     includes: pkg.amenities || []
                 })));
             } catch (err) {
-                console.error('[useDayPackages]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);

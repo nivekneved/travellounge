@@ -129,7 +129,7 @@ const BookingPage = () => {
     }, []);
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-24 pb-20 font-sans">
+        <div className="min-h-screen bg-gray-50 pb-20 font-sans">
             <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
 
                 {/* Header Link */}

@@ -9,6 +9,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import PageHero from '../components/PageHero';
 import ListingHeader from '../components/ListingHeader';
+import Pagination from '../components/Pagination';
 import TrustSection from '../components/TrustSection';
 import CTASection from '../components/CTASection';
 
@@ -21,6 +22,8 @@ const RodriguesGuestHouses = () => {
         rating: [],
         amenities: []
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 9;
 
     // Extract unique values
     const locations = [...new Set(guestHouses.map(h => h.location))];
@@ -28,7 +31,7 @@ const RodriguesGuestHouses = () => {
 
     // Filter logic
     const filteredGuestHouses = useMemo(() => {
-        return guestHouses.filter(gh => {
+        const filtered = guestHouses.filter(gh => {
             const price = parseInt(gh.price.replace(/,/g, ''));
             const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
 
@@ -39,10 +42,17 @@ const RodriguesGuestHouses = () => {
 
             return matchesPrice && matchesLocation && matchesRating && matchesAmenities;
         });
+        setCurrentPage(1); // Reset to first page on filter change
+        return filtered;
     }, [filters, priceRange]);
 
+    const paginatedGuestHouses = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredGuestHouses.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredGuestHouses, currentPage]);
+
     return (
-        <div className="bg-white min-h-screen pt-32 pb-20">
+        <div className="bg-white min-h-screen pb-20">
             {/* Hero Section */}
             <PageHero
                 title="Guest Houses"
@@ -51,7 +61,7 @@ const RodriguesGuestHouses = () => {
                 icon={Home}
             />
 
-            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar */}
                     <div className="w-full lg:w-1/4">
@@ -77,8 +87,8 @@ const RodriguesGuestHouses = () => {
                         />
 
                         {/* Grid/List */}
-                        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2' : 'grid-cols-1'} gap-8`}>
-                            {filteredGuestHouses.map((gh, index) => (
+                        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-8`}>
+                            {paginatedGuestHouses.map((gh, index) => (
                                 <div
                                     key={gh.id}
                                     className={`bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group border border-gray-100 ${viewMode === 'list' ? 'flex flex-col md:flex-row h-auto md:h-72' : ''}`}
@@ -149,6 +159,14 @@ const RodriguesGuestHouses = () => {
                                 </div>
                             ))}
                         </div>
+
+                        {/* Pagination */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={filteredGuestHouses.length}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                        />
 
                         {filteredGuestHouses.length === 0 && (
                             <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-300">

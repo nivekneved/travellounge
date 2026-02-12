@@ -47,16 +47,19 @@ const PageContentManager = () => {
     // Get currently selected page object
     const selectedPage = pages?.find(p => p.slug === selectedPageSlug);
 
-    // Update local form when selection changes
-    useEffect(() => {
-        if (selectedPage) {
-            setEditForm({
-                title: selectedPage.title || '',
-                headline: selectedPage.content?.headline || '',
-                body: selectedPage.content?.body || ''
-            });
-        }
-    }, [selectedPage]);
+    // Track the last page slug to know when to reset the form
+    const [lastSlug, setLastSlug] = useState('about');
+
+    // Update local form when selection changes (Render phase update pattern)
+    if (selectedPage && selectedPageSlug !== lastSlug) {
+        setEditForm({
+            title: selectedPage.title || '',
+            headline: selectedPage.content?.headline || '',
+            body: selectedPage.content?.body || ''
+        });
+        setLastSlug(selectedPageSlug);
+    }
+
 
     const updateMutation = useMutation({
         mutationFn: async (updates) => {

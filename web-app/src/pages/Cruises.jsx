@@ -11,6 +11,7 @@ import PageHero from '../components/PageHero';
 import TrustSection from '../components/TrustSection';
 import CTASection from '../components/CTASection';
 import ListingHeader from '../components/ListingHeader';
+import Pagination from '../components/Pagination';
 
 const Cruises = () => {
     const { cruises: cruisePackages, loading, error } = useCruises();
@@ -21,11 +22,13 @@ const Cruises = () => {
         rating: [],
         amenities: []
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 9;
 
     const categories = [...new Set(cruisePackages.map(c => c.category))];
 
     const filteredCruises = useMemo(() => {
-        return cruisePackages.filter(cruise => {
+        const filtered = cruisePackages.filter(cruise => {
             const price = parseInt(cruise.price.replace(/,/g, ''));
             const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
 
@@ -34,13 +37,20 @@ const Cruises = () => {
 
             return matchesPrice && matchesLocation && matchesRating;
         });
+        setCurrentPage(1); // Reset to first page on filter change
+        return filtered;
     }, [cruisePackages, filters, priceRange]);
+
+    const paginatedCruises = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredCruises.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredCruises, currentPage]);
 
     if (loading) return <LoadingSpinner message="Loading cruises..." />;
     if (error) return <ErrorMessage error={error} title="Failed to load cruises" />;
 
     return (
-        <div className="bg-white min-h-screen pt-32 pb-20">
+        <div className="bg-white min-h-screen pb-20">
             {/* Hero Section */}
             <PageHero
                 title="Cruise Vacations"
@@ -49,7 +59,7 @@ const Cruises = () => {
                 icon={Ship}
             />
 
-            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar */}
                     <div className="w-full lg:w-1/4">
@@ -75,8 +85,8 @@ const Cruises = () => {
                         />
 
                         {/* Grid/List */}
-                        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-2' : 'grid-cols-1'} gap-8`}>
-                            {filteredCruises.map((cruise, index) => (
+                        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-8`}>
+                            {paginatedCruises.map((cruise, index) => (
                                 <div
                                     key={cruise.id}
                                     style={{
@@ -148,6 +158,14 @@ const Cruises = () => {
                                 </div>
                             ))}
                         </div>
+
+                        {/* Pagination */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={filteredCruises.length}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                        />
 
                         {filteredCruises.length === 0 && (
                             <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-300">

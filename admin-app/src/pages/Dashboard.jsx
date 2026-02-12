@@ -120,7 +120,6 @@ const Dashboard = () => {
                 });
             }
         } catch (error) {
-            console.error('Error dashboard data:', error);
             // toast.error(`Failed to load dashboard: ${error.message}`); 
             // Note: Dashboard load errors can be spammy if not careful, but useful for debugging. 
             // I'll ensure toast is imported.

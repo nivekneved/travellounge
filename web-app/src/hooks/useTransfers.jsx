@@ -28,7 +28,6 @@ export const useTransfers = () => {
                     description: t.description
                 })));
             } catch (err) {
-                console.error('[useTransfers]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);

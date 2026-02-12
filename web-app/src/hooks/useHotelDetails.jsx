@@ -44,11 +44,14 @@ export const useHotelDetails = (id) => {
                         view: r.view,
                         price: r.price_per_night?.toLocaleString() || '0',
                         image: r.image_url,
+                        maxOccupancy: r.max_occupancy,
+                        mealPlan: r.meal_plan,
+                        cancellationPolicy: r.cancellation_policy,
+                        depositPolicy: r.deposit_policy,
                         features: r.features || []
                     }))
                 });
             } catch (err) {
-                console.error('[useHotelDetails]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);

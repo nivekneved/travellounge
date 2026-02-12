@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Phone, Mail, Zap, Clock, ChevronDown, Heart, Palmtree, Ship, Plane, Hotel, Users, MapPin, Calendar, FileText, Info, UsersRound, Facebook, Instagram, Globe, Home, Mountain, Anchor } from 'lucide-react';
+import {
+    Menu, X, Phone, Mail, Zap, Clock, ChevronDown, ChevronRight, Heart, Palmtree, Ship,
+    Plane, Hotel, Users, MapPin, Calendar, FileText, Info, UsersRound,
+    Facebook, Instagram, Globe, Home, Mountain, Anchor, ArrowRight
+} from 'lucide-react';
 import Button from './Button';
 import QuickActions from './QuickActions';
 import Breadcrumb from './Breadcrumb';
@@ -334,7 +338,7 @@ const Layout = ({ children }) => {
                 </div>
             )}
 
-            <main className="flex-grow">
+            <main className={`flex-grow ${!isHomePage ? 'pt-24 md:pt-32' : ''}`}>
                 {/* Breadcrumb Navigation */}
                 <Breadcrumb />
 
@@ -385,26 +389,22 @@ const Layout = ({ children }) => {
                     {/* Column 2: Port Louis Location */}
                     <div>
                         <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Port Louis Office</h4>
-                        <div className="text-gray-600 flex flex-col gap-4">
-                            <div>
-                                <p className="text-gray-900 font-bold text-sm uppercase tracking-widest mb-1">Address</p>
-                                <p className="text-sm leading-relaxed">
-                                    Ground Floor Newton Tower,<br />
-                                    Corner Sir William Newton &<br />
-                                    Remy Ollier Street,<br />
-                                    Port Louis, Mauritius
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-gray-900 font-bold text-sm uppercase tracking-widest mb-1">Contact</p>
-                                <p className="flex items-center gap-2 text-sm"><Phone size={14} className="text-primary" /> (+230) 212 4070</p>
-                                <p className="flex items-center gap-2 text-sm"><Phone size={14} className="text-primary" /> (+230) 212 4073</p>
+                        <div className="text-gray-600 flex flex-col gap-5">
+                            <p className="text-sm leading-relaxed">
+                                Ground Floor Newton Tower,<br />
+                                Corner Sir William Newton &<br />
+                                Remy Ollier Street,<br />
+                                Port Louis, Mauritius
+                            </p>
+                            <div className="flex flex-col gap-1">
+                                <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 212 4070</p>
+                                <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 212 4073</p>
                             </div>
                             <a
                                 href="https://maps.google.com/?q=Travel+Lounge+Port+Louis"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-red-700 transition-colors"
+                                className="inline-flex items-center gap-2 text-xs font-black text-primary hover:text-red-700 transition-colors uppercase tracking-widest"
                             >
                                 <MapPin size={12} /> Get Directions
                             </a>
@@ -414,26 +414,22 @@ const Layout = ({ children }) => {
                     {/* Column 3: Ebene Location */}
                     <div>
                         <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Ebene Office</h4>
-                        <div className="text-gray-600 flex flex-col gap-4">
-                            <div>
-                                <p className="text-gray-900 font-bold text-sm uppercase tracking-widest mb-1">Address</p>
-                                <p className="text-sm leading-relaxed">
-                                    Ground Floor, 57 Ebene Mews,<br />
-                                    Rue Du Savoir,<br />
-                                    Ebene Cybercity,<br />
-                                    Mauritius
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-gray-900 font-bold text-sm uppercase tracking-widest mb-1">Contact</p>
-                                <p className="flex items-center gap-2 text-sm"><Phone size={14} className="text-primary" /> (+230) 5940 7711</p>
-                                <p className="flex items-center gap-2 text-sm"><Phone size={14} className="text-primary" /> (+230) 5940 7701</p>
+                        <div className="text-gray-600 flex flex-col gap-5">
+                            <p className="text-sm leading-relaxed">
+                                Ground Floor, 57 Ebene Mews,<br />
+                                Rue Du Savoir,<br />
+                                Ebene Cybercity,<br />
+                                Mauritius
+                            </p>
+                            <div className="flex flex-col gap-1">
+                                <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 5940 7711</p>
+                                <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 5940 7701</p>
                             </div>
                             <a
                                 href="https://maps.google.com/?q=Travel+Lounge+Ebene"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-red-700 transition-colors"
+                                className="inline-flex items-center gap-2 text-xs font-black text-primary hover:text-red-700 transition-colors uppercase tracking-widest"
                             >
                                 <MapPin size={12} /> Get Directions
                             </a>
@@ -444,42 +440,42 @@ const Layout = ({ children }) => {
                     <div>
                         <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Quick Links</h4>
                         <div className="flex flex-col gap-3 text-sm font-bold text-gray-600">
-                            <Link to="/hotels" className="hover:text-primary transition-colors flex items-center gap-2"><Hotel size={18} />Hotels</Link>
-                            <Link to="/cruises" className="hover:text-primary transition-colors flex items-center gap-2"><Ship size={18} />Cruises</Link>
-                            <Link to="/flights" className="hover:text-primary transition-colors flex items-center gap-2"><Plane size={18} />Flights</Link>
-                            <Link to="/package-builder" className="hover:text-primary transition-colors flex items-center gap-2"><FileText size={18} />Tailor Made</Link>
-                            <Link to="/group-tours" className="hover:text-primary transition-colors flex items-center gap-2"><Users size={18} />Group Tours</Link>
-                            <Link to="/activities" className="hover:text-primary transition-colors flex items-center gap-2"><Palmtree size={18} />Activities</Link>
-                            <Link to="/visa-services" className="hover:text-primary transition-colors flex items-center gap-2"><Globe size={18} />Visa Services</Link>
-                            <Link to="/about" className="hover:text-primary transition-colors flex items-center gap-2"><Info size={18} />{t('about.title')}</Link>
+                            <Link to="/hotels" className="hover:text-primary transition-colors flex items-center gap-3"><Hotel size={18} className="text-gray-400 group-hover:text-primary" />Hotels</Link>
+                            <Link to="/cruises" className="hover:text-primary transition-colors flex items-center gap-3"><Ship size={18} className="text-gray-400 group-hover:text-primary" />Cruises</Link>
+                            <Link to="/flights" className="hover:text-primary transition-colors flex items-center gap-3"><Plane size={18} className="text-gray-400 group-hover:text-primary" />Flights</Link>
+                            <Link to="/package-builder" className="hover:text-primary transition-colors flex items-center gap-3"><FileText size={18} className="text-gray-400 group-hover:text-primary" />Tailor Made</Link>
+                            <Link to="/group-tours" className="hover:text-primary transition-colors flex items-center gap-3"><Users size={18} className="text-gray-400 group-hover:text-primary" />Group Tours</Link>
+                            <Link to="/activities" className="hover:text-primary transition-colors flex items-center gap-3"><Palmtree size={18} className="text-gray-400 group-hover:text-primary" />Activities</Link>
+                            <Link to="/visa-services" className="hover:text-primary transition-colors flex items-center gap-3"><Globe size={18} className="text-gray-400 group-hover:text-primary" />Visa Services</Link>
                         </div>
                     </div>
 
-                    {/* Column 5: Subscribe */}
-                    <div>
-                        <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Subscribe Here</h4>
-                        <form className="mb-8">
-                            <div className="flex items-center bg-gray-50 border border-gray-200 rounded-lg p-1 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all">
+                    {/* Column 5: Subscribe & Legal */}
+                    <div className="flex flex-col">
+                        <div className="mb-10">
+                            <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Subscribe</h4>
+                            <form className="relative group">
                                 <input
                                     type="email"
                                     placeholder="Your email"
-                                    className="flex-1 bg-transparent border-none px-3 text-sm outline-none placeholder:text-gray-400"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all pr-12"
                                     required
                                 />
                                 <button
                                     type="submit"
-                                    className="bg-primary text-white px-4 py-2 rounded-md font-bold hover:bg-red-700 transition-all text-xs uppercase tracking-wider"
+                                    className="absolute right-2 top-1.5 bg-primary text-white p-2 rounded-lg hover:bg-red-700 transition-all"
                                 >
-                                    Go
+                                    <ArrowRight size={18} />
                                 </button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
 
                         <div>
                             <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Legal</h4>
                             <div className="flex flex-col gap-3 text-sm font-bold text-gray-600">
                                 <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
                                 <Link to="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
+                                <Link to="/terms#cookies" className="hover:text-primary transition-colors">Cookie Policy</Link>
                             </div>
                         </div>
                     </div>

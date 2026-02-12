@@ -34,7 +34,6 @@ const AuditLogViewer = () => {
                 setLogs(mappedLogs);
             }
         } catch (error) {
-            console.error('Error fetching logs:', error);
             toast.error(`Failed to load audit logs: ${error.message}`);
         } finally {
             setLoading(false);

@@ -7,6 +7,7 @@ import PageHero from '../PageHero';
 import TrustSection from '../TrustSection';
 import CTASection from '../CTASection';
 import ListingHeader from '../ListingHeader';
+import Pagination from '../Pagination';
 
 const HotelListingTemplate = ({
     hotels,
@@ -25,23 +26,32 @@ const HotelListingTemplate = ({
         rating: [],
         amenities: []
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 9;
 
     const locations = [...new Set(hotels?.map(h => h.location).filter(Boolean))];
     const allAmenities = [...new Set(hotels?.flatMap(h => Array.isArray(h.amenities) ? h.amenities : []).filter(Boolean))];
 
     const filteredHotels = useMemo(() => {
-        return hotels.filter(hotel => {
-            const price = parseInt(hotel.price.replace(/,/g, ''));
+        const filtered = (hotels || []).filter(hotel => {
+            const price = parseInt(hotel.price?.replace(/,/g, '') || '0');
             const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
             const matchesLocation = filters.location.length === 0 || filters.location.includes(hotel.location);
             const matchesRating = filters.rating.length === 0 || filters.rating.includes(hotel.starRating);
-            const matchesAmenities = filters.amenities.length === 0 || filters.amenities.every(a => hotel.amenities.includes(a));
+            const matchesAmenities = filters.amenities.length === 0 || filters.amenities.every(a => hotel.amenities?.includes(a));
             return matchesPrice && matchesLocation && matchesRating && matchesAmenities;
         });
+        setCurrentPage(1); // Reset to first page on filter change
+        return filtered;
     }, [filters, priceRange, hotels]);
 
+    const paginatedHotels = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredHotels.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredHotels, currentPage]);
+
     return (
-        <div className="bg-white min-h-screen pt-32 pb-20">
+        <div className="bg-white min-h-screen pb-20">
             {/* Hero Section */}
             <PageHero
                 title={heroTitle}
@@ -50,7 +60,7 @@ const HotelListingTemplate = ({
                 icon={HeroIcon}
             />
 
-            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar */}
                     <div className="w-full lg:w-1/4">
@@ -74,8 +84,8 @@ const HotelListingTemplate = ({
                             setViewMode={setViewMode}
                         />
 
-                        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'} gap-8`}>
-                            {filteredHotels.map((hotel, index) => (
+                        <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-8`}>
+                            {paginatedHotels.map((hotel, index) => (
                                 <div key={hotel.id} className={`bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 group border border-gray-100 ${viewMode === 'list' ? 'flex flex-col md:flex-row h-auto md:h-72' : ''}`} style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}>
                                     <div className={`relative overflow-hidden ${viewMode === 'list' ? 'w-full md:w-2/5 h-64 md:h-full' : 'h-64'}`}>
                                         <img src={hotel.image} alt={hotel.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -135,6 +145,14 @@ const HotelListingTemplate = ({
                                 </div>
                             ))}
                         </div>
+
+                        {/* Pagination */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={filteredHotels.length}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                        />
 
                         {filteredHotels.length === 0 && (
                             <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-300">

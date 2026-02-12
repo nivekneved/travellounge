@@ -7,7 +7,7 @@ import TrustSection from '../components/TrustSection';
 
 const VisaServices = () => {
     return (
-        <div className="bg-white min-h-screen pt-32 pb-20">
+        <div className="bg-white min-h-screen pb-20">
             {/* Hero Section */}
             <PageHero
                 title="Visa Services"
@@ -17,7 +17,7 @@ const VisaServices = () => {
             />
 
             {/* Content */}
-            <div className="w-full max-w-6xl mx-auto px-4 md:px-8">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
                     <div>
                         <h2 className="text-4xl font-black mb-6">Simplifying Your Travel Documents</h2>

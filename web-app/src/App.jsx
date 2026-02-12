@@ -70,17 +70,19 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
 
                 {/* Service Pages */}
-                {/* Service Pages */}
                 <Route path="/cruises" element={<Cruises />} />
                 <Route path="/group-tours" element={<GroupTours />} />
+                <Route path="/group-tours/:id" element={<ServiceDetails />} />
                 <Route path="/destinations" element={<Destinations />} />
                 <Route path="/destinations/:id" element={<DestinationDetails />} />
                 <Route path="/flights" element={<Flights />} />
                 <Route path="/day-packages" element={<HotelDayPackages />} />
-                <Route path="/day-packages/:id" element={<DayPackageDetails />} />
-                <Route path="/activities" element={<Activities />} />
+                <Route path="/day-packages/:id" element={<ServiceDetails />} />
                 <Route path="/booking" element={<BookingPage />} />
                 <Route path="/activities" element={<Activities />} />
+                <Route path="/activities/:id" element={<ServiceDetails />} />
+                <Route path="/cruises" element={<Cruises />} />
+                <Route path="/cruises/:id" element={<ServiceDetails />} />
                 <Route path="/hotels" element={<MauritiusHotels />} />
                 <Route path="/excursions" element={<Excursions />} />
                 <Route path="/transfers" element={<Transfers />} />

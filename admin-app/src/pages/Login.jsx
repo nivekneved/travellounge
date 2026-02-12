@@ -29,7 +29,6 @@ const Login = () => {
             toast.success('Welcome back, Admin!');
             navigate('/');
         } catch (error) {
-            console.error('Login error:', error);
             toast.error(error.message || 'Authentication failed');
         } finally {
             setLoading(false);

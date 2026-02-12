@@ -10,6 +10,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import PageHero from '../components/PageHero';
 import ListingHeader from '../components/ListingHeader';
+import Pagination from '../components/Pagination';
 import TrustSection from '../components/TrustSection';
 import CTASection from '../components/CTASection';
 
@@ -22,11 +23,13 @@ const GroupTours = () => {
         rating: [],
         amenities: []
     });
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 9;
 
     const categories = [...new Set(tours.map(t => t.category))];
 
     const filteredTours = useMemo(() => {
-        return tours.filter(tour => {
+        const filtered = tours.filter(tour => {
             const price = parseInt(tour.price.replace(/,/g, ''));
             const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
 
@@ -35,10 +38,17 @@ const GroupTours = () => {
 
             return matchesPrice && matchesLocation && matchesRating;
         });
+        setCurrentPage(1); // Reset to first page on filter change
+        return filtered;
     }, [filters, priceRange]);
 
+    const paginatedTours = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredTours.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredTours, currentPage]);
+
     return (
-        <div className="bg-white min-h-screen pt-32 pb-20">
+        <div className="bg-white min-h-screen pb-20">
             {/* Hero Section */}
             <PageHero
                 title="Guided Group Tours"
@@ -47,7 +57,7 @@ const GroupTours = () => {
                 icon={Users}
             />
 
-            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar */}
                     <div className="w-full lg:w-1/4">
@@ -74,7 +84,7 @@ const GroupTours = () => {
 
                         {/* Grid/List */}
                         <div className={`grid ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'} gap-8`}>
-                            {filteredTours.map((tour, index) => (
+                            {paginatedTours.map((tour, index) => (
                                 <div
                                     key={tour.id}
                                     style={{
@@ -140,6 +150,14 @@ const GroupTours = () => {
                                 </div>
                             ))}
                         </div>
+
+                        {/* Pagination */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalItems={filteredTours.length}
+                            itemsPerPage={itemsPerPage}
+                            onPageChange={setCurrentPage}
+                        />
 
                         {filteredTours.length === 0 && (
                             <div className="text-center py-20 bg-gray-50 rounded-3xl border border-dashed border-gray-300">

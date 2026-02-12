@@ -1,20 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Users, Globe, Compass } from 'lucide-react';
+import { supabase } from '../utils/supabase';
 import HeroSlider from '../components/HeroSlider';
 import CategoryGrid from '../components/CategoryGrid';
 import PromotionsCarousel from '../components/PromotionsCarousel';
 import ServiceCard from '../components/ServiceCard';
 import PartnersSlider from '../components/PartnersSlider';
 import TrustSection from '../components/TrustSection';
-import NewsletterSection from '../components/NewsletterSection';
 
 const Home = () => {
     const [page, setPage] = useState(1);
+    const limit = 9;
 
     // Scroll to section top when page changes
-    React.useEffect(() => {
+    useEffect(() => {
         if (page > 1) {
             const section = document.getElementById('featured-services');
             if (section) section.scrollIntoView({ behavior: 'smooth' });
@@ -24,27 +25,30 @@ const Home = () => {
     const { data, isLoading, error } = useQuery({
         queryKey: ['services', 'featured', page],
         queryFn: async () => {
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-            const params = new URLSearchParams({
-                limit: 9,
-                page: page,
-                featured: true
-            });
+            const from = (page - 1) * limit;
+            const to = from + limit - 1;
 
-            const response = await fetch(`${apiBase}/services?${params}`);
-            if (!response.ok) throw new Error('Failed to fetch services');
-            const data = await response.json();
-            return data;
+            const { data: services, error, count } = await supabase
+                .from('services')
+                .select('*', { count: 'exact' })
+                .eq('is_featured', true)
+                .eq('status', 'active')
+                .range(from, to)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            return {
+                services: services || [],
+                total: count || 0,
+                pages: Math.ceil((count || 0) / limit)
+            };
         },
         keepPreviousData: true
     });
 
     if (error) {
-        console.error('React Query Error:', error);
-    }
-
-    if (error) {
-        console.error('React Query Error:', error);
+        // Error is handled by UI state if needed, or by error boundary
     }
 
     return (
@@ -52,7 +56,7 @@ const Home = () => {
             {/* Hero - Full width */}
             <HeroSlider />
 
-            {/* Category Grid - Light Grey Background */}
+            {/* Category Grid - Premium Experience */}
             <CategoryGrid />
 
             {/* Promotions - White Background */}
@@ -65,32 +69,43 @@ const Home = () => {
             <section id="featured-services" className="py-24 bg-gray-50">
                 <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
                     <div className="text-center mb-16">
-                        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
+                        <h2 className="text-4xl md:text-5xl lg:text-7xl font-black text-gray-900 mb-6 uppercase tracking-tight">
                             Featured <span className="text-primary">Experiences</span>
                         </h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
+                        <p className="text-gray-500 max-w-2xl mx-auto text-xl font-light">
                             Hand-picked premium stays and activities curated by our island experts.
                         </p>
                     </div>
 
                     {isLoading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => (
+                            {[1, 2, 3, 4, 5, 6].map(i => (
                                 <div key={i} className="h-[450px] bg-white rounded-3xl animate-pulse shadow-lg" />
                             ))}
                         </div>
                     ) : (
                         <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-                                {data?.services?.map((service, index) => (
-                                    <div
-                                        key={service.id || service._id}
-                                        style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}
-                                    >
-                                        <ServiceCard product={service} />
-                                    </div>
-                                ))}
-                            </div>
+                            {data?.services?.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                                    {data.services.map((service, index) => (
+                                        <div
+                                            key={service.id || service._id}
+                                            style={{ animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both` }}
+                                        >
+                                            <ServiceCard product={{ ...service, _id: service.id }} />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100 max-w-4xl mx-auto">
+                                    <Compass className="mx-auto text-gray-200 mb-6" size={80} />
+                                    <h3 className="text-2xl font-bold text-gray-900 mb-2">No Featured Experiences Found</h3>
+                                    <p className="text-gray-500 mb-8">Start exploring our full range of categories above.</p>
+                                    <Link to="/search" className="bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-red-700 transition-all uppercase tracking-widest text-sm">
+                                        View All Services
+                                    </Link>
+                                </div>
+                            )}
 
                             {/* Pagination */}
                             {data?.pages > 1 && (
@@ -134,10 +149,6 @@ const Home = () => {
 
             {/* Partners - White Background */}
             <PartnersSlider />
-
-            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 mb-24">
-                <NewsletterSection />
-            </div>
         </div>
     );
 };

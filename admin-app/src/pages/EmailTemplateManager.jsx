@@ -28,7 +28,6 @@ const EmailTemplateManager = () => {
             if (error) throw error;
             setTemplates(data || []);
         } catch (error) {
-            console.error('Error fetching templates:', error);
             toast.error('Failed to load templates');
         } finally {
             setLoading(false);
@@ -55,7 +54,6 @@ const EmailTemplateManager = () => {
             setIsModalOpen(false);
             fetchTemplates();
         } catch (error) {
-            console.error('Save error:', error);
             toast.error('Failed to save template');
         }
     };
@@ -71,7 +69,6 @@ const EmailTemplateManager = () => {
             toast.success('Template deleted');
             fetchTemplates();
         } catch (error) {
-            console.error('Delete error:', error);
             toast.error('Failed to delete');
         }
     };

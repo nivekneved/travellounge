@@ -159,12 +159,11 @@ const BookingForm = ({ serviceId, productName, price, initialCheckIn, initialChe
                     productName,
                     totalPrice: calculateTotal()
                 })
-            }).catch(err => console.error('Email trigger failed silently:', err));
+            }).catch(err => { /* Email trigger failed silently */ });
 
             toast.success('Your paradise request is on its way!', { icon: '🌴' });
             setStatus('success');
         } catch (error) {
-            console.error('Booking Error:', error);
             toast.error('Something went wrong. Please try again.');
             setStatus('error');
         }

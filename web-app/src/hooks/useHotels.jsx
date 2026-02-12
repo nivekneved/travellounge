@@ -35,7 +35,6 @@ export const useHotels = (locationFilter = null) => {
                     rooms: []
                 })));
             } catch (err) {
-                console.error('[useHotels]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);

@@ -7,7 +7,7 @@ import Button from './Button';
 const STATIC_SLIDES = [
     {
         id: 1,
-        image_url: "https://images.unsplash.com/photo-1563492063799-9ae2816d1b33?q=80&w=1920&auto=format&fit=crop",
+        image_url: "https://images.unsplash.com/photo-1563911302283-d2bc129e7570?q=80&w=1920&auto=format&fit=crop",
         subtitle: "YOUR TRUSTED HOLIDAY PARTNER",
         title: "Visit Bangkok",
         description: "Experience the vibrant energy, stunning nightlife, and world-class street food of Thailand's capital.",
@@ -16,7 +16,7 @@ const STATIC_SLIDES = [
     },
     {
         id: 2,
-        image_url: "https://images.unsplash.com/photo-1544918877-460635b6d13e?q=80&w=1920",
+        image_url: "https://images.unsplash.com/photo-1544918877-460635b6d13e?auto=format&fit=crop&w=1920&q=80",
         subtitle: "IATA ACCREDITED AGENCY",
         title: "Beautiful Malaysia",
         description: "From the skyscrapers of KL to the pristine beaches of Langkawi, discover the magic of Malaysia.",
@@ -57,7 +57,6 @@ const HeroSlider = () => {
                 if (error) throw error;
                 return data && data.length > 0 ? data : STATIC_SLIDES;
             } catch (err) {
-                console.warn('Failed to fetch hero slides, using static content.', err);
                 return STATIC_SLIDES;
             }
         },

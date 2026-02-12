@@ -32,7 +32,6 @@ export const useGuestHouses = (locationFilter = null) => {
                     amenities: gh.amenities || []
                 })));
             } catch (err) {
-                console.error('[useGuestHouses]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);

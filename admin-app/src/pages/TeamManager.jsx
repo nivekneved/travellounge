@@ -296,7 +296,7 @@ const TeamManager = () => {
                                                             <td className="p-4 text-gray-600">{member.role}</td>
                                                             <td className="p-4 flex gap-2">
                                                                 {member.email && <a href={`mailto:${member.email}`} className="text-gray-400 hover:text-gray-900"><Mail size={16} /></a>}
-                                                                {member.linkedin_url && <a href={member.linkedin_url} target="_blank" className="text-gray-400 hover:text-[#0077b5]"><Linkedin size={16} /></a>}
+                                                                {member.linkedin_url && <a href={member.linkedin_url} target="_blank" className="text-gray-400 hover:text-[#0077b5]" rel="noreferrer"><Linkedin size={16} /></a>}
                                                             </td>
                                                             <td className="p-4 text-right">
                                                                 <button onClick={() => handleEdit(member)} className="p-2 hover:bg-gray-200 rounded-lg text-gray-500 transition-colors">

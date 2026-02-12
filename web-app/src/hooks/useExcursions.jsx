@@ -29,7 +29,6 @@ export const useExcursions = () => {
                     description: e.description
                 })));
             } catch (err) {
-                console.error('[useExcursions]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);

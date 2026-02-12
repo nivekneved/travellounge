@@ -32,7 +32,6 @@ export const useActivities = (categoryFilter = null) => {
                     amenities: a.amenities || []
                 })));
             } catch (err) {
-                console.error('[useActivities]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);

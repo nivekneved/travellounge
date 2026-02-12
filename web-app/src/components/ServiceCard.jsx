@@ -14,8 +14,8 @@ const ServiceCard = ({ product, hideRating = false, customLink, discountBadge })
 
     // Data Normalization for robustness (handles different API/Static data structures)
     const displayImage = images?.[0] || product.image || '/placeholder-image.jpg';
-    const displayPrice = pricing?.price || product.price || pricing?.basePrice;
-    const originalPrice = pricing?.originalPrice;
+    const displayPrice = pricing?.price || product.price || pricing?.basePrice || pricing?.base_price || pricing?.adult;
+    const originalPrice = pricing?.originalPrice || pricing?.original_price;
 
     // Ensure numeric price for formatting
     const formattedPrice = displayPrice ? parseInt(String(displayPrice).replace(/[^0-9]/g, '')) : null;

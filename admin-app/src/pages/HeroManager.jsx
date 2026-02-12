@@ -47,7 +47,6 @@ const HeroManager = () => {
             if (error) throw error;
             setSlides(data || []);
         } catch (error) {
-            console.error('Error fetching slides:', error);
             toast.error(`Failed to load slides: ${error.message}`);
         } finally {
             setLoading(false);
@@ -77,7 +76,6 @@ const HeroManager = () => {
 
             if (error) throw error;
         } catch (error) {
-            console.error('Error reordering slides:', error);
             toast.error('Failed to save new order');
             fetchSlides(); // Revert on error
         }
@@ -126,7 +124,6 @@ const HeroManager = () => {
             closeModal();
             fetchSlides();
         } catch (error) {
-            console.error('Error saving slide:', error);
             toast.error('Error saving slide');
         }
     };
@@ -144,7 +141,6 @@ const HeroManager = () => {
             toast.success('Slide deleted');
             fetchSlides();
         } catch (error) {
-            console.error('Error deleting slide:', error);
             toast.error('Error deleting slide');
         }
     };

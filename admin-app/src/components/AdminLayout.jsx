@@ -13,16 +13,25 @@ import {
     Activity,
     Star,
     FileText,
-    Users,
+    Package,
+    PauseCircle,
     Plane,
-    Mail,
+    PlayCircle,
+    Plus,
+    RefreshCw,
     Search,
     Settings,
-    LogOut,
     Shield,
-    ExternalLink,
+    ShieldAlert,
+    TrendingUp,
+    Trash2,
+    Users,
+    X,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    LogOut,
+    ExternalLink,
+    Mail
 } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 

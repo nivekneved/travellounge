@@ -74,8 +74,8 @@ const PackageBuilder = () => {
     };
 
     return (
-        <div className="bg-white min-h-screen pt-32 pb-20">
-            <div className="w-full px-4 md:px-8">
+        <div className="bg-white min-h-screen pb-20">
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
                 <div className="text-center mb-16">
                     <div className="flex items-center justify-center gap-2 mb-4">
                         <Sparkles className="text-primary" size={24} />

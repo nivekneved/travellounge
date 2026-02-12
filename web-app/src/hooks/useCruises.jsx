@@ -30,7 +30,6 @@ export const useCruises = (categoryFilter = null) => {
                     category: c.category
                 })));
             } catch (err) {
-                console.error('[useCruises]', err);
                 setError(err.message);
             } finally {
                 setLoading(false);
