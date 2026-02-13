@@ -162,7 +162,7 @@ const ServiceDetails = () => {
 
             {/* Back Button - Arrow Removed */}
             <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 mb-4">
-                <Link to="/" className="text-sm font-bold text-gray-500 hover:text-primary transition-colors uppercase tracking-wider">
+                <Link to="/" className="text-[10px] font-black text-gray-400 hover:text-primary transition-all uppercase tracking-[0.2em]">
                     Back to search
                 </Link>
             </div>
@@ -194,9 +194,9 @@ const ServiceDetails = () => {
                         </div>
 
                         {/* Details Section */}
-                        <div className="mt-8 bg-white rounded-3xl p-6 shadow-md">
-                            <div className="flex flex-wrap items-center gap-4 mb-4">
-                                <h1 className="text-3xl font-bold text-gray-900">{name}</h1>
+                        <div className="mt-8 bg-white rounded-3xl p-10 shadow-sm border border-gray-100">
+                            <div className="flex flex-wrap items-center gap-4 mb-6">
+                                <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tight leading-none">{name}</h1>
                                 <div className="flex items-center gap-1 ml-auto text-orange-500">
                                     <Star size={20} fill="currentColor" />
                                     <span className="font-semibold">4.8</span>
@@ -213,17 +213,19 @@ const ServiceDetails = () => {
                             {/* Highlights Section */}
                             {highlights && highlights.length > 0 && (
                                 <div className="mb-10 bg-gray-50/50 p-8 rounded-[32px] border border-gray-100">
-                                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight flex items-center gap-3 italic">
-                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                            <Zap size={18} fill="currentColor" />
+                                    <h3 className="text-xs font-black text-primary mb-6 uppercase tracking-[0.3em] flex items-center gap-3">
+                                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                                            <Zap size={14} fill="currentColor" />
                                         </div>
-                                        Key <span className="text-primary">Highlights</span>
+                                        Key Highlights
                                     </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                         {highlights.map((high, idx) => (
-                                            <div key={idx} className="flex items-center gap-3 text-gray-700 bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
-                                                <div className="w-2 h-2 rounded-full bg-primary" />
-                                                <span className="font-bold text-sm tracking-tight">{high}</span>
+                                            <div key={idx} className="flex flex-col gap-3 group">
+                                                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center text-primary shadow-sm border border-gray-100 group-hover:border-primary/30 transition-all">
+                                                    <Star size={18} fill="currentColor" opacity={0.2} />
+                                                </div>
+                                                <span className="font-bold text-[11px] leading-tight text-gray-900 tracking-tight uppercase">{high}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -232,12 +234,12 @@ const ServiceDetails = () => {
 
                             {/* Ship Info Section (Cruise Only) */}
                             {isCruise && features && features.length > 0 && (
-                                <div className="mb-10 pt-8 border-t border-gray-100">
-                                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight flex items-center gap-3 italic">
-                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                            <Ship size={18} />
+                                <div className="mb-12 pt-10 border-t border-gray-100">
+                                    <h3 className="text-xs font-black text-primary mb-6 uppercase tracking-[0.3em] flex items-center gap-3">
+                                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                                            <Ship size={14} />
                                         </div>
-                                        The <span className="text-primary">Ship</span> Amenities
+                                        The Ship Amenities
                                     </h3>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                         {features.map((feature, idx) => {
@@ -258,12 +260,12 @@ const ServiceDetails = () => {
 
                             {/* Cabin Selection Section (Cruise Only) */}
                             {isCruise && cabins && cabins.length > 0 && (
-                                <div className="mb-10 pt-8 border-t border-gray-100">
-                                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight flex items-center gap-3 italic">
-                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                            <Compass size={18} />
+                                <div className="mb-12 pt-10 border-t border-gray-100">
+                                    <h3 className="text-xs font-black text-primary mb-6 uppercase tracking-[0.3em] flex items-center gap-3">
+                                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                                            <Compass size={14} />
                                         </div>
-                                        Select Your <span className="text-primary">Cabin</span>
+                                        Select Your Cabin
                                     </h3>
                                     <div className="space-y-4">
                                         {cabins.map((cabin) => (
@@ -277,8 +279,8 @@ const ServiceDetails = () => {
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="flex justify-between items-start mb-2">
-                                                        <h4 className="text-lg font-black italic uppercase tracking-tight">{cabin.name}</h4>
-                                                        <span className="text-primary font-black">Rs {cabin.price_per_night.toLocaleString()}</span>
+                                                        <h4 className="text-sm font-black uppercase tracking-widest text-gray-900">{cabin.name}</h4>
+                                                        <span className="text-primary font-black text-sm">Rs {cabin.price_per_night.toLocaleString()}</span>
                                                     </div>
                                                     <div className="flex flex-wrap gap-2 mb-3">
                                                         {(cabin.features || []).slice(0, 3).map((f, i) => (
@@ -298,15 +300,17 @@ const ServiceDetails = () => {
 
                             {/* Standard Features (Non-Cruise) */}
                             {!isCruise && (
-                                <div className="mb-8">
-                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Features</h3>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div className="mb-12 border-t border-gray-100 pt-10">
+                                    <h3 className="text-[10px] font-black text-primary mb-6 uppercase tracking-[0.3em] flex items-center gap-3">
+                                        Features
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                                         {features.map((feature, idx) => (
-                                            <div key={idx} className="flex items-center gap-2 text-gray-700">
-                                                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                                    <Star size={12} fill="currentColor" />
+                                            <div key={idx} className="flex items-center gap-3 text-gray-600 group">
+                                                <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center text-primary group-hover:bg-primary/5 transition-colors">
+                                                    <Star size={14} fill="currentColor" opacity={0.2} />
                                                 </div>
-                                                <span>{feature}</span>
+                                                <span className="text-xs font-bold uppercase tracking-tight">{feature}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -314,9 +318,11 @@ const ServiceDetails = () => {
                             )}
 
                             {/* Inclusions/Exclusions */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12 py-10 border-t border-gray-100">
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900 mb-3">What's Included</h3>
+                                    <h3 className="text-[10px] font-black text-primary mb-6 uppercase tracking-[0.3em] flex items-center gap-2">
+                                        Included
+                                    </h3>
                                     <ul className="space-y-2">
                                         {inclusions.map((item, idx) => (
                                             <li key={idx} className="flex items-start gap-2 text-gray-700">
@@ -328,7 +334,9 @@ const ServiceDetails = () => {
                                 </div>
 
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900 mb-3">What's Not Included</h3>
+                                    <h3 className="text-[10px] font-black text-primary mb-6 uppercase tracking-[0.3em] flex items-center gap-2">
+                                        Not Included
+                                    </h3>
                                     <ul className="space-y-2">
                                         {exclusions.map((item, idx) => (
                                             <li key={idx} className="flex items-start gap-2 text-gray-700">
@@ -342,12 +350,12 @@ const ServiceDetails = () => {
 
                             {/* Itinerary Vertical Timeline */}
                             {itinerary && itinerary.length > 0 && (
-                                <div className="mb-8 border-t border-gray-100 pt-8">
-                                    <h3 className="text-xl font-black text-gray-900 mb-8 uppercase tracking-tight flex items-center gap-3 italic">
-                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                                            <Calendar size={18} />
+                                <div className="mb-12 border-t border-gray-100 pt-10">
+                                    <h3 className="text-xs font-black text-primary mb-8 uppercase tracking-[0.3em] flex items-center gap-3">
+                                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                                            <Calendar size={14} />
                                         </div>
-                                        Daily <span className="text-primary">Itinerary</span>
+                                        Daily Itinerary
                                     </h3>
                                     <div className="relative pl-8 space-y-12 before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-primary before:to-gray-100">
                                         {itinerary.map((day, index) => (
@@ -358,7 +366,7 @@ const ServiceDetails = () => {
                                                 </div>
 
                                                 <div className="bg-white group">
-                                                    <h4 className="text-xl font-black text-gray-900 mb-2 italic group-hover:text-primary transition-colors">
+                                                    <h4 className="text-sm font-black text-gray-900 mb-2 uppercase tracking-tight group-hover:text-primary transition-colors">
                                                         {day.title}
                                                     </h4>
                                                     <p className="text-gray-500 text-sm leading-relaxed font-medium">

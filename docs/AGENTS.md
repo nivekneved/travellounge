@@ -46,3 +46,22 @@
 - `scripts/enrichAllServices.js`
 - `docs/AGENTS.md`
 - **Hotfix**: Resolved `ReferenceError: Zap is not defined` in `ServiceDetails.jsx` by adding missing import.
+
+## [2026-02-13] - Phase 6: Aesthetic Refinement
+
+**Status**: Completed & Pushed
+
+### Changes Implemented
+
+- **Typography**: Complete removal of italics from `ServiceDetails.jsx`.
+- **UI Redesign**:
+  - Highlights converted to a modern 4-column icon grid.
+  - Headers standardized to minimalist uppercase with high tracking ($tracking-[0.3em]$).
+  - Spacing increased ($pb-12$, $pt-10$) for a more breathable, premium layout.
+  - Simplified Cabin selection cards for better alignment.
+- **Alignment**: Unified content width and padding across all sections (p-10 container).
+
+### Modified Files
+
+- `web-app/src/pages/ServiceDetails.jsx`
+- `docs/AGENTS.md`
