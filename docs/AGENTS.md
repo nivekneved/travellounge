@@ -45,3 +45,4 @@
 - `scripts/addCruiseCabins.js` (New)
 - `scripts/enrichAllServices.js`
 - `docs/AGENTS.md`
+- **Hotfix**: Resolved `ReferenceError: Zap is not defined` in `ServiceDetails.jsx` by adding missing import.

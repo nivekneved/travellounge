@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
-import { MapPin, Star, Calendar, Users, Heart, Share2, ArrowLeft, Wifi, Tv, Coffee, Wind, Utensils, Waves, Car, Dumbbell, Trees, Activity, X, Ship, Music, Wine, Compass } from 'lucide-react';
+import { MapPin, Star, Calendar, Users, Heart, Share2, ArrowLeft, Wifi, Tv, Coffee, Wind, Utensils, Waves, Car, Dumbbell, Trees, Activity, X, Ship, Music, Wine, Compass, Zap } from 'lucide-react';
 import Button from '../components/Button';
 import Breadcrumb from '../components/Breadcrumb';
 import { useWishlist } from '../context/WishlistContext';
