@@ -20,7 +20,7 @@ const Activities = () => {
 
     const { activities, loading, error } = useActivities(initialCategory);
     const [viewMode, setViewMode] = useState('grid');
-    const [priceRange, setPriceRange] = useState([0, 10000]);
+    const [priceRange, setPriceRange] = useState([0, 500000]);
     const [filters, setFilters] = useState({
         location: [],
         category: initialCategory ? [initialCategory] : [],
@@ -35,7 +35,9 @@ const Activities = () => {
 
     const filteredActivities = useMemo(() => {
         const filtered = activities.filter(activity => {
-            const price = parseInt(activity.price.replace(/,/g, ''));
+            const price = typeof activity.price === 'string' ?
+                parseInt(activity.price.replace(/,/g, '')) :
+                (typeof activity.price === 'number' ? activity.price : 0);
             const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
 
             const matchesLocation = filters.location.length === 0 || filters.location.includes(activity.location);

@@ -17,7 +17,7 @@ import ErrorMessage from '../components/ErrorMessage';
 const HotelDayPackages = () => {
     const { packages: dayPackages, loading, error } = useDayPackages();
     const [viewMode, setViewMode] = useState('grid');
-    const [priceRange, setPriceRange] = useState([0, 10000]);
+    const [priceRange, setPriceRange] = useState([0, 500000]);
     const [filters, setFilters] = useState({
         location: [],
         category: [],
@@ -34,7 +34,9 @@ const HotelDayPackages = () => {
     // Filter logic
     const filteredPackages = useMemo(() => {
         const filtered = dayPackages.filter(pkg => {
-            const price = parseInt(pkg.price.replace(/,/g, ''));
+            const price = typeof pkg.price === 'string' ?
+                parseInt(pkg.price.replace(/,/g, '')) :
+                (typeof pkg.price === 'number' ? pkg.price : 0);
             const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
 
             const matchesLocation = filters.location.length === 0 || filters.location.includes(pkg.location);

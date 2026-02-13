@@ -16,7 +16,7 @@ import Pagination from '../components/Pagination';
 const Cruises = () => {
     const { cruises: cruisePackages, loading, error } = useCruises();
     const [viewMode, setViewMode] = useState('grid');
-    const [priceRange, setPriceRange] = useState([0, 250000]);
+    const [priceRange, setPriceRange] = useState([0, 500000]);
     const [filters, setFilters] = useState({
         location: [],
         rating: [],
@@ -29,7 +29,9 @@ const Cruises = () => {
 
     const filteredCruises = useMemo(() => {
         const filtered = cruisePackages.filter(cruise => {
-            const price = parseInt(cruise.price.replace(/,/g, ''));
+            const price = typeof cruise.price === 'string' ?
+                parseInt(cruise.price.replace(/,/g, '')) :
+                (typeof cruise.price === 'number' ? cruise.price : 0);
             const matchesPrice = price >= priceRange[0] && price <= priceRange[1];
 
             const matchesLocation = filters.location.length === 0 || filters.location.includes(cruise.category);
