@@ -46,12 +46,15 @@ const HotelDayPackages = () => {
         });
         setCurrentPage(1); // Reset to first page on filter change
         return filtered;
-    }, [filters, priceRange]);
+    }, [dayPackages, filters, priceRange]);
 
     const paginatedPackages = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         return filteredPackages.slice(startIndex, startIndex + itemsPerPage);
     }, [filteredPackages, currentPage]);
+
+    if (loading) return <LoadingSpinner message="Loading day packages..." />;
+    if (error) return <ErrorMessage error={error} title="Failed to load packages" />;
 
     return (
         <div className="bg-white min-h-screen">

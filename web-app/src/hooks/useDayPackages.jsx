@@ -9,8 +9,8 @@ export const useDayPackages = (locationFilter = null) => {
     useEffect(() => {
         const fetchPackages = async () => {
             try {
-                // Fetch where category is 'Day Package' or type is 'day-package'
-                let query = supabase.from('services').select('*').or('category.eq.Day Package,type.eq.day-package');
+                // Fetch where category is 'Day Package' or 'Day Packages' or type is 'day-package'
+                let query = supabase.from('services').select('*').or('category.eq.Day Package,category.eq.Day Packages,type.eq.day-package');
 
                 if (locationFilter) {
                     query = query.ilike('location', `%${locationFilter}%`);
