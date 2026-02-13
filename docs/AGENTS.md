@@ -82,3 +82,19 @@
 - `web-app/src/hooks/useDayPackages.jsx`
 - `web-app/src/pages/HotelDayPackages.jsx`
 - `docs/AGENTS.md`
+
+## [2026-02-13] - Phase 8: Guided Group Tours Data Fix
+
+**Status**: Completed & Pushed
+
+### Changes Implemented
+
+- **Hook Refinement**: Updated `useGroupTours.jsx` to use an `or` query for both category and type.
+- **Frontend Bug Fix**: Added missing `tours` dependency to `filteredTours` `useMemo` in `GroupTours.jsx`.
+- **UX Improvement**: Added `LoadingSpinner` and `ErrorMessage` components to the group tours listing.
+
+### Modified Files
+
+- `web-app/src/hooks/useGroupTours.jsx`
+- `web-app/src/pages/GroupTours.jsx`
+- `docs/AGENTS.md`

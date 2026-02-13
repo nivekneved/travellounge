@@ -40,12 +40,15 @@ const GroupTours = () => {
         });
         setCurrentPage(1); // Reset to first page on filter change
         return filtered;
-    }, [filters, priceRange]);
+    }, [tours, filters, priceRange]);
 
     const paginatedTours = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         return filteredTours.slice(startIndex, startIndex + itemsPerPage);
     }, [filteredTours, currentPage]);
+
+    if (loading) return <LoadingSpinner message="Loading inspired journeys..." />;
+    if (error) return <ErrorMessage error={error} title="Failed to load tours" />;
 
     return (
         <div className="bg-white min-h-screen pb-20">

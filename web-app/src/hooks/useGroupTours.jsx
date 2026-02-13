@@ -10,8 +10,7 @@ export const useGroupTours = (categoryFilter = null) => {
         const fetchTours = async () => {
             try {
                 // Fetch where category is 'Group Tours' or type is 'group-tour'
-                // Based on seed, the category name is 'Group Tours'
-                let query = supabase.from('services').select('*').eq('category', 'Group Tours');
+                let query = supabase.from('services').select('*').or('category.eq.Group Tours,type.eq.group-tour');
 
                 const { data, error } = await query;
                 if (error) throw error;
