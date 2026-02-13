@@ -119,16 +119,46 @@ export default function ProductDetailsScreen({ route, navigation }) {
                     {product?.itinerary && product.itinerary.length > 0 && (
                         <View className="mb-10">
                             <Text className="text-2xl font-black italic mb-6">Daily <Text className="text-primary">Itinerary</Text></Text>
-                            <View className="relative border-l-2 border-gray-200 ml-4 pl-8 space-y-8">
+                            <View className="relative border-l-2 border-gray-200 ml-4 pl-8">
                                 {product.itinerary.map((day, index) => (
-                                    <View key={index} className="relative">
+                                    <View key={index} className="relative mb-8">
                                         <View className="absolute -left-[45px] top-0 bg-primary w-8 h-8 rounded-full items-center justify-center border-4 border-white shadow-sm">
-                                            <Text className="text-white font-black text-xs">{day.day}</Text>
+                                            <Text className="text-white font-black text-[10px]">{day.day}</Text>
                                         </View>
                                         <View className="bg-gray-50 p-5 rounded-3xl border border-gray-100">
-                                            <Text className="text-lg font-bold text-gray-900 mb-2">{day.title}</Text>
-                                            <Text className="text-gray-500 leading-6 mb-4">{day.description}</Text>
+                                            <Text className="text-lg font-bold text-gray-900 mb-1 italic">{day.title}</Text>
+                                            <Text className="text-gray-500 leading-6 font-medium text-sm">{day.description}</Text>
                                         </View>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                    )}
+
+                    {product?.highlights && product.highlights.length > 0 && (
+                        <View className="mb-10">
+                            <Text className="text-2xl font-black italic mb-6">Trip <Text className="text-primary">Highlights</Text></Text>
+                            <View className="flex-row flex-wrap gap-2">
+                                {product.highlights.map((high, idx) => (
+                                    <View key={idx} className="bg-primary/5 px-4 py-3 rounded-2xl border border-primary/10 flex-row items-center gap-2">
+                                        <View className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                        <Text className="text-gray-900 font-bold text-sm">{high}</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                    )}
+
+                    {product?.inclusions && product.inclusions.length > 0 && (
+                        <View className="mb-10">
+                            <Text className="text-2xl font-black italic mb-6">What's <Text className="text-primary">Included</Text></Text>
+                            <View className="bg-green-50/50 p-6 rounded-[32px] border border-green-100">
+                                {product.inclusions.map((inc, idx) => (
+                                    <View key={idx} className="flex-row items-center gap-3 mb-4 last:mb-0">
+                                        <View className="bg-green-500 rounded-full p-1">
+                                            <Text className="text-white text-[8px] font-black">✓</Text>
+                                        </View>
+                                        <Text className="text-gray-700 font-bold text-sm tracking-tight">{inc}</Text>
                                     </View>
                                 ))}
                             </View>

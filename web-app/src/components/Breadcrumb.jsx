@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, ChevronRight, Ship, Plane, Hotel, Users, MapPin, Calendar, FileText, Zap, Info } from 'lucide-react';
 
-const Breadcrumb = () => {
+const Breadcrumb = ({ actions }) => {
     const location = useLocation();
     const pathnames = location.pathname.split('/').filter(x => x);
 
@@ -40,7 +40,7 @@ const Breadcrumb = () => {
     if (pathnames.length === 0) return null;
 
     return (
-        <nav aria-label="Breadcrumb" className="w-full max-w-[1400px] mx-auto px-4 md:px-8 py-4">
+        <nav aria-label="Breadcrumb" className="w-full max-w-[1400px] mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
             <ol className="flex items-center gap-2 text-sm flex-wrap">
                 {/* Home */}
                 <li className="flex items-center gap-2">
@@ -65,7 +65,7 @@ const Breadcrumb = () => {
                     return (
                         <li key={to} className="flex items-center gap-2">
                             {isLast ? (
-                                <span className="flex items-center gap-1.5 text-primary font-bold" aria-current="page">
+                                <span className="flex items-center gap-1.5 text-primary font-extrabold" aria-current="page">
                                     {Icon && <Icon size={16} />}
                                     <span>{label}</span>
                                 </span>
@@ -85,6 +85,13 @@ const Breadcrumb = () => {
                     );
                 })}
             </ol>
+
+            {/* Actions (Wishlist/Share) */}
+            {actions && (
+                <div className="flex items-center gap-3">
+                    {actions}
+                </div>
+            )}
         </nav>
     );
 };

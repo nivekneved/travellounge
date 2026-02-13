@@ -210,6 +210,8 @@ CREATE TABLE IF NOT EXISTS services (
   ports TEXT, -- For cruises
   highlights JSONB,
   amenities JSONB,
+  itinerary JSONB DEFAULT '[]',
+  inclusions JSONB DEFAULT '[]',
   rating NUMERIC,
   star_rating INTEGER,
   created_at TIMESTAMP DEFAULT NOW(),
@@ -231,6 +233,8 @@ BEGIN
     ALTER TABLE services ADD COLUMN IF NOT EXISTS ports TEXT;
     ALTER TABLE services ADD COLUMN IF NOT EXISTS highlights JSONB;
     ALTER TABLE services ADD COLUMN IF NOT EXISTS amenities JSONB;
+    ALTER TABLE services ADD COLUMN IF NOT EXISTS itinerary JSONB DEFAULT '[]';
+    ALTER TABLE services ADD COLUMN IF NOT EXISTS inclusions JSONB DEFAULT '[]';
     ALTER TABLE services ADD COLUMN IF NOT EXISTS rating NUMERIC;
     ALTER TABLE services ADD COLUMN IF NOT EXISTS star_rating INTEGER;
     ALTER TABLE services ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
@@ -248,6 +252,9 @@ CREATE TABLE IF NOT EXISTS hotel_rooms (
   price_per_night DECIMAL(10, 2),
   image_url TEXT,
   features JSONB,
+  policies JSONB DEFAULT '[]',
+  cancellation_policy TEXT,
+  deposit_policy TEXT,
   type VARCHAR(50),
   total_units INTEGER DEFAULT 1,
   created_at TIMESTAMP DEFAULT NOW(),

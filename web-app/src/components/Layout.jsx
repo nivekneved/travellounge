@@ -7,6 +7,7 @@ import {
 import Button from './Button';
 import QuickActions from './QuickActions';
 import Breadcrumb from './Breadcrumb';
+import BackToTop from './BackToTop';
 import { useWishlist } from '../context/WishlistContext';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
@@ -339,14 +340,17 @@ const Layout = ({ children }) => {
             )}
 
             <main className={`flex-grow ${!isHomePage ? 'pt-24 md:pt-32' : ''}`}>
-                {/* Breadcrumb Navigation */}
-                <Breadcrumb />
+                {/* Breadcrumb Navigation - Hidden on detail pages to allow custom breadcrumbs with actions */}
+                {!isHomePage && !location.pathname.includes('/services/') && <Breadcrumb />}
 
                 {children}
             </main>
 
             {/* Quick Actions Floating Buttons */}
             <QuickActions />
+
+            {/* Back to Top Button */}
+            <BackToTop />
 
 
             {/* Footer - LIGHT GREY BACKGROUND */}

@@ -102,8 +102,8 @@ INSERT INTO menus (title, location, items) VALUES
         "label": "Local Deals",
         "link": "#",
         "children": [
-            {"label": "Land Activities", "link": "/activities?category=land"},
-            {"label": "Sea Activities", "link": "/activities?category=sea"},
+            {"label": "Land Activities", "link": "/activities?category=Land Activities"},
+            {"label": "Sea Activities", "link": "/activities?category=Sea Activities"},
             {"label": "Hotel Day Packages", "link": "/day-packages", "icon": "Calendar"}
         ]
     },

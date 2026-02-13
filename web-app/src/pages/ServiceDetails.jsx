@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
 import { MapPin, Star, Calendar, Users, Heart, Share2, ArrowLeft, Wifi, Tv, Coffee, Wind, Utensils, Waves, Car, Dumbbell, Trees, Activity, X } from 'lucide-react';
 import Button from '../components/Button';
+import Breadcrumb from '../components/Breadcrumb';
 import { useWishlist } from '../context/WishlistContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
@@ -87,6 +88,7 @@ const ServiceDetails = () => {
         features = [],
         inclusions = [],
         exclusions = [],
+        highlights = [],
         itinerary = []
     } = product;
 
@@ -125,28 +127,31 @@ const ServiceDetails = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            <div className="bg-white shadow-sm sticky top-0 z-10">
-                <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between">
-                    <Link to="/" className="flex items-center gap-2 text-gray-700 hover:text-primary transition-colors">
-                        <ArrowLeft size={20} />
-                        <span>Back to search</span>
-                    </Link>
-                    <div className="flex items-center gap-3">
+            {/* Breadcrumb with Actions */}
+            <Breadcrumb
+                actions={
+                    <>
                         <button
                             onClick={() => toggleWishlist(product)}
-                            className={`p-3 rounded-full ${isWishlisted ? 'bg-primary text-white' : 'bg-white text-gray-700'} shadow-md`}
+                            className={`p-2.5 rounded-full transition-all duration-300 ${isWishlisted ? 'bg-primary text-white shadow-lg' : 'bg-white text-gray-600 hover:text-primary border border-gray-100 shadow-sm'}`}
                         >
-                            <Heart size={20} fill={isWishlisted ? 'currentColor' : 'none'} />
+                            <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
                         </button>
-                        <button 
+                        <button
                             onClick={handleShare}
-                            className="p-3 rounded-full bg-white text-gray-700 shadow-md hover:bg-gray-50 transition-colors"
+                            className="p-2.5 rounded-full bg-white text-gray-600 hover:text-primary border border-gray-100 shadow-sm transition-all duration-300"
                         >
-                            <Share2 size={20} />
+                            <Share2 size={18} />
                         </button>
-                    </div>
-                </div>
+                    </>
+                }
+            />
+
+            {/* Back Button - Arrow Removed */}
+            <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 mb-4">
+                <Link to="/" className="text-sm font-bold text-gray-500 hover:text-primary transition-colors uppercase tracking-wider">
+                    Back to search
+                </Link>
             </div>
 
             {/* Main Content */}
@@ -192,6 +197,26 @@ const ServiceDetails = () => {
 
                             <p className="text-gray-700 leading-relaxed mb-8">{description}</p>
 
+                            {/* Highlights Section */}
+                            {highlights && highlights.length > 0 && (
+                                <div className="mb-10 bg-gray-50/50 p-8 rounded-[32px] border border-gray-100">
+                                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight flex items-center gap-3 italic">
+                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                            <Zap size={18} fill="currentColor" />
+                                        </div>
+                                        Key <span className="text-primary">Highlights</span>
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {highlights.map((high, idx) => (
+                                            <div key={idx} className="flex items-center gap-3 text-gray-700 bg-white p-4 rounded-2xl shadow-sm border border-gray-50">
+                                                <div className="w-2 h-2 rounded-full bg-primary" />
+                                                <span className="font-bold text-sm tracking-tight">{high}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Features */}
                             <div className="mb-8">
                                 <h3 className="text-xl font-bold text-gray-900 mb-4">Features</h3>
@@ -234,29 +259,30 @@ const ServiceDetails = () => {
                                 </div>
                             </div>
 
-                            {/* Itinerary */}
+                            {/* Itinerary Vertical Timeline */}
                             {itinerary && itinerary.length > 0 && (
                                 <div className="mb-8 border-t border-gray-100 pt-8">
-                                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight flex items-center gap-3">
+                                    <h3 className="text-xl font-black text-gray-900 mb-8 uppercase tracking-tight flex items-center gap-3 italic">
                                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
                                             <Calendar size={18} />
                                         </div>
-                                        Daily Itinerary
+                                        Daily <span className="text-primary">Itinerary</span>
                                     </h3>
-                                    <div className="space-y-4">
+                                    <div className="relative pl-8 space-y-12 before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-primary before:to-gray-100">
                                         {itinerary.map((day, index) => (
-                                            <div
-                                                key={index}
-                                                className="bg-gray-50 rounded-2xl p-6 border border-gray-100 hover:border-primary/20 transition-all"
-                                            >
-                                                <div className="flex items-start gap-6">
-                                                    <div className="flex-shrink-0 w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center font-black text-lg border border-primary/20">
-                                                        {day.day}
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <h4 className="text-lg font-bold text-gray-900 mb-1">{day.port || day.title}</h4>
-                                                        <p className="text-gray-600 text-sm leading-relaxed">{day.activities || day.description}</p>
-                                                    </div>
+                                            <div key={index} className="relative">
+                                                {/* Timeline Marker */}
+                                                <div className="absolute -left-[31px] top-0 w-8 h-8 bg-white border-4 border-primary rounded-full z-10 shadow-sm flex items-center justify-center">
+                                                    <span className="text-[10px] font-black text-primary">{day.day}</span>
+                                                </div>
+
+                                                <div className="bg-white group">
+                                                    <h4 className="text-xl font-black text-gray-900 mb-2 italic group-hover:text-primary transition-colors">
+                                                        {day.title}
+                                                    </h4>
+                                                    <p className="text-gray-500 text-sm leading-relaxed font-medium">
+                                                        {day.description}
+                                                    </p>
                                                 </div>
                                             </div>
                                         ))}

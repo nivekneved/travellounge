@@ -7,12 +7,12 @@ import Button from './Button';
 const STATIC_SLIDES = [
     {
         id: 1,
-        image_url: "https://images.unsplash.com/photo-1563911302283-d2bc129e7570?q=80&w=1920&auto=format&fit=crop",
-        subtitle: "YOUR TRUSTED HOLIDAY PARTNER",
-        title: "Visit Bangkok",
-        description: "Experience the vibrant energy, stunning nightlife, and world-class street food of Thailand's capital.",
-        cta_text: "Explore Bangkok",
-        cta_link: "/search?search=Bangkok"
+        image_url: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1920&auto=format&fit=crop",
+        subtitle: "YOUR PREMIUM ISLAND GATEWAY",
+        title: "Mauritius Awaits",
+        description: "Discover the ultimate tropical paradise with bespoke experiences curated for the discerning traveler.",
+        cta_text: "Discover Mauritius",
+        cta_link: "/search?category=Sea%20Activities"
     },
     {
         id: 2,

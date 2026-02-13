@@ -43,7 +43,8 @@ const ProductManager = () => {
         itinerary: [],
         features: [],
         inclusions: [],
-        exclusions: []
+        exclusions: [],
+        highlights: []
     });
 
     useEffect(() => {
@@ -419,7 +420,7 @@ const ProductManager = () => {
             ...prev,
             itinerary: [
                 ...(prev.itinerary || []),
-                { day: (prev.itinerary?.length || 0) + 1, title: '', description: '', activities: [] }
+                { day: (prev.itinerary?.length || 0) + 1, title: '', description: '' }
             ]
         }));
     };
@@ -459,7 +460,8 @@ const ProductManager = () => {
                             itinerary: [],
                             features: [],
                             inclusions: [],
-                            exclusions: []
+                            exclusions: [],
+                            highlights: []
                         });
                         setShowModal(true);
                     }}
@@ -619,10 +621,10 @@ const ProductManager = () => {
                                                 </div>
                                                 <input
                                                     type="text"
-                                                    placeholder="Location/Title"
+                                                    placeholder="Title"
                                                     className="w-full px-4 py-3 rounded-xl border border-gray-100 font-bold text-sm focus:bg-gray-50 outline-none"
-                                                    value={day.location || day.title}
-                                                    onChange={e => updateItineraryDay(idx, 'location', e.target.value)}
+                                                    value={day.title}
+                                                    onChange={e => updateItineraryDay(idx, 'title', e.target.value)}
                                                 />
                                                 <textarea
                                                     placeholder="Description"
@@ -636,7 +638,7 @@ const ProductManager = () => {
                                 </div>
 
                                 {/* Features, Inclusions, Exclusions */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                     {/* Features */}
                                     <div className="bg-gray-50 p-6 rounded-[32px] border border-gray-100">
                                         <div className="flex justify-between items-center mb-4">
@@ -747,6 +749,46 @@ const ProductManager = () => {
                                                         onClick={() => {
                                                             const newExcs = formData.exclusions.filter((_, idx) => idx !== i);
                                                             setFormData({ ...formData, exclusions: newExcs });
+                                                        }}
+                                                        className="p-2 text-gray-300 hover:text-red-500 transition-colors"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Highlights */}
+                                    <div className="bg-gray-50 p-6 rounded-[32px] border border-gray-100">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <h3 className="text-sm font-black italic">Highlights</h3>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(p => ({ ...p, highlights: [...(p.highlights || []), ''] }))}
+                                                className="p-2 bg-white border border-gray-200 rounded-lg text-primary hover:bg-primary hover:text-white transition-all"
+                                            >
+                                                <Plus size={14} />
+                                            </button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            {(formData.highlights || []).map((high, i) => (
+                                                <div key={i} className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        className="flex-1 px-3 py-2 rounded-xl border border-gray-100 text-xs font-bold focus:bg-white outline-none transition-all"
+                                                        value={high}
+                                                        onChange={e => {
+                                                            const newHighs = [...formData.highlights];
+                                                            newHighs[i] = e.target.value;
+                                                            setFormData({ ...formData, highlights: newHighs });
+                                                        }}
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const newHighs = formData.highlights.filter((_, idx) => idx !== i);
+                                                            setFormData({ ...formData, highlights: newHighs });
                                                         }}
                                                         className="p-2 text-gray-300 hover:text-red-500 transition-colors"
                                                     >

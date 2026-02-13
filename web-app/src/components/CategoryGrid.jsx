@@ -47,7 +47,7 @@ const CategoryGrid = () => {
                 <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {[1, 2, 3, 4, 5, 6].map(i => (
-                            <div key={i} className="h-[400px] bg-white rounded-3xl animate-pulse shadow-sm" />
+                            <div key={i} className="h-[300px] bg-white rounded-3xl animate-pulse shadow-sm" />
                         ))}
                     </div>
                 </div>
@@ -75,7 +75,7 @@ const CategoryGrid = () => {
                         return (
                             <div
                                 key={cat.id}
-                                className="group h-[450px] [perspective:1000px] rounded-[2.5rem] transform hover:-translate-y-4 transition-all duration-700"
+                                className="group h-[350px] [perspective:1000px] rounded-[2.5rem] transform hover:-translate-y-4 transition-all duration-700"
                                 style={{
                                     animation: `fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) ${index * 0.15}s both`
                                 }}

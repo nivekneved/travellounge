@@ -1,108 +1,100 @@
 const supabase = require('../backend/config/supabase');
 
 const enrichmentData = {
-    '3c69743b-b939-44f2-9b53-819f57456976': { // Full Day South Tour
-        inclusions: [
-            "Private Hotel Pickup & Drop-off",
-            "Professional Licensed Driver/Guide",
-            "Trou aux Cerfs Crater visit",
-            "Grand Bassin (Ganga Talao) tour",
-            "Black River Gorges entrance fee",
-            "Seven Coloured Earth entrance fees",
-            "Chamarel Waterfall visit"
-        ],
-        exclusions: [
-            "Lunch and drinks",
-            "Gratuities for the guide",
-            "Personal expenses"
-        ],
+    'Sunset Catamaran Cruise': {
         itinerary: [
-            { day: 1, title: "Southern Highlights", description: "Discover the natural wonders of Mauritius' South including Trou aux Cerfs, Grand Bassin, and the magical Chamarel.", activities: "9:00 AM Pickup. 10:00 AM Trou aux Cerfs Crater. 11:30 AM Grand Bassin Sacred Lake. 1:00 PM Black River Gorges view point. 2:00 PM Chamarel Seven Coloured Earth. 5:00 PM Return." }
+            { time: '16:00', activity: 'Boarding at Grand Baie' },
+            { time: '16:30', activity: 'Sailing along the north coast' },
+            { time: '17:30', activity: 'Sunset viewing with cocktails' },
+            { time: '18:30', activity: 'Return to Grand Baie' }
         ],
-        highlights: [
-            "Walk on the edge of a dormant volcano at Trou aux Cerfs",
-            "Experience the spiritual atmosphere of Grand Bassin",
-            "Witness the unique volcanic earth colors at Chamarel"
-        ]
+        inclusions: ['Snacks', 'Unlimited Drinks', 'Live Music', 'Expert Crew'],
+        highlights: ['Northern Lagoon Views', 'Spectacular Sunset', 'Premium Beverages']
     },
-    'a00e5789-b03c-4ef9-b797-3aa26d217ab5': { // Île aux Cerfs - Catamaran Cruise
-        inclusions: [
-            "Full day cruise on shared catamaran",
-            "BBQ Lunch on board (Fish, Chicken, Sausages, Pasta, Salads)",
-            "Unlimited alcoholic & non-alcoholic beverages",
-            "Visit to Grand River South East Waterfall",
-            "Snorkeling equipment",
-            "Motorboat transfer to Ile aux Cerfs"
-        ],
-        exclusions: [
-            "Parasailing and other water sports at Ile aux Cerfs",
-            "Personal tipping",
-            "Hotel transfers (can be added separately)"
-        ],
+    'Seven Coloured Earth Tour': {
         itinerary: [
-            { day: 1, title: "East Coast Sailing", description: "A day of sun, sea, and tropical relaxation on the East coast with a visit to the famous Ile aux Cerfs.", activities: "9:30 AM Boarding. 10:30 AM GRSE Waterfall visit. 11:30 AM Lagoon snorkeling. 1:00 PM BBQ Lunch on board. 2:30 PM Ile aux Cerfs free time. 4:30 PM Return." }
-        ]
+            { time: '09:00', activity: 'Pick up from hotel' },
+            { time: '10:30', activity: 'Visit Chamarel Seven Coloured Earth' },
+            { time: '11:30', activity: 'Chamarel Waterfall viewing' },
+            { time: '12:30', activity: 'Rum Distillery tour and tasting' },
+            { time: '14:30', activity: 'Drop off at hotel' }
+        ],
+        inclusions: ['Private Transport', 'Entrance Fees', 'Rum Tasting', 'Professional Guide'],
+        highlights: ['Natural Phenomenon', 'Highest Waterfall', 'Artisanal Rum']
     },
-    '218a2abd-e39f-41ee-b7eb-b014266083b3': { // Seven Coloured Earth Tour
-        inclusions: [
-            "Entrance tickets to Seven Coloured Earth Park",
-            "Visit to Chamarel Waterfall",
-            "Access to the Giant Tortoise park",
-            "Coffee shop and souvenir shop access"
-        ],
+    'Grand Baie Luxury Resort': {
         itinerary: [
-            { day: 1, title: "Chronicles of Chamarel", description: "Explore the geological phenomenon of the colored dunes and the highest waterfall in Mauritius.", activities: "Walk through the geopark, enjoy panoramic views of the waterfall, and witness the unique 7 colors of the earth." }
-        ]
+            { time: 'Check-in: 14:00', activity: 'Welcome drink and orientation' },
+            { time: 'Daily 08:00', activity: 'Yoga session on the beach' },
+            { time: 'Daily 19:00', activity: 'Themed dinner at the main restaurant' }
+        ],
+        inclusions: ['Daily Breakfast', 'Free WiFi', 'Non-motorized Water Sports', 'Kids Club Access'],
+        highlights: ['Beachfront Location', 'Award-winning Spa', 'Luxury Suites']
     },
-    '0f48e087-c62d-450b-99e0-7303cb9cb164': { // Sunset Catamaran Cruise
-        inclusions: [
-            "2-hour sunset cruise in Northern lagoon",
-            "Selection of snacks and finger foods",
-            "Complimentary drinks (Soft, Juice, Beer, Wine)",
-            "Ambient background music"
-        ],
+    'Catamaran Cruise to Ile aux Cerfs': {
         itinerary: [
-            { day: 1, title: "Golden Hour at Sea", description: "Sail along the pristine coastline of the North as the sun dips below the horizon in a spectacular display of colors.", activities: "5:00 PM Departure. Scenic cruise towards Coin de Mire. Sunset viewing with snacks and drinks. 7:00 PM Return." }
-        ]
-    },
-    'bcf49739-9131-48d7-ab0b-55c3e9f485db': { // Catamaran Cruise to Ile aux Cerfs
-        inclusions: [
-            "Catamaran excursion on the East Coast",
-            "BBQ Lunch & Drinks included",
-            "Visit to the Waterfall",
-            "Snorkeling at leisure"
+            { time: '09:00', activity: 'Departure from Trou d\'Eau Douce' },
+            { time: '10:30', activity: 'Snorkeling at Eau Bleue' },
+            { time: '12:30', activity: 'BBQ Lunch on board' },
+            { time: '14:00', activity: 'Leisure time at Ile aux Cerfs' },
+            { time: '16:00', activity: 'Return journey' }
         ],
-        itinerary: [
-            { day: 1, title: "Turquoise Lagoon Discovery", description: "Experience the ultimate catamaran trip to the jewel of the East, Ile aux Cerfs.", activities: "Morning boarding, waterfall visit, snorkeling in the lagoon, BBQ lunch, afternoon at leisure on the island." }
-        ]
+        inclusions: ['BBQ Lunch', 'Unlimited Beverages', 'Snorkeling Equipment', 'Hotel Transfer'],
+        highlights: ['Crystal Clear Lagoon', 'Seaside BBQ', 'Paradise Island']
     }
+    // Add more as needed...
 };
 
 const enrichServices = async () => {
     try {
-        console.log('Starting enrichment...');
-        for (const [id, data] of Object.entries(enrichmentData)) {
-            console.log(`Enriching service ID: ${id}`);
+        console.log('--- Enriching Existing Services ---');
+
+        for (const [name, data] of Object.entries(enrichmentData)) {
             const { error } = await supabase
                 .from('services')
                 .update({
-                    inclusions: data.inclusions || [],
-                    exclusions: data.exclusions || [],
-                    itinerary: data.itinerary || [],
-                    highlights: data.highlights || []
+                    itinerary: data.itinerary,
+                    inclusions: data.inclusions,
+                    highlights: data.highlights
                 })
-                .eq('id', id);
+                .eq('name', name);
 
             if (error) {
-                console.error(`Error updating service ${id}:`, error.message);
+                console.error(`Error enriching ${name}:`, error.message);
             } else {
-                console.log(`Successfully enriched service ${id}`);
+                console.log(`Successfully enriched: ${name}`);
             }
         }
-        console.log('Enrichment complete.');
+
+        console.log('\n--- Enriching Hotel Room Policies ---');
+        // Standard policy for all hotel rooms as a base
+        const standardPolicies = [
+            'No smoking in rooms',
+            'Check-out time: 11:00 AM',
+            'No pets allowed',
+            'Quiet hours after 10:00 PM'
+        ];
+        const cancellationPolicy = 'Full refund if cancelled 48 hours before arrival. 50% refund after that.';
+        const deposit_policy = 'A 20% deposit is required at the time of booking.';
+
+        const { error: roomError } = await supabase
+            .from('hotel_rooms')
+            .update({
+                policies: standardPolicies,
+                cancellation_policy: cancellationPolicy,
+                deposit_policy: deposit_policy
+            })
+            .not('id', 'is', null); // Update all
+
+        if (roomError) {
+            console.error('Error enriching hotel rooms:', roomError.message);
+        } else {
+            console.log('Successfully enriched all hotel rooms with policies.');
+        }
+
         process.exit(0);
     } catch (err) {
-        console.error('Fatal Error:', err.message);
+        console.error('Enrichment failed:', err.message);
         process.exit(1);
     }
 };
