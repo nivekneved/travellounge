@@ -98,3 +98,18 @@
 - `web-app/src/hooks/useGroupTours.jsx`
 - `web-app/src/pages/GroupTours.jsx`
 - `docs/AGENTS.md`
+
+## [2026-02-13] - Phase 10: Guided Group Tours Itinerary Enrichment
+
+**Status**: Completed & Pushed
+
+### Changes Implemented
+
+- **Data Enrichment**: Populated `itinerary` column for Guided Group Tours with high-quality, 5-6 day travel plans.
+- **Structural Standardization**: Formatted data to `{ day, title, description }` for vertical timeline compatibility.
+- **Content Quality**: Improved highlights and inclusions for "Magical Morocco", "South Africa", and "Classic India".
+
+### Modified Files
+
+- `scripts/enrichGroupTours.js` (New)
+- `docs/AGENTS.md`
