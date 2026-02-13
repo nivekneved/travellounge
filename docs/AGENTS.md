@@ -24,3 +24,24 @@
 - `web-app/src/pages/AboutUs.jsx`
 - `web-app/src/components/BackToTop.jsx` (New)
 - Multiple utility scripts in `scripts/`
+
+## [2026-02-13] - Phase 5: Cruise Detail Enhancement
+
+**Status**: Completed & Pushed
+
+### Changes Implemented
+
+- **Database**: Populated `hotel_rooms` with cabin data for all cruises (Inside, Oceanview, Balcony, Suite).
+- **Data Enrichment**: Integrated ship features/amenities into the `services` table.
+- **ServiceDetails UI**:
+  - "Cruise Mode" logic to detect cruise products.
+  - "The Ship" amenities section with matching icons.
+  - "Cabin Selection" component with real-time price synchronization to the booking sidebar.
+- **Booking Flow**: Updated `handleBooking` to correctly pass the selected cabin price.
+
+### Modified Files
+
+- `web-app/src/pages/ServiceDetails.jsx`
+- `scripts/addCruiseCabins.js` (New)
+- `scripts/enrichAllServices.js`
+- `docs/AGENTS.md`

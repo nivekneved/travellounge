@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
-import { MapPin, Star, Calendar, Users, Heart, Share2, ArrowLeft, Wifi, Tv, Coffee, Wind, Utensils, Waves, Car, Dumbbell, Trees, Activity, X } from 'lucide-react';
+import { MapPin, Star, Calendar, Users, Heart, Share2, ArrowLeft, Wifi, Tv, Coffee, Wind, Utensils, Waves, Car, Dumbbell, Trees, Activity, X, Ship, Music, Wine, Compass } from 'lucide-react';
 import Button from '../components/Button';
 import Breadcrumb from '../components/Breadcrumb';
 import { useWishlist } from '../context/WishlistContext';
@@ -23,7 +23,13 @@ const AMENITY_ICONS = {
     'gym': Dumbbell,
     'garden': Trees,
     'spa': Activity,
-    'beach': Trees, // Standardizing to something generic if not found
+    'beach': Trees,
+    'infinity-pool': Waves,
+    'gourmet-dining': Utensils,
+    'theater': Music,
+    'casino': Wine,
+    'lounges': Coffee,
+    'fitness-center': Dumbbell,
 };
 
 const ServiceDetails = () => {
@@ -33,6 +39,7 @@ const ServiceDetails = () => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [selectedDate, setSelectedDate] = useState('');
     const [guestCount, setGuestCount] = useState(1);
+    const [selectedCabinId, setSelectedCabinId] = useState(null);
 
     // Fetch product from API
     const { data: product, isLoading, error } = useQuery({
@@ -85,18 +92,24 @@ const ServiceDetails = () => {
         location,
         category,
         pricing,
-        features = [],
         inclusions = [],
         exclusions = [],
         highlights = [],
-        itinerary = []
-    } = product;
+        features = [],
+        itinerary = [],
+        type: productType,
+        hotel_rooms: cabins = []
+    } = product || {};
+
+    const isCruise = productType === 'cruise';
+    const selectedCabin = cabins.find(c => c.id === selectedCabinId) || cabins[0];
+    const displayPrice = selectedCabin ? selectedCabin.price_per_night : (pricing?.price || 0);
 
     const handleBooking = () => {
         const params = new URLSearchParams({
             serviceName: product.name,
             serviceId: product.id,
-            price: (product.pricing?.price || 0).toString(),
+            price: displayPrice.toString(),
             image: product.images?.[0] || ''
         });
         navigate(`/booking?${params.toString()}`);
@@ -217,20 +230,88 @@ const ServiceDetails = () => {
                                 </div>
                             )}
 
-                            {/* Features */}
-                            <div className="mb-8">
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">Features</h3>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                    {features.map((feature, idx) => (
-                                        <div key={idx} className="flex items-center gap-2 text-gray-700">
-                                            <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                                                <Star size={12} fill="currentColor" />
-                                            </div>
-                                            <span>{feature}</span>
+                            {/* Ship Info Section (Cruise Only) */}
+                            {isCruise && features && features.length > 0 && (
+                                <div className="mb-10 pt-8 border-t border-gray-100">
+                                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight flex items-center gap-3 italic">
+                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                            <Ship size={18} />
                                         </div>
-                                    ))}
+                                        The <span className="text-primary">Ship</span> Amenities
+                                    </h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                        {features.map((feature, idx) => {
+                                            const amenityKey = feature.toLowerCase().replace(/\s+/g, '-');
+                                            const Icon = AMENITY_ICONS[amenityKey] || Star;
+                                            return (
+                                                <div key={idx} className="flex flex-col items-center p-6 bg-gray-50 rounded-3xl border border-gray-100 hover:border-primary/20 transition-all text-center">
+                                                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-primary mb-3">
+                                                        <Icon size={24} />
+                                                    </div>
+                                                    <span className="text-xs font-black uppercase tracking-tighter text-gray-800">{feature}</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
+
+                            {/* Cabin Selection Section (Cruise Only) */}
+                            {isCruise && cabins && cabins.length > 0 && (
+                                <div className="mb-10 pt-8 border-t border-gray-100">
+                                    <h3 className="text-xl font-black text-gray-900 mb-6 uppercase tracking-tight flex items-center gap-3 italic">
+                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                            <Compass size={18} />
+                                        </div>
+                                        Select Your <span className="text-primary">Cabin</span>
+                                    </h3>
+                                    <div className="space-y-4">
+                                        {cabins.map((cabin) => (
+                                            <div
+                                                key={cabin.id}
+                                                onClick={() => setSelectedCabinId(cabin.id)}
+                                                className={`p-6 rounded-3xl border-2 transition-all cursor-pointer flex flex-col md:flex-row gap-6 ${selectedCabinId === cabin.id || (!selectedCabinId && cabins[0].id === cabin.id) ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-300'}`}
+                                            >
+                                                <div className="w-full md:w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0">
+                                                    <img src={cabin.image_url || '/placeholder-cabin.jpg'} className="w-full h-full object-cover" alt={cabin.name} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <h4 className="text-lg font-black italic uppercase tracking-tight">{cabin.name}</h4>
+                                                        <span className="text-primary font-black">Rs {cabin.price_per_night.toLocaleString()}</span>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-2 mb-3">
+                                                        {(cabin.features || []).slice(0, 3).map((f, i) => (
+                                                            <span key={i} className="text-[10px] font-bold bg-white px-2 py-1 rounded-full border border-gray-100 text-gray-500 uppercase">{f}</span>
+                                                        ))}
+                                                    </div>
+                                                    <div className="flex items-center gap-4 text-xs text-gray-500 font-bold">
+                                                        <span className="flex items-center gap-1"><Users size={12} /> Max {cabin.max_occupancy}</span>
+                                                        <span className="flex items-center gap-1"><Ship size={12} /> {cabin.view}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Standard Features (Non-Cruise) */}
+                            {!isCruise && (
+                                <div className="mb-8">
+                                    <h3 className="text-xl font-bold text-gray-900 mb-4">Features</h3>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                        {features.map((feature, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 text-gray-700">
+                                                <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                                    <Star size={12} fill="currentColor" />
+                                                </div>
+                                                <span>{feature}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Inclusions/Exclusions */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -297,15 +378,22 @@ const ServiceDetails = () => {
                         <div className="bg-white rounded-3xl p-6 shadow-md sticky top-24">
                             <div className="flex items-baseline gap-2 mb-4">
                                 <span className="text-3xl font-bold text-gray-900">
-                                    Rs {(pricing?.price || 0).toLocaleString()}
+                                    Rs {displayPrice.toLocaleString()}
                                 </span>
                                 {pricing?.originalPrice && (
                                     <span className="text-lg text-gray-500 line-through">
                                         Rs {pricing.originalPrice.toLocaleString()}
                                     </span>
                                 )}
-                                <span className="ml-auto text-gray-500">per person</span>
+                                <span className="ml-auto text-gray-500">{isCruise ? 'per cabin' : 'per person'}</span>
                             </div>
+
+                            {isCruise && selectedCabin && (
+                                <div className="mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                                    <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Selected Option</p>
+                                    <p className="font-bold text-gray-900">{selectedCabin.name}</p>
+                                </div>
+                            )}
 
                             <div className="space-y-4 mb-6">
                                 <div>

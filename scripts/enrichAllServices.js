@@ -10,8 +10,9 @@ const enrichmentMap = {
                     { day: 2, title: 'Island Exploration', description: 'Anchor at a private island for snorkeling among vibrant coral reefs and a BBQ lunch on the beach.' },
                     { day: 3, title: 'Sun & Return', description: 'Leisurely morning swimming, followed by a scenic return cruise as the sun begins to set.' }
                 ],
-                inclusions: ['BBQ Lunch', 'Unlimited Beverages', 'Snorkeling Equipment', 'Hotel Pick-up and Drop-off'],
-                highlights: ['Crystal Clear Lagoons', 'Marine Life Discovery', 'Luxury Catamaran Experience']
+                inclusions: ['Gourmet Dining', 'Evening Entertainment', 'Luxury Cabin Accommodation', 'All Port Fees & Taxes'],
+                highlights: ['Multi-Country Discovery', 'Premium Ship Facilities', 'World-Class Service', 'Signature Experiences'],
+                features: ['Infinity Pool', 'State-of-the-Art Spa', 'Multiple Fine Dining Venues', 'Theatrical Performances', 'Casino & Lounges']
             }
         },
         {
@@ -100,8 +101,8 @@ const getDefaultData = (service) => {
             { time: '12:00', activity: 'Lunch break' },
             { time: '15:00', activity: 'Final session' }
         ],
-        inclusions: ['Professional Service', 'Taxes and Fees Included', '24/7 Support'],
-        highlights: ['Unique Experience', 'Value for Money', 'Memorable Moments']
+        highlights: ['Unique Experience', 'Value for Money', 'Memorable Moments'],
+        features: ['Professional Service', 'Standard Amenities']
     };
 };
 
@@ -123,6 +124,7 @@ const enrichAll = async () => {
             updates.itinerary = standard.itinerary;
             updates.inclusions = standard.inclusions;
             updates.highlights = standard.highlights;
+            updates.features = standard.features;
 
             if (Object.keys(updates).length > 0) {
                 const { error: upError } = await supabase
