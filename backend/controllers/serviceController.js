@@ -1,5 +1,30 @@
 const supabase = require('../config/supabase');
 const { formatItinerary } = require('../utils/itineraryHelper');
+const Joi = require('joi');
+
+const serviceSchema = Joi.object({
+    name: Joi.string().required(),
+    description: Joi.string().allow('', null).optional(),
+    category: Joi.string().required(),
+    pricing: Joi.object({
+        basePrice: Joi.number().min(0).optional(),
+        currency: Joi.string().optional(),
+        adult: Joi.number().min(0).optional(),
+        child: Joi.number().min(0).optional(),
+        infant: Joi.number().min(0).optional()
+    }).unknown(true).optional(),
+    location: Joi.string().allow('', null).optional(),
+    images: Joi.array().items(Joi.string()).optional(),
+    inventory: Joi.object().unknown(true).optional(),
+    itinerary: Joi.array().items(Joi.object()).unknown(true).optional(),
+    features: Joi.array().items(Joi.string()).optional(),
+    inclusions: Joi.array().items(Joi.string()).optional(),
+    exclusions: Joi.array().items(Joi.string()).optional(),
+    highlights: Joi.array().items(Joi.string()).optional(),
+    is_featured: Joi.boolean().optional(),
+    draft: Joi.boolean().optional(),
+    price: Joi.number().optional()
+}).unknown(true);
 
 // @desc    Get all services
 // @route   GET /api/services
@@ -179,6 +204,11 @@ exports.getProductById = async (req, res) => {
 // @access  Private/Admin
 exports.createService = async (req, res) => {
     try {
+        const { error: validationError } = serviceSchema.validate(req.body);
+        if (validationError) {
+            return res.status(400).json({ message: validationError.details[0].message });
+        }
+
         const serviceData = { ...req.body };
         if (serviceData.itinerary) {
             serviceData.itinerary = formatItinerary(serviceData.itinerary);
@@ -202,6 +232,11 @@ exports.createService = async (req, res) => {
 // @access  Private/Admin
 exports.updateService = async (req, res) => {
     try {
+        const { error: validationError } = serviceSchema.validate(req.body);
+        if (validationError) {
+            return res.status(400).json({ message: validationError.details[0].message });
+        }
+
         const { id } = req.params;
         const { data: oldProduct } = await supabase.from('services').select('pricing').eq('id', id).single();
 

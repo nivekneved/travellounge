@@ -13,7 +13,25 @@ import CTASection from '../components/CTASection';
 import ListingHeader from '../components/ListingHeader';
 import Pagination from '../components/Pagination';
 
+import { supabase } from '../utils/supabase';
+import { useQuery } from '@tanstack/react-query';
+
 const Cruises = () => {
+    const { data: pageData, isLoading: isPageLoading } = useQuery({
+        queryKey: ['page_cruises'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('pages')
+                .select('content')
+                .eq('slug', 'cruises')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.content;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+
     const { cruises: cruisePackages, loading, error } = useCruises();
     const [viewMode, setViewMode] = useState('grid');
     const [priceRange, setPriceRange] = useState([0, 500000]);
@@ -56,7 +74,7 @@ const Cruises = () => {
             {/* Hero Section */}
             <PageHero
                 title="Cruise Vacations"
-                subtitle="Sail through paradise with our curated luxury cruise experiences."
+                subtitle={pageData?.headline || "Sail through paradise with our curated luxury cruise experiences."}
                 image="https://images.unsplash.com/photo-1548574505-5e239809ee19?q=80&w=1920"
                 icon={Ship}
             />
@@ -192,8 +210,8 @@ const Cruises = () => {
             <TrustSection />
             {/* CTA Section */}
             <CTASection
-                title="Plan Your Dream Voyage"
-                description="Our cruise specialists are ready to help you choose the perfect cabin and itinerary."
+                title={pageData?.headline || "Plan Your Dream Voyage"}
+                description={pageData?.body ? <div dangerouslySetInnerHTML={{ __html: pageData.body }} /> : "Our cruise specialists are ready to help you choose the perfect cabin and itinerary."}
                 buttonText="Talk to an Expert"
             />
         </div>

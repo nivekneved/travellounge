@@ -7,16 +7,32 @@ import ListingHeader from '../components/ListingHeader';
 import Button from '../components/Button';
 import { Star, MapPin } from 'lucide-react';
 import { useTransfers } from '../hooks/useTransfers';
+import { supabase } from '../utils/supabase';
+import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../components/LoadingSpinner';
-import ErrorMessage from '../components/ErrorMessage';
-import Pagination from '../components/Pagination';
 import { useState, useMemo } from 'react';
 
 const Transfers = () => {
-    const { transfers, loading, error } = useTransfers();
     const [viewMode, setViewMode] = useState('grid');
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 9;
+
+    const { data: pageData, isLoading: isPageLoading } = useQuery({
+        queryKey: ['page_transfers'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('pages')
+                .select('content')
+                .eq('slug', 'transfers')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.content;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+
+    const { transfers, loading, error } = useTransfers();
 
     const paginatedTransfers = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
@@ -52,8 +68,16 @@ const Transfers = () => {
                 </div>
 
                 <div className="mb-12">
-                    <h2 className="text-3xl font-black text-gray-900 mb-4">Our Fleet & Services</h2>
-                    <p className="text-gray-600">Choose the perfect transport option for your journey.</p>
+                    <h2 className="text-3xl font-black text-gray-900 mb-4">
+                        {pageData?.headline || "Our Fleet & Services"}
+                    </h2>
+                    <div className="text-gray-600">
+                        {pageData?.body ? (
+                            <div dangerouslySetInnerHTML={{ __html: pageData.body }} />
+                        ) : (
+                            <p>Choose the perfect transport option for your journey.</p>
+                        )}
+                    </div>
                 </div>
 
                 {loading ? (

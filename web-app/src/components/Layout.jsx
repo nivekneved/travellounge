@@ -354,13 +354,12 @@ const Layout = ({ children }) => {
 
 
             {/* Footer - LIGHT GREY BACKGROUND */}
-            <footer className="mt-auto border-t border-gray-200 bg-gray-50 pt-20 pb-10">
-
-                <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+            <footer className="mt-auto border-t border-gray-200 bg-gray-50 pt-16 pb-8">
+                <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 items-stretch">
                     {/* Column 1: Brand */}
-                    <div>
-                        <img src="/logo.png" alt="Travel Lounge" className="h-16 mb-6 -ml-8" />
-                        <p className="text-gray-600 leading-relaxed mb-6">
+                    <div className="flex flex-col h-full">
+                        <img src="/logo.png" alt="Travel Lounge" className="h-16 mb-8 -ml-8 object-contain w-fit" />
+                        <p className="text-gray-600 leading-relaxed mb-auto pb-8">
                             Your premium gateway to the paradise island of Mauritius. Bespoke travel experiences crafted with passion.
                         </p>
                         {/* Social Media Icons */}
@@ -390,60 +389,99 @@ const Layout = ({ children }) => {
                         </div>
                     </div>
 
-                    {/* Column 2: Port Louis Location */}
-                    <div>
-                        <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Port Louis Office</h4>
-                        <div className="text-gray-600 flex flex-col gap-5">
-                            <p className="text-sm leading-relaxed">
-                                Ground Floor Newton Tower,<br />
-                                Corner Sir William Newton &<br />
-                                Remy Ollier Street,<br />
-                                Port Louis, Mauritius
-                            </p>
-                            <div className="flex flex-col gap-1">
-                                <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 212 4070</p>
-                                <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 212 4073</p>
+                    {/* Office Locations */}
+                    {Array.isArray(settings.office_locations) && settings.office_locations.length > 0 ? (
+                        settings.office_locations.map((office, idx) => (
+                            <div key={idx} className="flex flex-col h-full">
+                                <h4 className="text-lg font-black mb-8 border-b-2 border-primary/30 pb-2 inline-block text-gray-900 uppercase tracking-tighter">
+                                    {office.name}
+                                </h4>
+                                <div className="text-gray-600 flex flex-col gap-6 flex-grow">
+                                    <p className="text-sm leading-relaxed whitespace-pre-line">
+                                        {office.address}
+                                    </p>
+                                    <div className="flex flex-col gap-1">
+                                        {Array.isArray(office.phones) ? office.phones.map((phone, pIdx) => (
+                                            <p key={pIdx} className="flex items-center gap-2 text-sm font-bold">
+                                                <Phone size={14} className="text-primary" /> {phone}
+                                            </p>
+                                        )) : (
+                                            <p className="flex items-center gap-2 text-sm font-bold">
+                                                <Phone size={14} className="text-primary" /> {office.phone || office.phones}
+                                            </p>
+                                        )}
+                                    </div>
+                                    {office.map_link && (
+                                        <a
+                                            href={office.map_link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 text-xs font-black text-primary hover:text-red-700 transition-colors uppercase tracking-widest"
+                                        >
+                                            <MapPin size={12} /> Get Directions
+                                        </a>
+                                    )}
+                                </div>
                             </div>
-                            <a
-                                href="https://maps.google.com/?q=Travel+Lounge+Port+Louis"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 text-xs font-black text-primary hover:text-red-700 transition-colors uppercase tracking-widest"
-                            >
-                                <MapPin size={12} /> Get Directions
-                            </a>
-                        </div>
-                    </div>
+                        ))
+                    ) : (
+                        <>
+                            {/* Fallback Port Louis Location */}
+                            <div className="flex flex-col h-full">
+                                <h4 className="text-lg font-black mb-8 border-b-2 border-primary/30 pb-2 inline-block text-gray-900 uppercase tracking-tighter">Port Louis Office</h4>
+                                <div className="text-gray-600 flex flex-col gap-6 flex-grow">
+                                    <p className="text-sm leading-relaxed whitespace-pre-line">
+                                        Ground Floor Newton Tower,<br />
+                                        Corner Sir William Newton &<br />
+                                        Remy Ollier Street,<br />
+                                        Port Louis, Mauritius
+                                    </p>
+                                    <div className="flex flex-col gap-1">
+                                        <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 212 4070</p>
+                                        <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 212 4073</p>
+                                    </div>
+                                    <a
+                                        href="https://maps.google.com/?q=Travel+Lounge+Port+Louis"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-xs font-black text-primary hover:text-red-700 transition-colors uppercase tracking-widest"
+                                    >
+                                        <MapPin size={12} /> Get Directions
+                                    </a>
+                                </div>
+                            </div>
 
-                    {/* Column 3: Ebene Location */}
-                    <div>
-                        <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Ebene Office</h4>
-                        <div className="text-gray-600 flex flex-col gap-5">
-                            <p className="text-sm leading-relaxed">
-                                Ground Floor, 57 Ebene Mews,<br />
-                                Rue Du Savoir,<br />
-                                Ebene Cybercity,<br />
-                                Mauritius
-                            </p>
-                            <div className="flex flex-col gap-1">
-                                <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 5940 7711</p>
-                                <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 5940 7701</p>
+                            {/* Fallback Ebene Location */}
+                            <div className="flex flex-col h-full">
+                                <h4 className="text-lg font-black mb-8 border-b-2 border-primary/30 pb-2 inline-block text-gray-900 uppercase tracking-tighter">Ebene Office</h4>
+                                <div className="text-gray-600 flex flex-col gap-6 flex-grow">
+                                    <p className="text-sm leading-relaxed whitespace-pre-line">
+                                        Ground Floor, 57 Ebene Mews,<br />
+                                        Rue Du Savoir,<br />
+                                        Ebene Cybercity,<br />
+                                        Mauritius
+                                    </p>
+                                    <div className="flex flex-col gap-1">
+                                        <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 5940 7711</p>
+                                        <p className="flex items-center gap-2 text-sm font-bold"><Phone size={14} className="text-primary" /> (+230) 5940 7701</p>
+                                    </div>
+                                    <a
+                                        href="https://maps.google.com/?q=Travel+Lounge+Ebene"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-xs font-black text-primary hover:text-red-700 transition-colors uppercase tracking-widest"
+                                    >
+                                        <MapPin size={12} /> Get Directions
+                                    </a>
+                                </div>
                             </div>
-                            <a
-                                href="https://maps.google.com/?q=Travel+Lounge+Ebene"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 text-xs font-black text-primary hover:text-red-700 transition-colors uppercase tracking-widest"
-                            >
-                                <MapPin size={12} /> Get Directions
-                            </a>
-                        </div>
-                    </div>
+                        </>
+                    )}
 
                     {/* Column 4: Links */}
-                    <div>
-                        <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Quick Links</h4>
-                        <div className="flex flex-col gap-3 text-sm font-bold text-gray-600">
+                    <div className="flex flex-col h-full">
+                        <h4 className="text-lg font-black mb-8 border-b-2 border-primary/30 pb-2 inline-block text-gray-900 uppercase tracking-tighter">Quick Links</h4>
+                        <div className="flex flex-col gap-4 text-sm font-bold text-gray-600 flex-grow">
                             <Link to="/hotels" className="hover:text-primary transition-colors flex items-center gap-3"><Hotel size={18} className="text-gray-400 group-hover:text-primary" />Hotels</Link>
                             <Link to="/cruises" className="hover:text-primary transition-colors flex items-center gap-3"><Ship size={18} className="text-gray-400 group-hover:text-primary" />Cruises</Link>
                             <Link to="/flights" className="hover:text-primary transition-colors flex items-center gap-3"><Plane size={18} className="text-gray-400 group-hover:text-primary" />Flights</Link>
@@ -455,27 +493,27 @@ const Layout = ({ children }) => {
                     </div>
 
                     {/* Column 5: Subscribe & Legal */}
-                    <div className="flex flex-col">
-                        <div className="mb-10">
-                            <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Subscribe</h4>
-                            <form className="relative group">
+                    <div className="flex flex-col h-full">
+                        <div className="mb-auto">
+                            <h4 className="text-lg font-black mb-8 border-b-2 border-primary/30 pb-2 inline-block text-gray-900 uppercase tracking-tighter">Subscribe</h4>
+                            <form className="relative group mb-12">
                                 <input
                                     type="email"
                                     placeholder="Your email"
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all pr-12"
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-4 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all pr-12 shadow-sm"
                                     required
                                 />
                                 <button
                                     type="submit"
-                                    className="absolute right-2 top-1.5 bg-primary text-white p-2 rounded-lg hover:bg-red-700 transition-all"
+                                    className="absolute right-2 top-2 bg-primary text-white p-2.5 rounded-lg hover:bg-red-700 transition-all shadow-lg shadow-primary/20"
                                 >
                                     <ArrowRight size={18} />
                                 </button>
                             </form>
                         </div>
 
-                        <div>
-                            <h4 className="text-xl font-bold mb-6 border-b-2 border-primary/30 pb-2 inline-block text-gray-900">Legal</h4>
+                        <div className="-mt-5">
+                            <h4 className="text-lg font-black mb-8 border-b-2 border-primary/30 pb-2 inline-block text-gray-900 uppercase tracking-tighter">Legal</h4>
                             <div className="flex flex-col gap-3 text-sm font-bold text-gray-600">
                                 <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
                                 <Link to="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link>
@@ -484,7 +522,7 @@ const Layout = ({ children }) => {
                         </div>
                     </div>
                 </div>
-                <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 mt-20 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
+                <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 mt-12 pt-6 border-t border-gray-200 text-center text-gray-500 text-sm">
                     &copy; 2026 Travel Lounge Mauritius. {t('footer.rights')} Developed by EBOX.
                 </div>
             </footer>

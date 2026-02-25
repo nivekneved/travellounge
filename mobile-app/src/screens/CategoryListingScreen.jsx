@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator, SafeAreaView } from 'react-native';
 import { ChevronLeft, MapPin, ArrowRight } from 'lucide-react-native';
-import api from '../services/api';
+import { supabase } from '../utils/supabase';
 import { theme } from '../constants/theme';
 
 export default function CategoryListingScreen({ route, navigation }) {
@@ -13,10 +13,13 @@ export default function CategoryListingScreen({ route, navigation }) {
         const fetchProducts = async () => {
             try {
                 // If it's a redirect category like flights, we handled it in grid, but here if we land on listing:
-                const response = await api.get('/products', {
-                    params: { category: categoryId }
-                });
-                setProducts(response.data);
+                const { data, error } = await supabase
+                    .from('services')
+                    .select('*')
+                    .eq('category', categoryId)
+                    .eq('is_active', true);
+                if (error) throw error;
+                setProducts(data || []);
             } catch (error) {
                 console.error(error);
             } finally {

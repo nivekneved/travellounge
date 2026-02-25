@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { Mail, Send, CheckCircle2 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { useTranslation } from 'react-i18next';
+import { supabase } from '../utils/supabase';
+
+// ... imports
 
 const Newsletter = () => {
     const { t } = useTranslation();
@@ -19,17 +18,35 @@ const Newsletter = () => {
 
         setLoading(true);
         try {
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-            const response = await fetch(`${apiBase}/newsletter`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, consent })
-            });
+            // Check if already subscribed
+            const { data: existing } = await supabase
+                .from('newsletter_subscribers')
+                .select('id')
+                .eq('email', email)
+                .single();
 
-            if (!response.ok) throw new Error('Failed to subscribe');
+            if (existing) {
+                setSubscribed(true);
+                toast.success('You are already subscribed!');
+                return;
+            }
+
+            const { error } = await supabase
+                .from('newsletter_subscribers')
+                .insert([
+                    {
+                        email,
+                        status: 'Active',
+                        created_at: new Date().toISOString()
+                    }
+                ]);
+
+            if (error) throw error;
+
             setSubscribed(true);
             toast.success('Welcome to the island club!');
         } catch (error) {
+            console.error('Newsletter error:', error);
             toast.error('Failed to subscribe. Please try again.');
         } finally {
             setLoading(false);

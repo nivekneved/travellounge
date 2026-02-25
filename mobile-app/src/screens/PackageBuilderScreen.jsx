@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
 import { Package, MapPin, Calendar, Users, ArrowRight, Check } from 'lucide-react-native';
-import api from '../services/api';
+import { supabase } from '../utils/supabase';
 
 const STAGES = [
     { id: 'destination', label: 'Start', icon: MapPin },
@@ -31,20 +31,25 @@ export default function PackageBuilderScreen({ navigation }) {
 
     const handleSubmit = async () => {
         try {
-            await api.post('/bookings/package-request', {
-                customer: {
+            const { error } = await supabase.from('booking_requests').insert([{
+                customer_info: {
                     name: formData.name,
                     email: formData.email,
                     phone: formData.phone
                 },
-                package_details: {
+                service_id: null,
+                service_type: 'package_request',
+                room_id: null,
+                booking_details: {
                     destination: formData.destination,
                     duration: formData.duration,
                     travelers: formData.travelers,
                     preferences: formData.preferences
                 },
                 consent: true
-            });
+            }]);
+
+            if (error) throw error;
 
             Alert.alert('Request Sent', 'Our island experts will contact you with a bespoke itinerary shortly.');
             navigation.goBack();

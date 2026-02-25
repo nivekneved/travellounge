@@ -14,7 +14,7 @@ A comprehensive travel agency management system tailored for Mauritius.
 
 ## Technologies
 
-- **Backend**: Node.js, Express, MongoDB, Amadeus API, Twilio, Nodemailer.
+- **Backend**: Node.js, Express, supabase, Amadeus API, Twilio, Nodemailer.
 - **Frontend**: React.js, Vite, Tailwind CSS, Lucide React.
 - **Mobile**: React Native, Expo, NativeWind.
 - **DevOps**: Docker, AWS/Heroku.

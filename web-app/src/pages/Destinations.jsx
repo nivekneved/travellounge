@@ -6,23 +6,50 @@ import TrustSection from '../components/TrustSection';
 import CTASection from '../components/CTASection';
 import { useDestinations } from '../hooks/useDestinations';
 
+import { supabase } from '../utils/supabase';
+import { useQuery } from '@tanstack/react-query';
+import LoadingSpinner from '../components/LoadingSpinner';
+
 const Destinations = () => {
+    const { data: pageData, isLoading: isPageLoading } = useQuery({
+        queryKey: ['page_destinations'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('pages')
+                .select('content')
+                .eq('slug', 'destinations')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.content;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+
     const { destinations, loading, error } = useDestinations();
 
     return (
         <div className="bg-white min-h-screen">
             <PageHero
                 title="Dream Destinations"
-                subtitle="Complete vacation packages to the world's most sought-after destinations."
+                subtitle={pageData?.headline || "Complete vacation packages to the world's most sought-after destinations."}
                 image="https://images.unsplash.com/photo-1488646953014-85cb44e25828?q=80&w=1920&auto=format&fit=crop"
                 icon={Plane}
             />
 
             <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 mt-20 mb-20 text-center text-gray-900">
-                <h2 className="text-4xl md:text-5xl font-black mb-6 uppercase tracking-tight">Explore the World</h2>
-                <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto font-light">
-                    From tropical islands to vibrant cities, we offer all-inclusive packages with flights, accommodation, and unforgettable experiences. Let us handle every detail of your perfect getaway.
-                </p>
+                <h2 className="text-4xl md:text-5xl font-black mb-6 uppercase tracking-tight">
+                    {pageData?.headline || "Explore the World"}
+                </h2>
+                <div className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto font-light">
+                    {pageData?.body ? (
+                        <div dangerouslySetInnerHTML={{ __html: pageData.body }} />
+                    ) : (
+                        <p>
+                            From tropical islands to vibrant cities, we offer all-inclusive packages with flights, accommodation, and unforgettable experiences. Let us handle every detail of your perfect getaway.
+                        </p>
+                    )}
+                </div>
             </div>
 
             {/* Destinations Grid - Light Grey Background */}

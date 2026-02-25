@@ -43,6 +43,8 @@ CREATE TABLE IF NOT EXISTS categories (
   link VARCHAR(255),
   display_order INTEGER DEFAULT 0,
   is_active BOOLEAN DEFAULT true,
+  show_on_home BOOLEAN DEFAULT true,
+  description TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -214,6 +216,8 @@ CREATE TABLE IF NOT EXISTS services (
   inclusions JSONB DEFAULT '[]',
   rating NUMERIC,
   star_rating INTEGER,
+  display_order INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -237,6 +241,8 @@ BEGIN
     ALTER TABLE services ADD COLUMN IF NOT EXISTS inclusions JSONB DEFAULT '[]';
     ALTER TABLE services ADD COLUMN IF NOT EXISTS rating NUMERIC;
     ALTER TABLE services ADD COLUMN IF NOT EXISTS star_rating INTEGER;
+    ALTER TABLE services ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
+    ALTER TABLE services ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
     ALTER TABLE services ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
     ALTER TABLE services ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 END $$;

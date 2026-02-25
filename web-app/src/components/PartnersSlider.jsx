@@ -35,10 +35,10 @@ const PartnersSlider = () => {
     }, []);
 
     return (
-        <section className="py-20 bg-white overflow-hidden">
+        <section className="py-8 bg-white overflow-hidden">
             <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
-                <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-6 leading-tight">
+                <div className="text-center mb-8">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-4 leading-tight">
                         Our Trusted <span className="text-primary">Partners</span>
                     </h2>
                     <p className="text-gray-600 max-w-2xl mx-auto text-lg md:text-xl leading-relaxed">
@@ -55,7 +55,7 @@ const PartnersSlider = () => {
                     {[...partners, ...partners, ...partners].map((partner, index) => (
                         <div
                             key={`${partner.name}-${index}`}
-                            className="flex-shrink-0 w-48 h-32 flex items-center justify-center bg-white rounded-2xl p-6 grayscale hover:grayscale-0 transition-all duration-500 opacity-70 hover:opacity-100"
+                            className="flex-shrink-0 w-44 h-24 flex items-center justify-center bg-white rounded-2xl p-4 grayscale hover:grayscale-0 transition-all duration-500 opacity-70 hover:opacity-100"
                         >
                             <img
                                 src={partner.logo}

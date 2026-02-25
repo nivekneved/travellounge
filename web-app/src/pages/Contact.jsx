@@ -22,6 +22,22 @@ const Contact = () => {
         staleTime: 1000 * 60 * 5,
     });
 
+    // Fetch Page Content
+    const { data: pageData } = useQuery({
+        queryKey: ['page_contact'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('pages')
+                .select('content')
+                .eq('slug', 'contact')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.content;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+
     // Default values if settings are missing or formatted oddly
     const contactPhone = settings.contact_phone ? settings.contact_phone.replace(/"/g, '') : "+230 212 4070";
     const contactEmail = settings.contact_email ? settings.contact_email.replace(/"/g, '') : "reservation@travellounge.mu";
@@ -70,7 +86,7 @@ const Contact = () => {
         <div className="bg-white min-h-screen pb-20">
             <PageHero
                 title={t('contact.title')}
-                subtitle={t('contact.subtitle')}
+                subtitle={pageData?.headline || t('contact.subtitle')}
                 image="https://images.unsplash.com/photo-1523966211575-eb4a01e7dd51?q=80&w=1920"
                 icon={Mail}
             />

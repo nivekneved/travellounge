@@ -113,3 +113,20 @@
 
 - `scripts/enrichGroupTours.js` (New)
 - `docs/AGENTS.md`
+
+## [2026-02-13] - Phase 11: Advanced Hotel Room Type System
+
+**Status**: Completed & Pushed
+
+### Changes Implemented
+
+- **Room Type Diversification**: Added "Deluxe", "Presidential Suite", and "Studio" options to existing hotels.
+- **Dynamic Pricing**: Implemented weekend surcharge logic based on selected booking date.
+- **UI Unification**: Merged Cruise Cabin and Hotel Room selection UI for a consistent checkout experience.
+- **Metadata Management**: Utilized JSONB for flexible room pricing and feature storage.
+
+### Modified Files
+
+- `web-app/src/pages/ServiceDetails.jsx`
+- `scripts/enrichHotelRooms.js` (New)
+- `docs/AGENTS.md`

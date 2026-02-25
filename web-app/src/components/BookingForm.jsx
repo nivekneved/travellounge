@@ -120,8 +120,8 @@ const BookingForm = ({ serviceId, productName, price, initialCheckIn, initialChe
 
         setStatus('loading');
         try {
-            // Direct Supabase Insert (Primary Architecture)
-            const { data, error } = await supabase.from('bookings').insert([{
+            // Secure Temp Table Insert (Backend recalculates price)
+            const { data, error } = await supabase.from('booking_requests').insert([{
                 customer_info: {
                     name: formData.name,
                     email: formData.email,
@@ -129,7 +129,8 @@ const BookingForm = ({ serviceId, productName, price, initialCheckIn, initialChe
                 },
                 service_id: serviceId !== 'static-inquiry' ? serviceId : null,
                 service_type: 'booking_request',
-                status: 'pending',
+                room_id: null,
+                consent: formData.consent,
                 booking_details: {
                     productName: productName,
                     message: formData.message,
@@ -137,9 +138,8 @@ const BookingForm = ({ serviceId, productName, price, initialCheckIn, initialChe
                     checkOut: formData.checkOut,
                     travelers: formData.travelers,
                     estimatedTotal: calculateTotal()
-                },
-                total_price: calculateTotal() ? parseFloat(calculateTotal().replace(/,/g, '')) : 0,
-                // created_at, id handled by default
+                }
+                // total_price and status are intentionally omitted; handled by Postgres trigger
             }]).select();
 
             if (error) throw error;

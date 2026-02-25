@@ -9,6 +9,7 @@ import PromotionsCarousel from '../components/PromotionsCarousel';
 import ServiceCard from '../components/ServiceCard';
 import PartnersSlider from '../components/PartnersSlider';
 import TrustSection from '../components/TrustSection';
+import TestimonialsSection from '../components/TestimonialsSection';
 
 const Home = () => {
     const [page, setPage] = useState(1);
@@ -61,6 +62,9 @@ const Home = () => {
 
             {/* Promotions - White Background */}
             <PromotionsCarousel />
+
+            {/* Testimonials - Client Stories */}
+            <TestimonialsSection />
 
             {/* Why Choose Us - Trust Section (White Background) */}
             <TrustSection />

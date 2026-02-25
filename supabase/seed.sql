@@ -322,35 +322,50 @@ VALUES
  NOW(), NOW());
 
 -- 6.3 EXCURSIONS
-INSERT INTO services (name, type, description, location, pricing, images, duration, highlights, created_at, updated_at)
+INSERT INTO services (name, type, description, location, pricing, images, duration, highlights, display_order, is_active, created_at, updated_at)
 VALUES
 ('North Island Tour', 'excursion', 'Discover the highlights of northern Mauritius including Grand Baie, Pamplemousses Garden, and Cap Malheureux.', 'North Mauritius',
  '{"base_price": 3500, "currency": "MUR"}'::jsonb,
  ARRAY['https://images.unsplash.com/photo-1559827260-dc66d52bef19?q=80&w=1200&auto=format&fit=crop'],
  'Full Day',
  '["Grand Baie", "Pamplemousses Garden", "Cap Malheureux", "Port Louis"]'::jsonb,
- NOW(), NOW()),
+ 1, true, NOW(), NOW()),
 
 ('South Island Discovery', 'excursion', 'Explore the natural wonders of southern Mauritius including the 7 Colored Earth and Chamarel Waterfall.', 'South Mauritius',
  '{"base_price": 4000, "currency": "MUR"}'::jsonb,
  ARRAY['https://images.unsplash.com/photo-1551244072-5d12893278ab?q=80&w=1200&auto=format&fit=crop'],
  'Full Day',
  '["7 Colored Earth", "Chamarel Waterfall", "Black River Gorges", "Rhumerie"]'::jsonb,
- NOW(), NOW()),
+ 2, true, NOW(), NOW()),
 
 ('Ile aux Cerfs Tour', 'excursion', 'Full day catamaran tour to the paradise island of Ile aux Cerfs with BBQ lunch and water activities.', 'East Coast',
  '{"base_price": 4500, "currency": "MUR"}'::jsonb,
  ARRAY['https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200&auto=format&fit=crop'],
  'Full Day',
  '["Catamaran", "BBQ Lunch", "Snorkeling", "Beach Time"]'::jsonb,
- NOW(), NOW()),
+ 3, true, NOW(), NOW()),
 
 ('Port Louis & Shopping', 'excursion', 'Half day tour of the capital city with visits to the Central Market, Caudan Waterfront, and shopping opportunities.', 'Port Louis',
  '{"base_price": 2500, "currency": "MUR"}'::jsonb,
  ARRAY['https://images.unsplash.com/photo-1555400038-63f5ba517a47?q=80&w=1200&auto=format&fit=crop'],
  'Half Day',
  '["Central Market", "Caudan Waterfront", "Fort Adelaide", "Shopping"]'::jsonb,
- NOW(), NOW());
+ 4, true, NOW(), NOW()),
+
+-- 6.3.1 ACTIVITIES (Seed specifically for ActivityManager)
+('Parasailing in Belle Mare', 'activity', 'Experience the thrill of parasailing with a stunning view of the east coast.', 'Belle Mare',
+ '{"price": 1500, "currency": "MUR"}'::jsonb,
+ ARRAY['https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200'],
+ '15 mins',
+ '["High altitude", "Safe equipment", "Professional guides"]'::jsonb,
+ 1, true, NOW(), NOW()),
+
+('Underwater Sea Walk', 'activity', 'Walk on the ocean floor and discover the marine life of Grand Baie.', 'Grand Baie',
+ '{"price": 1800, "currency": "MUR"}'::jsonb,
+ ARRAY['https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200'],
+ '30 mins',
+ '["Unique experience", "No swimming skills needed", "Beautiful coral"]'::jsonb,
+ 2, true, NOW(), NOW());
 
 -- 6.4 PREMIUM HOTELS (20260211)
 DO $$
@@ -505,3 +520,65 @@ BEGIN
     INSERT INTO hotel_rooms (service_id, name, size, bed, view, price_per_night, image_url, features, type) VALUES
     (v_hotel_id, 'Garden Villa', '45 m²', 'King Bed', 'Garden', 9000, 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=800&auto=format&fit=crop', '["Private Terrace", "Outdoor Shower", "Mini Fridge", "Hammock"]'::jsonb, 'villa');
 END $$;
+
+-- 6.5 HERO SLIDES
+INSERT INTO hero_slides (title, subtitle, description, image_url, cta_text, cta_link, order_index, is_active) VALUES
+('Mauritius Awaits', 'YOUR PREMIUM ISLAND GATEWAY', 'Discover the ultimate tropical paradise with bespoke experiences curated for the discerning traveler.', 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1920&auto=format&fit=crop', 'Discover Mauritius', '/search?category=Sea%20Activities', 0, true),
+('Beautiful Malaysia', 'IATA ACCREDITED AGENCY', 'From the skyscrapers of KL to the pristine beaches of Langkawi, discover the magic of Malaysia.', 'https://images.unsplash.com/photo-1544918877-460635b6d13e?auto=format&fit=crop&w=1920&q=80', 'View Malaysia', '/search?search=Malaysia', 1, true),
+('Explore Vietnam', 'SAFE & SECURE BOOKING', 'Journey through breathtaking landscapes, rich history, and the soulful culture of Vietnam.', 'https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=1920&auto=format&fit=crop', 'Discover Vietnam', '/search?search=Vietnam', 2, true),
+('Experience Dubai', 'PREMIUM TRAVEL EXPERIENCES', 'Witness the pinnacle of modern luxury and adventure in the heart of the Emirates.', 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1920&auto=format&fit=crop', 'Dubai Deals', '/search?search=Dubai', 3, true);
+
+-- 6.6 CATEGORIES
+INSERT INTO categories (name, slug, icon, link, image_url, display_order, is_active, show_on_home, description) VALUES
+('Cruises', 'cruises', 'Ship', '/cruises', 'https://images.unsplash.com/photo-1548574505-5e239809ee19?q=80&w=800', 1, true, true, 'Experience the ultimate luxury on the high seas with our curated cruise packages.'),
+('Flights', 'flights', 'Plane', '/flights', 'https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=800', 2, true, true, 'Compare and book flights to your favorite destinations with the best price guarantee.'),
+('Group Tours', 'group-tours', 'Users', '/group-tours', 'https://images.unsplash.com/photo-1539635278303-d4002c07dee3?q=80&w=800', 3, true, true, 'Join our expertly guided group tours and discover the world with like-minded travelers.'),
+('Rodrigues', 'rodrigues', 'Umbrella', '/rodrigues-hotels', 'https://images.unsplash.com/photo-1589394815804-964ed7be2eb5?q=80&w=800', 4, true, true, 'Explore the untouched beauty and tranquility of Rodrigues Island.'),
+('Mauritius Hotels', 'mauritius-hotels', 'Hotel', '/hotels', 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=800', 5, true, true, 'Find the perfect stay from our selection of premium hotels and resorts in Mauritius.'),
+('Day Packages', 'day-packages', 'Calendar', '/day-packages', 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=800', 6, true, true, 'Enjoy exclusive day access to premium resorts and activities across the island.');
+
+-- 6.7 TESTIMONIALS
+INSERT INTO testimonials (customer_name, avatar_url, rating, content, is_featured, is_approved, display_order) VALUES
+('Jean Dupont', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=200&h=200&fit=crop', 5, 'Best travel agency in Mauritius! They organized my honeymoon and it was perfect.', true, true, 1),
+('Sarah Williams', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&h=200&fit=crop', 5, 'Great service and very responsive team. Our trip to Vietnam was seamless.', true, true, 2),
+('Ahmed Khan', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&h=200&fit=crop', 4, 'Excellent hotel deals for Rodrigues. Highly recommended for family vacations.', false, true, 3);
+
+-- 6.8 TEAM MEMBERS
+INSERT INTO team_members (name, role, photo_url, bio, email, display_order, is_active) VALUES
+('David Smith', 'Managing Director', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=400&h=500&fit=crop', '15 years of experience in luxury travel and business management.', 'david@travellounge.mu', 1, true),
+('Elena Rossi', 'Senior Travel Consultant', 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&h=500&fit=crop', 'Specializes in European and Asian destinations with a passion for cultural exploration.', 'elena@travellounge.mu', 2, true),
+('Kevin Ng', 'Operations Manager', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=400&h=500&fit=crop', 'Expert in logistics and ensuring a seamless travel experience for all our clients.', 'kevin@travellounge.mu', 3, true);
+
+-- 6.9 PROMOTIONS
+INSERT INTO promotions (title, description, image, link, valid_until, is_active) VALUES
+('Early Bird 2026', 'Book your 2026 summer vacation now and save 20% on selected packages!', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&fit=crop', '/search?category=early-bird', '2026-12-31 23:59:59', true),
+('Rodrigues Special', 'Exclusive weekend deals for Rodrigues. Flight + Hotel starting from 9,900 MUR.', 'https://images.unsplash.com/photo-1589394815804-964ed7be2eb5?q=80&w=800&fit=crop', '/search?search=Rodrigues', '2026-06-30 23:59:59', true);
+
+-- 6.10 MEDIA
+INSERT INTO media (filename, url, type, size_bytes, folder, alt_text) VALUES
+('mauritius-hero.jpg', 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1920', 'image/jpeg', 1024000, 'hero', 'Mauritius Beach Hero'),
+('catamaran.jpg', 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1200', 'image/jpeg', 512000, 'activities', 'Catamaran Cruise'),
+('malaysia.jpg', 'https://images.unsplash.com/photo-1544918877-460635b6d13e?q=80&w=1200', 'image/jpeg', 768000, 'destinations', 'Malaysia Cityscape'),
+('dubai.jpg', 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1200', 'image/jpeg', 896000, 'destinations', 'Dubai Luxury');
+
+-- 6.11 FLIGHTS
+INSERT INTO flights (airline, flight_number, departure_city, arrival_city, departure_time, arrival_time, price, status, logo_url) VALUES
+('Emirates', 'EK702', 'Mauritius', 'Dubai', NOW() + INTERVAL '7 days', NOW() + INTERVAL '7 days 6 hours', 45000.00, 'active', 'https://logo.clearbit.com/emirates.com'),
+('Air Mauritius', 'MK014', 'Mauritius', 'Paris', NOW() + INTERVAL '10 days', NOW() + INTERVAL '10 days 11 hours', 55000.00, 'active', 'https://logo.clearbit.com/airmauritius.com'),
+('Turkish Airlines', 'TK160', 'Mauritius', 'Istanbul', NOW() + INTERVAL '15 days', NOW() + INTERVAL '15 days 10 hours', 42000.00, 'active', 'https://logo.clearbit.com/turkishairlines.com');
+
+-- 6.12 REVIEWS
+INSERT INTO reviews (customer_name, rating, comment, status, service_id)
+SELECT 'Michael Scott', 5, 'Absolutely loved the stay! The service was top-notch.', 'approved', id 
+FROM services WHERE type = 'hotel' LIMIT 1;
+
+INSERT INTO reviews (customer_name, rating, comment, status, service_id)
+SELECT 'Pam Beesly', 4, 'Great activities, but the timing was a bit tight.', 'approved', id 
+FROM services WHERE type = 'activity' LIMIT 1;
+
+-- 6.13 EMAIL TEMPLATES
+INSERT INTO email_templates (name, subject, body, variables) VALUES
+('Welcome Email', 'Welcome to Travel Lounge!', '<h1>Welcome {{name}}!</h1><p>Thank you for joining our community.</p>', '["name"]'),
+('Booking Confirmation', 'Booking Confirmed: {{booking_id}}', '<p>Dear Customer, your booking for {{service_name}} is confirmed.</p>', '["booking_id", "service_name"]');
+
+

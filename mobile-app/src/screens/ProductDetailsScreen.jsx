@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Image, TouchableOpacity, SafeAreaView, Linking,
 import { ShieldCheck, Info, MapPin, Star, Share2, ChevronLeft, Heart } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '../constants/theme';
-import api from '../services/api';
+import { supabase } from '../utils/supabase';
 
 import BookingModal from '../components/BookingModal';
 
@@ -15,7 +15,12 @@ export default function ProductDetailsScreen({ route, navigation }) {
 
     const fetchProduct = async () => {
         try {
-            const { data } = await api.get(`/products/${id}`);
+            const { data, error } = await supabase
+                .from('services')
+                .select('*')
+                .eq('id', id)
+                .single();
+            if (error) throw error;
             setProduct(data);
         } catch (error) {
             console.error('Error fetching product:', error);

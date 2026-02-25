@@ -1,11 +1,31 @@
-import React from 'react';
-import { FileCheck, Globe, ShieldCheck, Clock, CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import PageHero from '../components/PageHero';
-import CTASection from '../components/CTASection';
-import TrustSection from '../components/TrustSection';
+import { supabase } from '../utils/supabase';
+import { useQuery } from '@tanstack/react-query';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const VisaServices = () => {
+    const { data: pageData, isLoading } = useQuery({
+        queryKey: ['page_visa_services'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('pages')
+                .select('content')
+                .eq('slug', 'visa-services')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.content;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-white">
+                <LoadingSpinner />
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white min-h-screen pb-20">
             {/* Hero Section */}
@@ -20,23 +40,33 @@ const VisaServices = () => {
             <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-12 md:pt-20">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
                     <div>
-                        <h2 className="text-4xl font-black mb-6">Simplifying Your Travel Documents</h2>
-                        <p className="text-gray-600 text-lg leading-relaxed mb-6">
-                            Navigating visa requirements can be complex. At Travel Lounge, we provide expert assistance to ensure your travel documents are in order, whether you're traveling for business, leisure, or study.
-                        </p>
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-3">
-                                <CheckCircle className="text-primary mt-1" size={20} />
-                                <p className="text-gray-700">Expert guidance on visa requirements for various destinations.</p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <CheckCircle className="text-primary mt-1" size={20} />
-                                <p className="text-gray-700">Assistance with application forms and documentation.</p>
-                            </div>
-                            <div className="flex items-start gap-3">
-                                <CheckCircle className="text-primary mt-1" size={20} />
-                                <p className="text-gray-700">Appointment scheduling and submission support.</p>
-                            </div>
+                        <h2 className="text-4xl font-black mb-6">
+                            {pageData?.headline || "Simplifying Your Travel Documents"}
+                        </h2>
+                        <div className="space-y-6 text-gray-600 text-lg leading-relaxed mb-6">
+                            {pageData?.body ? (
+                                <div dangerouslySetInnerHTML={{ __html: pageData.body }} />
+                            ) : (
+                                <>
+                                    <p>
+                                        Navigating visa requirements can be complex. At Travel Lounge, we provide expert assistance to ensure your travel documents are in order, whether you're traveling for business, leisure, or study.
+                                    </p>
+                                    <div className="space-y-4 mt-6">
+                                        <div className="flex items-start gap-3">
+                                            <CheckCircle className="text-primary mt-1" size={20} />
+                                            <p className="text-gray-700">Expert guidance on visa requirements for various destinations.</p>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <CheckCircle className="text-primary mt-1" size={20} />
+                                            <p className="text-gray-700">Assistance with application forms and documentation.</p>
+                                        </div>
+                                        <div className="flex items-start gap-3">
+                                            <CheckCircle className="text-primary mt-1" size={20} />
+                                            <p className="text-gray-700">Appointment scheduling and submission support.</p>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-6">

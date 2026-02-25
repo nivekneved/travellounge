@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
@@ -42,7 +42,7 @@ const ServiceDetails = () => {
     const [selectedCabinId, setSelectedCabinId] = useState(null);
 
     // Fetch product from API
-    const { data: product, isLoading, error } = useQuery({
+    const { data: product, isLoading, error, refetch } = useQuery({
         queryKey: ['service', id],
         queryFn: async () => {
             const { data, error } = await supabase
@@ -58,6 +58,31 @@ const ServiceDetails = () => {
             return { ...data, _id: data.id };
         }
     });
+
+    useEffect(() => {
+        if (!id) return;
+
+        const channel = supabase
+            .channel(`public:services:id=eq.${id}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'services',
+                    filter: `id=eq.${id}`,
+                },
+                (payload) => {
+                    console.log('Realtime service update:', payload);
+                    refetch();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [id, refetch]);
 
     const isWishlisted = isInWishlist(product?._id);
 
@@ -101,9 +126,35 @@ const ServiceDetails = () => {
         hotel_rooms: cabins = []
     } = product || {};
 
-    const isCruise = productType === 'cruise';
-    const selectedCabin = cabins.find(c => c.id === selectedCabinId) || cabins[0];
-    const displayPrice = selectedCabin ? selectedCabin.price_per_night : (pricing?.price || 0);
+    const isCruise = productType === 'cruise' || category?.toLowerCase().includes('cruise');
+    const isHotel = productType === 'hotel' || category?.toLowerCase().includes('hotel');
+
+    // Safety check for cabins array
+    const cabinList = Array.isArray(cabins) ? cabins : [];
+
+    const selectedCabin = cabinList.length > 0
+        ? (cabinList.find(c => c.id === selectedCabinId) || cabinList[0])
+        : null;
+
+    const displayPrice = React.useMemo(() => {
+        // Safe base price calculation
+        const basePrice = pricing?.price || pricing?.base_price || pricing?.adult || 0;
+
+        if (!selectedCabin) return basePrice;
+
+        // Weekend pricing logic for hotels
+        if (isHotel && selectedDate) {
+            const date = new Date(selectedDate);
+            const day = date.getDay(); // 0 is Sunday, 6 is Saturday
+            const isWeekend = day === 0 || day === 6;
+
+            if (isWeekend && selectedCabin.features?.weekend_price) {
+                return selectedCabin.features.weekend_price;
+            }
+        }
+
+        return selectedCabin.price_per_night || basePrice;
+    }, [selectedCabin, selectedDate, isHotel, pricing]);
 
     const handleBooking = () => {
         const params = new URLSearchParams({
@@ -258,42 +309,57 @@ const ServiceDetails = () => {
                                 </div>
                             )}
 
-                            {/* Cabin Selection Section (Cruise Only) */}
-                            {isCruise && cabins && cabins.length > 0 && (
+                            {/* Cabin/Room Selection Section */}
+                            {(isCruise || isHotel) && cabins && cabins.length > 0 && (
                                 <div className="mb-12 pt-10 border-t border-gray-100">
                                     <h3 className="text-xs font-black text-primary mb-6 uppercase tracking-[0.3em] flex items-center gap-3">
                                         <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
                                             <Compass size={14} />
                                         </div>
-                                        Select Your Cabin
+                                        {isHotel ? 'Select Your Room' : 'Select Your Cabin'}
                                     </h3>
                                     <div className="space-y-4">
-                                        {cabins.map((cabin) => (
-                                            <div
-                                                key={cabin.id}
-                                                onClick={() => setSelectedCabinId(cabin.id)}
-                                                className={`p-6 rounded-3xl border-2 transition-all cursor-pointer flex flex-col md:flex-row gap-6 ${selectedCabinId === cabin.id || (!selectedCabinId && cabins[0].id === cabin.id) ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-300'}`}
-                                            >
-                                                <div className="w-full md:w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0">
-                                                    <img src={cabin.image_url || '/placeholder-cabin.jpg'} className="w-full h-full object-cover" alt={cabin.name} />
+                                        {cabins.map((cabin) => {
+                                            const roomFeatures = Array.isArray(cabin.features)
+                                                ? cabin.features
+                                                : (cabin.features?.amenities || []);
+
+                                            return (
+                                                <div
+                                                    key={cabin.id}
+                                                    onClick={() => setSelectedCabinId(cabin.id)}
+                                                    className={`p-6 rounded-3xl border-2 transition-all cursor-pointer flex flex-col md:flex-row gap-6 ${selectedCabinId === cabin.id || (!selectedCabinId && cabins[0].id === cabin.id) ? 'border-primary bg-primary/5' : 'border-gray-100 bg-white hover:border-gray-300'}`}
+                                                >
+                                                    <div className="w-full md:w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0">
+                                                        <img src={cabin.image_url || '/placeholder-cabin.jpg'} className="w-full h-full object-cover" alt={cabin.name} />
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <h4 className="text-sm font-black uppercase tracking-widest text-gray-900">{cabin.name}</h4>
+                                                            <span className="text-primary font-black text-sm">
+                                                                Rs {(cabin.price_per_night || 0).toLocaleString()}
+                                                                {isHotel && cabin.features?.weekend_price && (
+                                                                    <span className="text-[9px] text-gray-400 block font-normal">Weekend: Rs {Number(cabin.features.weekend_price).toLocaleString()}</span>
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-2 mb-3">
+                                                            {roomFeatures.slice(0, 3).map((f, i) => (
+                                                                <span key={i} className="text-[10px] font-bold bg-white px-2 py-1 rounded-full border border-gray-100 text-gray-500 uppercase">{f}</span>
+                                                            ))}
+                                                        </div>
+                                                        <div className="flex items-center gap-4 text-xs text-gray-500 font-bold">
+                                                            <span className="flex items-center gap-1">
+                                                                <Users size={12} /> Max {cabin.max_occupancy || 2} persons
+                                                            </span>
+                                                            <span className="flex items-center gap-1">
+                                                                {isCruise ? <Ship size={12} /> : <MapPin size={12} />} {cabin.view}
+                                                            </span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1">
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <h4 className="text-sm font-black uppercase tracking-widest text-gray-900">{cabin.name}</h4>
-                                                        <span className="text-primary font-black text-sm">Rs {cabin.price_per_night.toLocaleString()}</span>
-                                                    </div>
-                                                    <div className="flex flex-wrap gap-2 mb-3">
-                                                        {(cabin.features || []).slice(0, 3).map((f, i) => (
-                                                            <span key={i} className="text-[10px] font-bold bg-white px-2 py-1 rounded-full border border-gray-100 text-gray-500 uppercase">{f}</span>
-                                                        ))}
-                                                    </div>
-                                                    <div className="flex items-center gap-4 text-xs text-gray-500 font-bold">
-                                                        <span className="flex items-center gap-1"><Users size={12} /> Max {cabin.max_occupancy}</span>
-                                                        <span className="flex items-center gap-1"><Ship size={12} /> {cabin.view}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -358,23 +424,33 @@ const ServiceDetails = () => {
                                         Daily Itinerary
                                     </h3>
                                     <div className="relative pl-8 space-y-12 before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-gradient-to-b before:from-primary before:to-gray-100">
-                                        {itinerary.map((day, index) => (
-                                            <div key={index} className="relative">
-                                                {/* Timeline Marker */}
-                                                <div className="absolute -left-[31px] top-0 w-8 h-8 bg-white border-4 border-primary rounded-full z-10 shadow-sm flex items-center justify-center">
-                                                    <span className="text-[10px] font-black text-primary">{day.day}</span>
-                                                </div>
+                                        {itinerary.map((item, index) => {
+                                            // Handle multiple itinerary formats
+                                            const dayNumber = item.day || index + 1;
+                                            const title = item.title || item.activity || `Schedule Item ${index + 1}`;
+                                            const description = item.description || (item.time ? `Scheduled for ${item.time}` : '');
+                                            const marker = item.time || (item.day ? `Day ${item.day}` : dayNumber);
 
-                                                <div className="bg-white group">
-                                                    <h4 className="text-sm font-black text-gray-900 mb-2 uppercase tracking-tight group-hover:text-primary transition-colors">
-                                                        {day.title}
-                                                    </h4>
-                                                    <p className="text-gray-500 text-sm leading-relaxed font-medium">
-                                                        {day.description}
-                                                    </p>
+                                            return (
+                                                <div key={index} className="relative">
+                                                    {/* Timeline Marker */}
+                                                    <div className="absolute -left-[31px] top-0 w-8 h-8 bg-white border-4 border-primary rounded-full z-10 shadow-sm flex items-center justify-center">
+                                                        <span className="text-[10px] font-black text-primary truncate px-0.5">{marker}</span>
+                                                    </div>
+
+                                                    <div className="bg-white group">
+                                                        <h4 className="text-sm font-black text-gray-900 mb-2 uppercase tracking-tight group-hover:text-primary transition-colors">
+                                                            {title}
+                                                        </h4>
+                                                        {description && (
+                                                            <p className="text-gray-500 text-sm leading-relaxed font-medium">
+                                                                {description}
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -386,14 +462,14 @@ const ServiceDetails = () => {
                         <div className="bg-white rounded-3xl p-6 shadow-md sticky top-24">
                             <div className="flex items-baseline gap-2 mb-4">
                                 <span className="text-3xl font-bold text-gray-900">
-                                    Rs {displayPrice.toLocaleString()}
+                                    Rs {(displayPrice || 0).toLocaleString()}
                                 </span>
                                 {pricing?.originalPrice && (
                                     <span className="text-lg text-gray-500 line-through">
-                                        Rs {pricing.originalPrice.toLocaleString()}
+                                        Rs {Number(pricing.originalPrice).toLocaleString()}
                                     </span>
                                 )}
-                                <span className="ml-auto text-gray-500">{isCruise ? 'per cabin' : 'per person'}</span>
+                                <span className="ml-auto text-gray-500">{isCruise ? 'per cabin' : 'per night'}</span>
                             </div>
 
                             {isCruise && selectedCabin && (

@@ -52,15 +52,21 @@ const AboutUs = () => {
                                 <Zap size={16} /> Our Story
                             </div>
                             <h2 className="text-4xl md:text-6xl font-black text-gray-900 leading-[1.1] tracking-tighter">
-                                Travel Lounge & <br />Leisure LTD
+                                {pageData?.headline || <>Travel Lounge & <br />Leisure LTD</>}
                             </h2>
-                            <div className="space-y-6 text-xl text-gray-600 font-light leading-relaxed">
-                                <p>
-                                    Located in the heart of the city center of Port Louis, since 2014 TRAVEL LOUNGE LTD is an IATA accredited travel agency specializing in corporate business and personalized holiday leisure travel deals to Mauritian and international travelers.
-                                </p>
-                                <p>
-                                    We ensure you a hassle-free stay. Your peace of mind is our business. Whether you are looking for local hotels, activities, or spa deals, we have curated the best of the island for you.
-                                </p>
+                            <div className="space-y-6 text-xl text-gray-600 font-light leading-relaxed prose prose-lg prose-red max-w-none">
+                                {pageData?.body ? (
+                                    <div dangerouslySetInnerHTML={{ __html: pageData.body }} />
+                                ) : (
+                                    <>
+                                        <p>
+                                            Located in the heart of the city center of Port Louis, since 2014 TRAVEL LOUNGE LTD is an IATA accredited travel agency specializing in corporate business and personalized holiday leisure travel deals to Mauritian and international travelers.
+                                        </p>
+                                        <p>
+                                            We ensure you a hassle-free stay. Your peace of mind is our business. Whether you are looking for local hotels, activities, or spa deals, we have curated the best of the island for you.
+                                        </p>
+                                    </>
+                                )}
                             </div>
                             <div className="grid grid-cols-2 gap-8 pt-8 border-t border-gray-100">
                                 <div>

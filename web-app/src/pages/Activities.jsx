@@ -14,9 +14,27 @@ import TrustSection from '../components/TrustSection';
 import ListingHeader from '../components/ListingHeader';
 import Pagination from '../components/Pagination';
 
+import { supabase } from '../utils/supabase';
+import { useQuery } from '@tanstack/react-query';
+
 const Activities = () => {
     const [searchParams] = useSearchParams();
     const initialCategory = searchParams.get('category');
+
+    const { data: pageData, isLoading: isPageLoading } = useQuery({
+        queryKey: ['page_activities'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('pages')
+                .select('content')
+                .eq('slug', 'activities')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.content;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
 
     const { activities, loading, error } = useActivities(initialCategory);
     const [viewMode, setViewMode] = useState('grid');
@@ -64,7 +82,7 @@ const Activities = () => {
             {/* Hero Section */}
             <PageHero
                 title="Island Activities"
-                subtitle="Discover the best adventures and experiences in Mauritius."
+                subtitle={pageData?.headline || "Discover the best adventures and experiences in Mauritius."}
                 image="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=1920"
                 icon={Waves}
             />
@@ -245,10 +263,16 @@ const Activities = () => {
             {/* CTA Section */}
             <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8">
                 <div className="bg-gradient-to-br from-primary to-red-700 rounded-3xl p-12 md:p-16 text-center text-white">
-                    <h2 className="text-4xl font-black mb-6">Ready for Adventure?</h2>
-                    <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-                        Book your activities and make memories that last a lifetime.
-                    </p>
+                    <h2 className="text-4xl font-black mb-6">
+                        {pageData?.headline || "Ready for Adventure?"}
+                    </h2>
+                    <div className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+                        {pageData?.body ? (
+                            <div dangerouslySetInnerHTML={{ __html: pageData.body }} />
+                        ) : (
+                            <p>Book your activities and make memories that last a lifetime.</p>
+                        )}
+                    </div>
                     <Button
                         to="/contact"
                         className="bg-white text-primary hover:bg-gray-100 shadow-xl py-4 px-10"

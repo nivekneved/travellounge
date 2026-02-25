@@ -34,6 +34,21 @@ const Flights = () => {
         }
     });
 
+    const { data: pageData } = useQuery({
+        queryKey: ['page_flights'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('pages')
+                .select('content')
+                .eq('slug', 'flights')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.content;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+
     const handleSearch = (e) => {
         e.preventDefault();
         // For now, redirect to contact or show modal
@@ -76,7 +91,7 @@ const Flights = () => {
             {/* Hero Section */}
             <PageHero
                 title="Search Flights"
-                subtitle="Book your next journey with our exclusive flight offers and worldwide coverage."
+                subtitle={pageData?.headline || "Book your next journey with our exclusive flight offers and worldwide coverage."}
                 image="https://images.unsplash.com/photo-1436491865332-7a61a109c0f3?q=80&w=1920"
                 icon={Plane}
             />
@@ -196,8 +211,16 @@ const Flights = () => {
                 <div className="mb-20">
                     <div className="flex items-end justify-between mb-8">
                         <div>
-                            <h2 className="text-4xl font-black text-gray-900 mb-4">Latest Flight Offers</h2>
-                            <p className="text-xl text-gray-600">Exclusive deals managed by our travel experts</p>
+                            <h2 className="text-4xl font-black text-gray-900 mb-4">
+                                {pageData?.headline || "Latest Flight Offers"}
+                            </h2>
+                            <div className="text-xl text-gray-600">
+                                {pageData?.body ? (
+                                    <div dangerouslySetInnerHTML={{ __html: pageData.body }} />
+                                ) : (
+                                    <p>Exclusive deals managed by our travel experts</p>
+                                )}
+                            </div>
                         </div>
                     </div>
 

@@ -1,7 +1,32 @@
 import React from 'react';
-import { Shield } from 'lucide-react';
+import { Shield, Loader } from 'lucide-react';
+import { supabase } from '../utils/supabase';
+import { useQuery } from '@tanstack/react-query';
 
 const PrivacyPolicy = () => {
+    const { data: pageData, isLoading } = useQuery({
+        queryKey: ['page_privacy'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('pages')
+                .select('content')
+                .eq('slug', 'privacy')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.content;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-white">
+                <Loader className="animate-spin text-primary" />
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white min-h-screen pb-20">
             <div className="w-full px-4 md:px-8 max-w-[1400px] mx-auto pt-12 md:pt-20">
@@ -11,40 +36,46 @@ const PrivacyPolicy = () => {
                     </div>
                     <div>
                         <h1 className="text-4xl font-black tracking-tighter">Privacy <span className="text-primary">Policy</span></h1>
-                        <p className="text-gray-400 font-medium">Last Updated: January 2026</p>
+                        <p className="text-gray-400 font-medium">Last Updated: {new Date().getFullYear()}</p>
                     </div>
                 </div>
 
                 <div className="prose prose-lg prose-red max-w-none">
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-bold mb-4">1. Data Protection Compliance</h2>
-                        <p className="text-gray-600 leading-relaxed">
-                            Travel Lounge ("we", "us") operates in full compliance with the <strong>Mauritius Data Protection Act 2017</strong> (DPA). We are committed to safeguarding the privacy and security of our clients' personal data.
-                        </p>
-                    </section>
+                    {pageData?.body ? (
+                        <div dangerouslySetInnerHTML={{ __html: pageData.body }} />
+                    ) : (
+                        <>
+                            <section className="mb-12">
+                                <h2 className="text-2xl font-bold mb-4">1. Data Protection Compliance</h2>
+                                <p className="text-gray-600 leading-relaxed">
+                                    Travel Lounge ("we", "us") operates in full compliance with the <strong>Mauritius Data Protection Act 2017</strong> (DPA). We are committed to safeguarding the privacy and security of our clients' personal data.
+                                </p>
+                            </section>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-bold mb-4">2. Information We Collect</h2>
-                        <ul className="list-disc pl-6 space-y-2 text-gray-600">
-                            <li>Identity Data: Name, passport details (for bookings).</li>
-                            <li>Contact Data: Email address, phone number.</li>
-                            <li>Travel Data: Check-in/out dates, special requests, dietary requirements.</li>
-                        </ul>
-                    </section>
+                            <section className="mb-12">
+                                <h2 className="text-2xl font-bold mb-4">2. Information We Collect</h2>
+                                <ul className="list-disc pl-6 space-y-2 text-gray-600">
+                                    <li>Identity Data: Name, passport details (for bookings).</li>
+                                    <li>Contact Data: Email address, phone number.</li>
+                                    <li>Travel Data: Check-in/out dates, special requests, dietary requirements.</li>
+                                </ul>
+                            </section>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-bold mb-4">3. How We Use Your Data</h2>
-                        <p className="text-gray-600 leading-relaxed">
-                            Your data is used strictly for facilitating your travel bookings with our partners (hotels, flight operators). We do <strong>not</strong> sell your data to third parties.
-                        </p>
-                    </section>
+                            <section className="mb-12">
+                                <h2 className="text-2xl font-bold mb-4">3. How We Use Your Data</h2>
+                                <p className="text-gray-600 leading-relaxed">
+                                    Your data is used strictly for facilitating your travel bookings with our partners (hotels, flight operators). We do <strong>not</strong> sell your data to third parties.
+                                </p>
+                            </section>
 
-                    <section className="mb-12">
-                        <h2 className="text-2xl font-bold mb-4">4. Your Rights</h2>
-                        <p className="text-gray-600 leading-relaxed">
-                            Under the DPA 2017, you have the right to request access to, correction of, or deletion of your personal data held by us. Please contact our Data Protection Officer at <strong>reservation@travellounge.mu</strong>.
-                        </p>
-                    </section>
+                            <section className="mb-12">
+                                <h2 className="text-2xl font-bold mb-4">4. Your Rights</h2>
+                                <p className="text-gray-600 leading-relaxed">
+                                    Under the DPA 2017, you have the right to request access to, correction of, or deletion of your personal data held by us. Please contact our Data Protection Officer at <strong>reservation@travellounge.mu</strong>.
+                                </p>
+                            </section>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

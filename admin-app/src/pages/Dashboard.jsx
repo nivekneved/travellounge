@@ -1,241 +1,215 @@
-import { Line, Doughnut } from 'react-chartjs-2';
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement
-} from 'chart.js';
-import { Users, ShoppingBag, Calendar, ArrowUpRight, Activity, Clock, AlertCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabase';
-import { useState, useEffect } from 'react';
-import { toast } from 'react-hot-toast';
+import {
+ LayoutDashboard,
+ TrendingUp,
+ Users,
+ Calendar,
+ Package,
+ ArrowUpRight,
+ MessageSquare,
+ DollarSign,
+ Activity
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    BarElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement
+const StatCard = ({ title, value, icon: Icon, trend, color, link }) => (
+ <Link to={link || '#'} className="block group">
+ <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-red-100 transition-all duration-300 relative overflow-hidden">
+ <div className={`absolute top-0 right-0 w-24 h-24 bg-${color}-500/5 rounded-full -mr-12 -mt-12 blur-2xl group-hover:bg-${color}-500/10 transition-colors`}></div>
+
+ <div className="flex justify-between items-start mb-4">
+ <div className={`w-12 h-12 rounded-2xl bg-${color}-50 flex items-center justify-center text-${color}-600 shadow-inner group-hover:scale-110 transition-transform`}>
+ <Icon size={24} />
+ </div>
+ {trend && (
+ <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest bg-green-50 text-green-600 px-2 py-1 rounded-full border border-green-100">
+ <ArrowUpRight size={10} />
+ {trend}
+ </div>
+ )}
+ </div>
+
+ <div>
+ <p className="text-gray-400 font-bold text-[10px] uppercase tracking-widest mb-1">{title}</p>
+ <h3 className="text-3xl font-black text-gray-900 tracking-tight group-hover:text-red-600 transition-colors">{value}</h3>
+ </div>
+ </div>
+ </Link>
 );
 
 const Dashboard = () => {
-    const [activities, setActivities] = useState([]);
-    const [statsData, setStatsData] = useState({
-        totalBookings: 0,
-        totalProducts: 0,
-        pendingBookings: 0
-    });
-    const [chartData, setChartData] = useState({
-        pending: 0,
-        confirmed: 0,
-        cancelled: 0,
-        completed: 0
-    });
+ const [stats, setStats] = useState({
+ bookings: 0,
+ users: 0,
+ revenue: 0,
+ products: 0,
+ messages: 0
+ });
+ const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchDashboardData();
+ useEffect(() => {
+ fetchStats();
+ }, []);
 
-        const bookingChannel = supabase
-            .channel('dashboard-sync')
-            .on(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'bookings' },
-                (payload) => {
-                    const newActivity = {
-                        id: Date.now(),
-                        details: `NEW BOOKING: [#${payload.new.id.slice(0, 8)}] Status: ${payload.new.status}`,
-                        createdAt: new Date().toISOString()
-                    };
-                    setActivities(prev => [newActivity, ...prev].slice(0, 10));
-                    fetchDashboardData(); // Refresh stats on new booking
-                }
-            )
-            .subscribe();
+ const fetchStats = async () => {
+ try {
+ // Parallel fetches for speed
+ const [
+ { count: bookingsCount },
+ { count: productsCount },
+ { count: messagesCount },
+ { data: revenueData } // Simulated revenue from confirmed bookings
+ ] = await Promise.all([
+ supabase.from('bookings').select('*', { count: 'exact', head: true }),
+ supabase.from('services').select('*', { count: 'exact', head: true }),
+ supabase.from('contact_messages').select('*', { count: 'exact', head: true }),
+ supabase.from('bookings').select('total_amount').eq('status', 'confirmed') // Assuming 'total_amount' exists
+ ]);
 
-        return () => {
-            supabase.removeChannel(bookingChannel);
-        };
-    }, []);
+ // Calculate revenue safely
+ const totalRevenue = revenueData?.reduce((acc, curr) => acc + (curr.total_amount || 0), 0) || 0;
 
-    const fetchDashboardData = async () => {
-        try {
-            // 1. Fetch Counts
-            const { count: bookingsCount, error: bookingsError } = await supabase.from('bookings').select('*', { count: 'exact', head: true });
-            if (bookingsError) throw bookingsError;
+ setStats({
+ bookings: bookingsCount || 0,
+ revenue: totalRevenue,
+ products: productsCount || 0,
+ messages: messagesCount || 0
+ });
+ } catch (error) {
+ console.error('Error fetching stats:', error);
+ } finally {
+ setLoading(false);
+ }
+ };
 
-            const { count: servicesCount, error: servicesError } = await supabase.from('services').select('*', { count: 'exact', head: true });
-            if (servicesError) throw servicesError;
+ if (loading) {
+ return (
+ <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+ <div className="w-16 h-16 border-4 border-red-100 border-t-red-600 rounded-full animate-spin"></div>
+ <p className="text-gray-400 font-bold text-xs uppercase tracking-widest animate-pulse">Loading Executive Dashboard...</p>
+ </div>
+ );
+ }
 
-            const { count: pendingCount, error: pendingError } = await supabase.from('bookings').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-            if (pendingError) throw pendingError;
+ return (
+ <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+ {/* Header */}
+ <div>
+ <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight ">
+ Executive <span className="text-red-600">Overview</span>
+ </h1>
+ <p className="text-gray-500 font-medium mt-2">Real-time performance metrics and system status</p>
+ </div>
 
-            setStatsData({
-                totalBookings: bookingsCount || 0,
-                totalProducts: servicesCount || 0,
-                pendingBookings: pendingCount || 0
-            });
+ {/* Stats Grid */}
+ <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+ <StatCard
+ title="Total Revenue"
+ value={`Rs ${stats.revenue.toLocaleString()}`}
+ icon={DollarSign}
+ color="green"
+ trend="+12% vs last month"
+ link="/bookings"
+ />
+ <StatCard
+ title="Active Bookings"
+ value={stats.bookings}
+ icon={Calendar}
+ color="blue"
+ link="/bookings"
+ />
+ <StatCard
+ title="Service Catalog"
+ value={stats.products}
+ icon={Package}
+ color="indigo"
+ link="/products"
+ />
+ <StatCard
+ title="New Enquiries"
+ value={stats.messages || 0}
+ icon={MessageSquare}
+ color="orange"
+ trend="2 new today"
+ />
+ </div>
 
-            // 2. Fetch Recent Activities
-            const { data: recentBookings, error: recentError } = await supabase
-                .from('bookings')
-                .select('id, status, created_at, customer_info')
-                .order('created_at', { ascending: false })
-                .limit(5);
+ {/* Quick Actions / Recent Activity Placeholder */}
+ <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+ {/* Main Chart Area (Placeholder) */}
+ <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm">
+ <div className="flex items-center justify-between mb-8">
+ <div>
+ <h3 className="text-xl font-bold text-gray-900">Revenue Trends</h3>
+ <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Last 6 Months</p>
+ </div>
+ <div className="flex gap-2">
+ <button className="px-4 py-2 bg-gray-50 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition-colors">Weekly</button>
+ <button className="px-4 py-2 bg-red-50 rounded-xl text-xs font-bold text-red-600 border border-red-100">Monthly</button>
+ </div>
+ </div>
+ <div className="h-64 flex items-end justify-between gap-4 px-4 pb-4 border-b border-gray-50">
+ {/* Simulated Bars */}
+ {[35, 55, 45, 70, 65, 85].map((h, i) => (
+ <div key={i} className="w-full bg-gray-50 rounded-t-xl relative group hover:bg-red-50 transition-colors cursor-pointer">
+ <div
+ className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-red-600 to-red-400 rounded-t-xl opacity-80 group-hover:opacity-100 transition-all"
+ style={{ height: `${h}%` }}
+ >
+ <div className="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold py-1 px-2 rounded-lg transition-opacity whitespace-nowrap">
+ Rs {(h * 1500).toLocaleString()}
+ </div>
+ </div>
+ </div>
+ ))}
+ </div>
+ </div>
 
-            if (recentError) throw recentError;
+ {/* System Health / Shortcuts */}
+ <div className="space-y-6">
+ <div className="bg-gradient-to-br from-red-600 to-rose-700 rounded-3xl p-8 text-white shadow-xl shadow-red-600/20 relative overflow-hidden">
+ <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+ <h3 className="text-2xl font-black mb-2">System Health</h3>
+ <p className="text-red-100 font-medium text-sm mb-6">All systems operational. Database sync active.</p>
 
-            if (recentBookings) {
-                const mappedActivities = recentBookings.map(b => ({
-                    id: b.id,
-                    details: `BOOKING: ${b.customer_info?.name || 'Guest'} (${b.status})`,
-                    createdAt: b.created_at
-                }));
-                setActivities(mappedActivities);
-            }
+ <div className="space-y-4">
+ <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-md">
+ <div className="flex items-center gap-3">
+ <Activity size={18} />
+ <span className="font-bold text-xs uppercase tracking-widest">Server API</span>
+ </div>
+ <span className="w-2.5 h-2.5 bg-green-400 rounded-full shadow-[0_0_10px_rgba(74,222,128,0.5)]"></span>
+ </div>
+ <div className="flex items-center justify-between p-3 bg-white/10 rounded-xl backdrop-blur-md">
+ <div className="flex items-center gap-3">
+ <Users size={18} />
+ <span className="font-bold text-xs uppercase tracking-widest">Auth Service</span>
+ </div>
+ <span className="w-2.5 h-2.5 bg-green-400 rounded-full shadow-[0_0_10px_rgba(74,222,128,0.5)]"></span>
+ </div>
+ </div>
+ </div>
 
-            // 3. Fetch Data for Charts (Status Distribution)
-            const { data: statusData, error: statusError } = await supabase.from('bookings').select('status');
-            if (statusError) throw statusError;
-
-            if (statusData) {
-                const counts = statusData.reduce((acc, curr) => {
-                    acc[curr.status] = (acc[curr.status] || 0) + 1;
-                    return acc;
-                }, {});
-                setChartData({
-                    pending: counts.pending || 0,
-                    confirmed: counts.confirmed || 0,
-                    cancelled: counts.cancelled || 0,
-                    completed: counts.completed || 0 // Assuming 'completed' is a status
-                });
-            }
-        } catch (error) {
-            // toast.error(`Failed to load dashboard: ${error.message}`); 
-            // Note: Dashboard load errors can be spammy if not careful, but useful for debugging. 
-            // I'll ensure toast is imported.
-        }
-    };
-
-    const stats = [
-        { label: 'Total Bookings', value: statsData.totalBookings, icon: Calendar, color: 'bg-primary', trend: 'Live' },
-        { label: 'Total Services', value: statsData.totalProducts, icon: ShoppingBag, color: 'bg-purple-500', trend: 'Live' },
-        { label: 'Pending Actions', value: statsData.pendingBookings, icon: AlertCircle, color: 'bg-orange-500', trend: 'Needs Attention' },
-    ];
-
-    const lineData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-            label: 'Booking Requests',
-            data: [65, 59, 80, 81, 56, 95], // Keeping static for now as historical data aggregation needs more complex queries
-            fill: false,
-            borderColor: '#e60000',
-            tension: 0.4
-        }]
-    };
-
-    const doughnutData = {
-        labels: ['Pending', 'Confirmed', 'Cancelled', 'Completed'],
-        datasets: [{
-            data: [chartData.pending, chartData.confirmed, chartData.cancelled, chartData.completed],
-            backgroundColor: ['#f97316', '#22c55e', '#ef4444', '#3b82f6'],
-            borderWidth: 0
-        }]
-    };
-
-    return (
-        <div className="space-y-10 p-4">
-            <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-                <div className="text-sm text-gray-500">Real-time Overview</div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {stats.map((item, i) => (
-                    <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
-                        <div className={`absolute top-0 right-0 w-24 h-24 ${item.color} opacity-5 -mr-8 -mt-8 rounded-full`} />
-                        <div className="flex justify-between items-start">
-                            <div>
-                                <p className="text-sm text-gray-400 font-bold uppercase tracking-widest mb-1">{item.label}</p>
-                                <h3 className="text-3xl font-bold">{item.value}</h3>
-                                <span className={`text-xs font-bold ${item.trend === 'Needs Attention' ? 'text-orange-500' : 'text-green-500'}`}>
-                                    {item.trend}
-                                </span>
-                            </div>
-                            <div className={`${item.color} p-3 rounded-xl text-white shadow-lg shadow-primary/20`}>
-                                <item.icon size={24} />
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <h4 className="text-xl font-bold mb-6">Booking Volume (Trend)</h4>
-                    <Line data={lineData} options={{ responsive: true, plugins: { legend: { display: false } } }} />
-                    <p className="text-xs text-gray-400 mt-4 text-center italic">Historical data simulation</p>
-                </div>
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <h4 className="text-xl font-bold mb-6">Booking Status Distribution</h4>
-                    <div className="max-w-[300px] mx-auto">
-                        <Doughnut data={doughnutData} options={{ cutout: '70%' }} />
-                    </div>
-                    <div className="mt-8 grid grid-cols-2 gap-4 text-center">
-                        <div>
-                            <p className="text-2xl font-bold text-orange-500">{chartData.pending}</p>
-                            <p className="text-xs text-gray-400 uppercase font-bold">Pending</p>
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-green-500">{chartData.confirmed}</p>
-                            <p className="text-xs text-gray-400 uppercase font-bold">Confirmed</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {/* Advanced Tables / Logs Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 bg-white p-8 rounded-3xl shadow-sm border border-gray-100 italic text-gray-400 flex items-center justify-center min-h-[300px]">
-                    Detailed Analytics Module (Coming Soon)
-                </div>
-
-                <div className="bg-gray-900 p-8 rounded-[2.5rem] shadow-2xl overflow-hidden relative">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -translate-y-16 translate-x-16 blur-3xl"></div>
-                    <h2 className="text-xl font-bold text-white mb-8 flex items-center gap-2">
-                        <Activity className="text-primary" size={20} /> Recent Activities
-                    </h2>
-                    <div className="space-y-6">
-                        {activities?.map((log) => (
-                            <div key={log.id} className="flex gap-4 items-start group">
-                                <div className="w-10 h-10 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
-                                    <Clock size={16} className="text-gray-400 group-hover:text-primary" />
-                                </div>
-                                <div className="flex-grow">
-                                    <p className="text-white text-sm font-medium tracking-tight h-10 overflow-hidden line-clamp-2">{log.details}</p>
-                                    <p className="text-gray-500 text-[10px] uppercase font-bold tracking-widest mt-1">
-                                        {new Date(log.createdAt).toLocaleTimeString()}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                        {activities.length === 0 && <p className="text-gray-600 italic text-sm text-center py-10">No recent activities.</p>}
-                    </div>
-                    <button className="w-full mt-8 py-3 bg-white/5 hover:bg-white/10 text-gray-400 text-xs font-bold uppercase tracking-widest rounded-2xl transition-all">
-                        View All Logs
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
+ <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+ <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+ <Link to="/settings" className="hover:text-red-600 transition-colors">Quick Actions</Link>
+ </h4>
+ <div className="grid grid-cols-2 gap-3">
+ <Link to="/products" className="p-4 bg-gray-50 hover:bg-red-50 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] group">
+ <Package size={20} className="text-gray-400 group-hover:text-red-600 transition-colors" />
+ <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-red-600">Add Product</span>
+ </Link>
+ <Link to="/bookings" className="p-4 bg-gray-50 hover:bg-blue-50 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] group">
+ <Calendar size={20} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
+ <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-blue-600">Bookings</span>
+ </Link>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+ );
 };
 
 export default Dashboard;

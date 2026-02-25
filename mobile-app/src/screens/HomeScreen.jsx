@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, Image, SafeAreaView, ScrollView
 import { MapPin, ArrowRight, Search, Heart, Activity, Compass } from 'lucide-react-native';
 import { useQuery } from '@tanstack/react-query';
 import { theme } from '../constants/theme';
-import api from '../services/api';
+import { supabase } from '../utils/supabase';
 
 // Components
 import HeroSlider from '../components/HeroSlider';
@@ -15,8 +15,14 @@ export default function HomeScreen({ navigation }) {
     const { data: featuredProducts, isLoading } = useQuery({
         queryKey: ['products', 'featured'],
         queryFn: async () => {
-            const { data } = await api.get('/products');
-            return data.slice(0, 5); // Limit to 5 for featured
+            const { data, error } = await supabase
+                .from('services')
+                .select('*')
+                .eq('is_active', true)
+                .order('created_at', { ascending: false })
+                .limit(5);
+            if (error) throw error;
+            return data;
         }
     });
 

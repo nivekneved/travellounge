@@ -4,3 +4,6 @@ dist
 dist-ssr
 *.local
 .vercel
+inspect_*.js
+seed_*.js
+fix.js

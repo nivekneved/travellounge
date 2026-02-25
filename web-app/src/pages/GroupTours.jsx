@@ -14,7 +14,25 @@ import Pagination from '../components/Pagination';
 import TrustSection from '../components/TrustSection';
 import CTASection from '../components/CTASection';
 
+import { supabase } from '../utils/supabase';
+import { useQuery } from '@tanstack/react-query';
+
 const GroupTours = () => {
+    const { data: pageData, isLoading: isPageLoading } = useQuery({
+        queryKey: ['page_group_tours'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('pages')
+                .select('content')
+                .eq('slug', 'group-tours')
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.content;
+        },
+        staleTime: 1000 * 60 * 5,
+    });
+
     const { tours, loading, error } = useGroupTours();
     const [viewMode, setViewMode] = useState('grid');
     const [priceRange, setPriceRange] = useState([0, 500000]);
@@ -57,7 +75,7 @@ const GroupTours = () => {
             {/* Hero Section */}
             <PageHero
                 title="Guided Group Tours"
-                subtitle="Join our exclusive small-group journeys to the world's most breathtaking destinations."
+                subtitle={pageData?.headline || "Join our exclusive small-group journeys to the world's most breathtaking destinations."}
                 image="https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=1920"
                 icon={Users}
             />
