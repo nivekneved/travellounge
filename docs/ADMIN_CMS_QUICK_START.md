@@ -2,13 +2,45 @@
 
 ## 🎯 Manager URLs
 
-Access these URLs after running the database migration:
+Access these URLs after starting the admin app:
 
-- **Categories**: <http://localhost:5173/admin/categories>
+### Core Platform
+
+- **Pages**: <http://localhost:5173/admin/pages>
+- **SEO & Meta**: <http://localhost:5173/admin/seo>
+- **Navigation Menus**: <http://localhost:5173/admin/menus>
 - **Footer**: <http://localhost:5173/admin/footer>
+
+### Content & Media
+
 - **Media Library**: <http://localhost:5173/admin/media>
+- **Homepage Categories**: <http://localhost:5173/admin/categories>
+- **Heroes & Banners**: <http://localhost:5173/admin/heroes>
+- **Email Templates**: <http://localhost:5173/admin/email-templates>
+
+### Products & Services
+
+- **Products**: <http://localhost:5173/admin/products>
+- **Tours**: <http://localhost:5173/admin/tours>
+- **Flights**: <http://localhost:5173/admin/flights>
+- **Land Activities**: <http://localhost:5173/admin/land-activities>
+- **Sea Activities**: <http://localhost:5173/admin/sea-activities>
+
+### Sales & Marketing
+
+- **Bookings**: <http://localhost:5173/admin/bookings>
+- **Promotions**: <http://localhost:5173/admin/promotions>
+- **Newsletters**: <http://localhost:5173/admin/newsletters>
+
+### Community & Trust
+
 - **Testimonials**: <http://localhost:5173/admin/testimonials>
-- **Activities**: <http://localhost:5173/admin/activities>
+- **Reviews**: <http://localhost:5173/admin/reviews>
+- **Team**: <http://localhost:5173/admin/team>
+
+### System
+
+- **Audit Logs**: <http://localhost:5173/admin/audit-logs>
 
 ## 📋 Quick Setup Checklist
 
@@ -40,7 +72,10 @@ Access these URLs after running the database migration:
 - [ ] FooterManager - Update contact info
 - [ ] MediaLibrary - Upload a test image
 - [ ] TestimonialManager - Add a test review
-- [ ] ActivityManager - Add a test activity
+- [ ] ActivityManagers (Land/Sea) - Add a test activity
+- [ ] ProductManager / TourManager - Test catalog entries
+- [ ] BookingManager - Review a test booking
+- [ ] ReviewModerator - Approve or delete a test review
 
 ## 🔧 Troubleshooting
 

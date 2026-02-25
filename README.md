@@ -4,20 +4,21 @@ A comprehensive travel agency management system tailored for Mauritius.
 
 ## Project Structure
 
-- `backend/`: Node.js/Express API (Shared)
 - `web-app/`: Customer-facing React Application
 - `admin-app/`: Admin Management React Application
 - `mobile-app/`: Cross-platform React Native (Expo) App
+- `supabase/`: Database migrations and configuration
 - `docs/`: Project Documentation
 - `scripts/`: Utility scripts for development and deployment
 - `tests/`: Integration and E2E tests
 
 ## Technologies
 
-- **Backend**: Node.js, Express, supabase, Amadeus API, Twilio, Nodemailer.
-- **Frontend**: React.js, Vite, Tailwind CSS, Lucide React.
-- **Mobile**: React Native, Expo, NativeWind.
-- **DevOps**: Docker, AWS/Heroku.
+- **Backend & Database**: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- **Frontend**: React.js, Vite, Tailwind CSS, Lucide React, TanStack Query
+- **Mobile**: React Native, Expo, NativeWind
+- **Third-Party APIs**: Amadeus API, Twilio, Nodemailer (via Edge Functions)
+- **DevOps**: GitHub Actions, Vercel/Netlify (Web), EAS Build (Mobile)
 
 ## Compliance
 

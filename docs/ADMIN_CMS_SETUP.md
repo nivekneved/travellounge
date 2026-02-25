@@ -66,13 +66,45 @@ USING (bucket_id = 'media' AND auth.role() = 'authenticated');
 http://localhost:5173/admin
 ```
 
-### New Manager Routes
+### Manager Routes
 
-- `/admin/categories` - Homepage categories
-- `/admin/footer` - Footer settings
+**Core Platform**
+
+- `/admin/pages` - Manage dynamic content pages
+- `/admin/seo` - Manage global and page-specific SEO
+- `/admin/menus` - Manage header and footer navigation
+- `/admin/footer` - Manage footer settings
+
+**Content & Media**
+
 - `/admin/media` - Media library
-- `/admin/testimonials` - Customer testimonials
-- `/admin/activities` - Sea/Land activities
+- `/admin/categories` - Homepage categories
+- `/admin/heroes` - Manage hero sliders and banners
+- `/admin/email-templates` - Design and manage system emails
+
+**Products & Services**
+
+- `/admin/products` - Manage core products and services
+- `/admin/tours` - Manage guided group tours
+- `/admin/flights` - Manage flight listings
+- `/admin/land-activities` - Manage terrestrial activities
+- `/admin/sea-activities` - Manage marine activities
+
+**Sales & Marketing**
+
+- `/admin/bookings` - Review and manage customer bookings
+- `/admin/promotions` - Manage active deals and discounts
+- `/admin/newsletters` - Manage newsletter subscribers
+
+**Community & Trust**
+
+- `/admin/testimonials` - Testimonials and feedback
+- `/admin/reviews` - Approve, reject, and moderate user reviews
+- `/admin/team` - Manage team profiles
+
+**System Operations**
+
+- `/admin/audit-logs` - System telemetry and audit trails
 
 ---
 
@@ -126,44 +158,30 @@ const { data: settings = {} } = useQuery({
 
 ## 5️⃣ Testing Checklist
 
-### CategoryManager
+### Core Setup & Configuration
 
-- [ ] Create a new category
-- [ ] Upload an image
-- [ ] Toggle active/inactive status
-- [ ] Reorder categories
-- [ ] Verify on homepage
+- [ ] Test MediaLibrary (Upload image, copy URL, delete)
+- [ ] Test CategoryManager (Add category, verify on homepage)
+- [ ] Test FooterManager (Update text, verify on website)
+- [ ] Test SEOManager (Change meta title, verify tags)
 
-### FooterManager
+### Inventory Management
 
-- [ ] Update contact information
-- [ ] Add social media links
-- [ ] Add office locations
-- [ ] Verify on website footer
+- [ ] Test ProductManager (Add a tour/hotel, check highlights)
+- [ ] Test ActivityManagers (Add Sea/Land activities, check preview)
+- [ ] Test FlightManager (Add flight, verify pricing logic)
 
-### MediaLibrary
+### Content & Marketing
 
-- [ ] Upload images
-- [ ] Create folders
-- [ ] Search files
-- [ ] Copy URL to clipboard
-- [ ] Delete files
+- [ ] Test HeroManager (Update slider text, verify homepage)
+- [ ] Test PageContentManager (Modify page text, verify frontend)
+- [ ] Test NewsletterManager (Add mock subscriber, test export)
 
-### TestimonialManager
+### Operations
 
-- [ ] Add testimonial
-- [ ] Set star rating
-- [ ] Toggle approval status
-- [ ] Mark as featured
-- [ ] Verify on homepage
-
-### ActivityManager
-
-- [ ] Add sea activity
-- [ ] Add land activity
-- [ ] Set pricing
-- [ ] Toggle active status
-- [ ] Verify on activities page
+- [ ] Test BookingManager (View booking details, change status)
+- [ ] Test ReviewModerator (Approve a review, reject another)
+- [ ] View AuditLogViewer (Ensure logs populate correctly)
 
 ---
 
