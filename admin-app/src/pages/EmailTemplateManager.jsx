@@ -1,315 +1,289 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, Mail, Code, Variable, Search, ArrowUpDown, Calendar, ChevronRight, X } from 'lucide-react';
+import { Mail, Plus, Trash2, Edit2, Variable, Code, ChevronRight, Calendar, Search, ArrowUpDown, X, Eye } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
+import ManagerLayout from '../components/ManagerLayout';
 
 const EmailTemplateManager = () => {
- const [templates, setTemplates] = useState([]);
- const [loading, setLoading] = useState(true);
- const [isModalOpen, setIsModalOpen] = useState(false);
- const [editingTemplate, setEditingTemplate] = useState(null);
- const [searchTerm, setSearchTerm] = useState('');
- const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
- const [formData, setFormData] = useState({
- name: '',
- subject: '',
- body: '',
- variables: []
- });
+    const [templates, setTemplates] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [view, setView] = useState('list');
+    const [editingId, setEditingId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
- useEffect(() => {
- fetchTemplates();
- }, []);
+    const initialFormState = {
+        name: '',
+        subject: '',
+        body: '',
+        variables: []
+    };
 
- const fetchTemplates = async () => {
- try {
- const { data, error } = await supabase
- .from('email_templates')
- .select('*')
- .order('updated_at', { ascending: false });
- if (error) throw error;
- setTemplates(data || []);
- } catch (error) {
- toast.error('Failed to load templates');
- } finally {
- setLoading(false);
- }
- };
+    const [formData, setFormData] = useState(initialFormState);
 
- const filteredAndSortedTemplates = templates.filter(template => {
- const searchStr = searchTerm.toLowerCase();
- return (
- template.name?.toLowerCase().includes(searchStr) ||
- template.subject?.toLowerCase().includes(searchStr) ||
- template.id?.toLowerCase().includes(searchStr)
- );
- }).sort((a, b) => {
- const key = sortConfig.key;
- let valA = a[key] ?? '';
- let valB = b[key] ?? '';
+    useEffect(() => {
+        fetchTemplates();
+    }, []);
 
- if (typeof valA === 'string' && typeof valB === 'string') {
- return sortConfig.direction === 'asc'
- ? valA.localeCompare(valB)
- : valB.localeCompare(valA);
- }
+    const fetchTemplates = async () => {
+        try {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('email_templates')
+                .select('*')
+                .order('updated_at', { ascending: false });
+            if (error) throw error;
+            setTemplates(data || []);
+        } catch (error) {
+            toast.error('Failed to load templates');
+        } finally {
+            setLoading(false);
+        }
+    };
 
- return sortConfig.direction === 'asc' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
- });
+    const handleSave = async () => {
+        try {
+            setIsSaving(true);
+            if (editingId) {
+                const { error } = await supabase
+                    .from('email_templates')
+                    .update(formData)
+                    .eq('id', editingId);
+                if (error) throw error;
+                toast.success('Template updated');
+            } else {
+                const { error } = await supabase
+                    .from('email_templates')
+                    .insert([formData]);
+                if (error) throw error;
+                toast.success('Template created');
+            }
+            fetchTemplates();
+            resetForm();
+        } catch (error) {
+            toast.error('Failed to save template');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
- const handleSave = async (e) => {
- e.preventDefault();
- try {
- if (editingTemplate) {
- const { error } = await supabase
- .from('email_templates')
- .update(formData)
- .eq('id', editingTemplate.id);
- if (error) throw error;
- toast.success('Template updated');
- } else {
- const { error } = await supabase
- .from('email_templates')
- .insert([formData]);
- if (error) throw error;
- toast.success('Template created');
- }
- setIsModalOpen(false);
- fetchTemplates();
- } catch (error) {
- toast.error('Failed to save template');
- }
- };
+    const handleDelete = async (id) => {
+        if (!window.confirm('Delete this template?')) return;
+        try {
+            const { error } = await supabase
+                .from('email_templates')
+                .delete()
+                .eq('id', id);
+            if (error) throw error;
+            toast.success('Template deleted');
+            fetchTemplates();
+        } catch (error) {
+            toast.error('Failed to delete');
+        }
+    };
 
- const handleDelete = async (id) => {
- if (!window.confirm('Delete this template?')) return;
- try {
- const { error } = await supabase
- .from('email_templates')
- .delete()
- .eq('id', id);
- if (error) throw error;
- toast.success('Template deleted');
- fetchTemplates();
- } catch (error) {
- toast.error('Failed to delete');
- }
- };
+    const resetForm = () => {
+        setFormData(initialFormState);
+        setEditingId(null);
+        setView('list');
+    };
 
- const openModal = (template = null) => {
- if (template) {
- setEditingTemplate(template);
- setFormData({
- name: template.name,
- subject: template.subject,
- body: template.body,
- variables: template.variables || []
- });
- } else {
- setEditingTemplate(null);
- setFormData({
- name: '',
- subject: '',
- body: '',
- variables: []
- });
- }
- setIsModalOpen(true);
- };
+    const handleEdit = (template) => {
+        setFormData({
+            name: template.name,
+            subject: template.subject,
+            body: template.body,
+            variables: template.variables || []
+        });
+        setEditingId(template.id);
+        setView('edit');
+    };
 
- return (
- <div className="p-8">
- {!isModalOpen && (
- <>
- <div className="flex justify-between items-center mb-8">
- <div>
- <h1 className="text-3xl font-bold text-gray-900 mb-2">Email Templates</h1>
- <p className="text-gray-500">Manage automated email content sent to customers.</p>
- </div>
- <button
- onClick={() => openModal()}
- className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl hover:bg-red-700 transition-all font-bold shadow-lg shadow-red-600/30"
- >
- <Plus size={20} /> New Template
- </button>
- </div>
+    const filteredTemplates = templates.filter(t => {
+        const searchStr = searchTerm.toLowerCase();
+        return (
+            t.name?.toLowerCase().includes(searchStr) ||
+            t.subject?.toLowerCase().includes(searchStr)
+        );
+    });
 
- {/* DataTable Search */}
- <div className="bg-white p-4 border border-gray-100 rounded-2xl shadow-sm mb-6 max-w-2xl">
- <div className="relative group">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition-colors" size={20} />
- <input
- type="text"
- placeholder="Search templates by name, subject or ID..."
- className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none transition-all font-bold text-sm"
- value={searchTerm}
- onChange={(e) => setSearchTerm(e.target.value)}
- />
- </div>
- </div>
+    const stats = [
+        { label: 'Total Templates', value: templates.length, icon: Mail, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Dynamic Hooks', value: templates.reduce((acc, t) => acc + (t.variables?.length || 0), 0), icon: Variable, color: 'text-amber-600', bg: 'bg-amber-50' },
+        { label: 'Last Updated', value: templates.length > 0 ? format(new Date(templates[0].updated_at), 'MMM d') : 'N/A', icon: Calendar, color: 'text-emerald-600', bg: 'bg-emerald-50' }
+    ];
 
- {loading ? (
- <div className="flex items-center justify-center py-20 animate-pulse text-gray-400 font-medium ">Loading Templates...</div>
- ) : (
- <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden overflow-x-auto">
- <table className="w-full text-left border-collapse table-fixed">
- <colgroup>
- <col className="w-[60px]" />
- <col className="w-[200px]" />
- <col className="w-[300px]" />
- <col className="w-[150px]" />
- <col className="w-[150px]" />
- </colgroup>
- <thead>
- <tr className="border-b border-gray-100 bg-gray-50/50 align-middle">
- <th className="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Type</th>
- <th
- className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 transition-colors"
- onClick={() => setSortConfig({ key: 'name', direction: sortConfig.key === 'name' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
- >
- <div className="flex items-center gap-2">
- Template Name
- <ArrowUpDown size={12} className={sortConfig.key === 'name' ? 'text-primary' : 'opacity-20'} />
- </div>
- </th>
- <th
- className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 transition-colors"
- onClick={() => setSortConfig({ key: 'subject', direction: sortConfig.key === 'subject' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
- >
- <div className="flex items-center gap-2">
- Email Subject
- <ArrowUpDown size={12} className={sortConfig.key === 'subject' ? 'text-primary' : 'opacity-20'} />
- </div>
- </th>
- <th className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Date Modified</th>
- <th className="py-4 px-6 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-gray-100">
- {filteredAndSortedTemplates.length === 0 ? (
- <tr>
- <td colSpan="5" className="py-20 text-center text-gray-400 font-bold">No templates found matching your criteria.</td>
- </tr>
- ) : (
- filteredAndSortedTemplates.map((template) => (
- <tr key={template.id} className="transition-all even:bg-gray-50/20 hover:bg-gray-50 align-top group">
- <td className="py-6 px-6">
- <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner border border-blue-100/50 group-hover:scale-110 transition-transform duration-300">
- <Mail size={18} />
- </div>
- </td>
- <td className="py-6 px-4">
- <div className="flex flex-col min-w-0">
- <span className="font-bold text-gray-900 truncate ">{template.name}</span>
- <span className="text-[10px] text-gray-400 font-mono uppercase tracking-tighter mt-1">{template.id}</span>
- </div>
- </td>
- <td className="py-6 px-4">
- <div className="text-sm text-gray-600 line-clamp-2 font-medium">
- {template.subject}
- </div>
- </td>
- <td className="py-6 px-4">
- <div className="flex items-center gap-2 text-xs text-gray-400 font-bold ">
- <Calendar size={12} />
- {template.updated_at ? new Date(template.updated_at).toLocaleDateString('en-GB') : 'N/A'}
- </div>
- </td>
- <td className="py-6 px-6 text-right">
- <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
- <button
- onClick={() => openModal(template)}
- className="flex items-center gap-1.5 px-3 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all font-bold text-xs"
- >
- <Edit2 size={14} /> Edit
- </button>
- <button
- onClick={() => handleDelete(template.id)}
- className="flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all font-bold text-xs"
- >
- <Trash2 size={14} /> Delete
- </button>
- <ChevronRight size={14} className="text-gray-300 ml-1" />
- </div>
- </td>
- </tr>
- ))
- )}
- </tbody>
- </table>
- </div>
- )}
- </>
- )}
+    const columns = [
+        { header: 'Template Definition' },
+        { header: 'Subject Line' },
+        { header: 'Variables', align: 'center' },
+        { header: 'Status', align: 'center' },
+        { header: 'Actions', align: 'right' }
+    ];
 
- {isModalOpen && (
- <div className="space-y-8 animate-fade-in">
- <div className="max-w-6xl mx-auto w-full">
- <div className="px-8 pt-4 pb-16">
- <div className="flex items-center justify-between mb-16 px-4">
- <div className="flex items-center gap-6">
- <div className="p-4 bg-red-50 rounded-3xl text-red-600 shadow-sm border border-red-100">
- <Mail size={32} />
- </div>
- <div>
- <h2 className="text-4xl font-display font-bold text-slate-900 tracking-tight ">
- {editingTemplate ? 'Modify Template' : 'Create Template'}
- </h2>
- <p className="text-lg text-slate-400 font-medium mt-1">Configure automated email parameters and content</p>
- </div>
- </div>
- <button onClick={() => setIsModalOpen(false)} className="p-4 hover:bg-slate-50 rounded-2xl transition-all text-slate-400 hover:text-slate-900 shadow-sm border border-slate-100">
- <X size={24} />
- </button>
- </div>
- <div className="px-4">
- <form onSubmit={handleSave} className="space-y-6">
- <div className="grid grid-cols-2 gap-6">
- <div>
- <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Template Name</label>
- <input
- type="text" required
- value={formData.name}
- onChange={e => setFormData({ ...formData, name: e.target.value })}
- className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
- placeholder="e.g. Booking Confirmation"
- />
- </div>
- <div>
- <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email Subject</label>
- <input
- type="text" required
- value={formData.subject}
- onChange={e => setFormData({ ...formData, subject: e.target.value })}
- className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
- placeholder="Your booking is confirmed!"
- />
- </div>
- </div>
- <div>
- <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">HTML Content</label>
- <textarea
- required
- rows="10"
- value={formData.body}
- onChange={e => setFormData({ ...formData, body: e.target.value })}
- className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all font-mono text-sm"
- placeholder="<html><body><h1>Hello {{name}}</h1>...</body></html>"
- />
- <p className="mt-2 text-xs text-gray-400">Use {'{{variable}}'} for dynamic content.</p>
- </div>
- <div className="flex gap-4 pt-4">
- <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 px-6 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-100 transition-all">Cancel</button>
- <button type="submit" className="flex-1 px-6 py-3 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/30 transition-all">Save Template</button>
- </div>
- </form>
- </div>
- </div>
- </div>
- </div>
- )}
- </div>
- );
+    // Helper to format date for stats
+    function format(date, fmt) {
+        // Simple mock of date-fns format since it's not imported here and I don't want to add it if not needed
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate()}`;
+    }
+
+    return (
+        <ManagerLayout
+            title="Email Center"
+            subtitle="Automated narrative layers & customer touchpoints"
+            icon={Mail}
+            stats={stats}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            searchPlaceholder="Search templates..."
+            onAdd={() => { resetForm(); setView('edit'); }}
+            addLabel="Create Template"
+            view={view}
+            setView={setView}
+            editingId={editingId}
+            onSubmit={handleSave}
+            isSaving={isSaving}
+            isLoading={loading}
+            columns={columns}
+            data={filteredTemplates}
+            renderRow={(template) => (
+                <tr key={template.id} className="transition-all hover:bg-slate-50 group align-middle">
+                    <td className="py-6 px-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
+                                <Code size={18} />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-black text-slate-900 text-sm uppercase tracking-tight">{template.name}</span>
+                                <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-0.5">Template ID: {template.id.substring(0, 8)}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td className="py-6 px-8">
+                        <span className="text-slate-600 font-medium text-sm line-clamp-1">{template.subject}</span>
+                    </td>
+                    <td className="py-6 px-8 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        {template.variables?.length || 0} Dynamic Keys
+                    </td>
+                    <td className="py-6 px-8 text-center">
+                        <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border bg-green-50 text-green-700 border-green-100">
+                            Active
+                        </span>
+                    </td>
+                    <td className="py-6 px-8 text-right">
+                        <div className="flex items-center justify-end gap-2 transition-all duration-300">
+                            <button onClick={() => handleEdit(template)} className="p-2.5 bg-white text-slate-900 border border-slate-100 hover:bg-slate-950 hover:text-white rounded-xl transition-all shadow-premium-sm" title="Edit Template"><Edit2 size={16} /></button>
+                            <button onClick={() => handleDelete(template.id)} className="p-2.5 bg-white text-red-600 border border-slate-100 hover:bg-red-600 hover:text-white rounded-xl transition-all shadow-premium-sm" title="Delete"><Trash2 size={16} /></button>
+                        </div>
+                    </td>
+                </tr>
+            )}
+            renderForm={() => (
+                <div className="space-y-12">
+                    <section className="space-y-8">
+                        <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs ">01</div>
+                            <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Core configuration</h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-2 col-span-2">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Template Registry Name</label>
+                                <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-black text-slate-900 text-sm uppercase tracking-tight" placeholder="e.g. BOOKING_CONFIRMATION" />
+                            </div>
+                            <div className="space-y-2 col-span-2">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Narrative Subject Line</label>
+                                <input type="text" required value={formData.subject} onChange={e => setFormData({ ...formData, subject: e.target.value })}
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-bold text-slate-800 text-sm" placeholder="Your journey begins soon..." />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="space-y-8">
+                        <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs ">02</div>
+                            <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">HTML Architecture</h3>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Template Body Content</label>
+                            <textarea rows={12} required value={formData.body} onChange={e => setFormData({ ...formData, body: e.target.value })}
+                                className="w-full px-5 py-4 bg-slate-950 border border-slate-800 rounded-2xl outline-none font-mono text-xs text-red-400 resize-none leading-relaxed" placeholder="<html><body>...</body></html>" />
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-2 mt-4 ml-1">
+                                <Variable size={12} className="text-amber-500" /> Use Double Braces for Injections: {"{{name}}"}, {"{{order_id}}"}
+                            </p>
+                        </div>
+                    </section>
+                </div>
+            )}
+            renderPreview={() => (
+                <div className="lg:sticky lg:top-12 h-fit space-y-8">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] ">Visual Transmission Proof</h3>
+                        <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white shadow-xl">
+                            <Eye size={18} />
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-[3rem] border border-slate-200 shadow-[0_48px_96px_-12px_rgba(0,0,0,0.12)] overflow-hidden flex flex-col min-h-[500px]">
+                        {/* Browser-like Header */}
+                        <div className="bg-slate-50 px-8 py-4 border-b border-slate-100 flex items-center gap-4">
+                            <div className="flex gap-1.5 focus-within:">
+                                <div className="w-2.5 h-2.5 rounded-full bg-slate-200"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-slate-200"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-slate-200"></div>
+                            </div>
+                            <div className="flex-1 px-4 py-1.5 bg-white border border-slate-100 rounded-full text-[10px] font-bold text-slate-400 truncate">
+                                transmission://email-engine.local/{formData.name || 'new-template'}
+                            </div>
+                        </div>
+
+                        {/* Email Subject Section */}
+                        <div className="p-8 border-b border-slate-100 bg-white">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2 bg-slate-900 rounded-lg text-white">
+                                    <Mail size={14} />
+                                </div>
+                                <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Global Dispatch</span>
+                            </div>
+                            <h4 className="text-lg font-black text-slate-900 tracking-tight leading-tight">{formData.subject || 'Empty Subject Line'}</h4>
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="flex-1 bg-white p-8 overflow-auto">
+                            {formData.body ? (
+                                <div className="prose prose-slate max-w-none text-sm text-slate-600 leading-relaxed font-serif"
+                                    dangerouslySetInnerHTML={{ __html: formData.body.replace(/{{[^{}]+}}/g, '<span class="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-mono text-[10px] font-black">VAR</span>') }} />
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-20 text-slate-300 gap-4 opacity-50 italic">
+                                    <Code size={48} strokeWidth={0.5} />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.4em]">Awaiting HTML Payload</span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="p-8 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Transmission Status</span>
+                                <span className="text-[10px] font-black text-emerald-600 uppercase">● Ready for Dispatch</span>
+                            </div>
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-slate-100 text-slate-400 font-serif italic text-xs">
+                                TL
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-6 bg-indigo-50/50 rounded-3xl border border-indigo-100 flex gap-4 text-indigo-600">
+                        <Variable size={24} className="shrink-0 mt-1" />
+                        <div>
+                            <p className="text-xs font-black uppercase tracking-widest mb-1">Dynamic Mapping</p>
+                            <p className="text-[11px] font-medium leading-relaxed opacity-80">Variables injected via the API will be mapped to the double-brace placeholders. Ensure HTML integrity for optimal cross-client rendering.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+        />
+    );
 };
 
 export default EmailTemplateManager;

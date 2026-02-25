@@ -3,310 +3,251 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
 import {
- Search,
- Globe,
- Share2,
- ImageIcon,
- Save,
- CheckCircle,
- AlertCircle,
- Loader
+    Search,
+    Globe,
+    Share2,
+    ImageIcon,
+    Save,
+    CheckCircle,
+    AlertCircle,
+    Loader,
+    Eye,
+    TrendingUp,
+    Zap,
+    Aperture
 } from 'lucide-react';
+import ManagerLayout from '../components/ManagerLayout';
 
 const SEOManager = () => {
- const queryClient = useQueryClient();
- const [activeTab, setActiveTab] = useState('global');
+    const queryClient = useQueryClient();
+    const [view, setView] = useState('edit');
+    const [activeTab, setActiveTab] = useState('global');
+    const [isInitialized, setIsInitialized] = useState(false);
 
- const [formData, setFormData] = useState({
- siteTitle: '',
- metaDescription: '',
- keywords: '',
- ogImage: ''
- });
+    const [formData, setFormData] = useState({
+        siteTitle: '',
+        metaDescription: '',
+        keywords: '',
+        ogImage: ''
+    });
 
- const [isInitialized, setIsInitialized] = useState(false);
+    // Fetch SEO Settings
+    const { data: seoSettings, isLoading, isError, error: queryError } = useQuery({
+        queryKey: ['site_settings', 'seo_global'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('site_settings')
+                .select('*')
+                .eq('key', 'seo_global')
+                .single();
 
- // Fetch SEO Settings
- const { data: seoSettings, isLoading, isError, error: queryError } = useQuery({
- queryKey: ['site_settings', 'seo_global'],
- queryFn: async () => {
- const { data, error } = await supabase
- .from('site_settings')
- .select('*')
- .eq('key', 'seo_global')
- .single();
+            if (error && error.code !== 'PGRST116') throw error;
+            return data?.value || {
+                siteTitle: 'Travel Lounge | Luxury Travel Agency Mauritius',
+                metaDescription: 'Discover exclusive holiday packages, cruises, and custom travel experiences with Travel Lounge Mauritius.',
+                keywords: 'travel agency, mauritius, luxury, holidays',
+                ogImage: 'https://travellounge.mu/og-image.jpg'
+            };
+        }
+    });
 
- if (error && error.code !== 'PGRST116') throw error;
- return data?.value || {
- siteTitle: 'Travel Lounge | Luxury Travel Agency Mauritius',
- metaDescription: 'Discover exclusive holiday packages, cruises, and custom travel experiences with Travel Lounge Mauritius.',
- keywords: 'travel agency, mauritius, luxury, holidays',
- ogImage: 'https://travellounge.mu/og-image.jpg'
- };
- }
- });
+    useEffect(() => {
+        if (isError && queryError) {
+            toast.error(`Failed to load SEO settings: ${queryError.message}`);
+        }
+    }, [isError, queryError]);
 
- useEffect(() => {
- if (isError && queryError) {
- toast.error(`Failed to load SEO settings: ${queryError.message}`);
- }
- }, [isError, queryError]);
+    // Initialize form data when settings are loaded
+    useEffect(() => {
+        if (seoSettings && !isInitialized) {
+            setFormData(seoSettings);
+            setIsInitialized(true);
+        }
+    }, [seoSettings, isInitialized]);
 
- // Initialize form data when settings are loaded
- if (seoSettings && !isInitialized && !isLoading) {
- setFormData(seoSettings);
- setIsInitialized(true);
- }
+    const updateMutation = useMutation({
+        mutationFn: async (newSettings) => {
+            const { data, error } = await supabase
+                .from('site_settings')
+                .upsert({
+                    key: 'seo_global',
+                    value: newSettings,
+                    category: 'seo',
+                    description: 'Global SEO configuration'
+                });
 
- const updateMutation = useMutation({
- mutationFn: async (newSettings) => {
- const { data, error } = await supabase
- .from('site_settings')
- .upsert({
- key: 'seo_global',
- value: newSettings,
- category: 'seo',
- description: 'Global SEO configuration'
- });
+            if (error) throw error;
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['site_settings']);
+            toast.success('SEO Settings Updated Successfully');
+        },
+        onError: (err) => toast.error('Failed to update SEO: ' + err.message)
+    });
 
- if (error) throw error;
- return data;
- },
- onSuccess: () => {
- queryClient.invalidateQueries(['site_settings']);
- toast.success('SEO Settings Updated Successfully');
- },
- onError: (err) => toast.error('Failed to update SEO: ' + err.message)
- });
+    const handleSave = () => {
+        updateMutation.mutate(formData);
+    };
 
- const handleSave = (e) => {
- e.preventDefault();
- updateMutation.mutate(formData);
- };
+    const stats = [
+        { label: 'SEO Health', value: '98%', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50' },
+        { label: 'Index Coverage', value: 'All Pages', icon: Globe, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'Search Visibility', value: '+24%', icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50' }
+    ];
 
- if (isLoading) return <div className="flex justify-center p-20"><Loader className="animate-spin text-primary" /></div>;
+    return (
+        <ManagerLayout
+            title="SEO Command Center"
+            subtitle="Optimize global search signals and social metadata"
+            icon={Globe}
+            stats={stats}
+            view={view}
+            setView={setView}
+            editingId="seo_global" // Fixed ID for SEO
+            onSubmit={handleSave}
+            isSaving={updateMutation.isLoading}
+            isLoading={isLoading}
+            renderForm={() => (
+                <div className="space-y-12">
+                    {/* Navigation Tabs */}
+                    <div className="flex gap-2 bg-slate-50 p-2 rounded-2xl border border-slate-100 w-fit">
+                        {['global', 'social', 'analytics'].map(tab => (
+                            <button key={tab} onClick={() => setActiveTab(tab)}
+                                className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${activeTab === tab ? 'bg-slate-900 text-white shadow-xl scale-[1.02]' : 'text-slate-400 hover:bg-white hover:text-slate-900'}`}
+                            >
+                                {tab}
+                            </button>
+                        ))}
+                    </div>
 
- return (
- <div className="space-y-8">
- {/* Header */}
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
- <div>
- <h1 className="text-3xl font-black text-gray-900 tracking-tight">SEO & Metadata</h1>
- <p className="text-gray-500 font-medium">Optimize search engine visibility and social sharing</p>
- </div>
- <button
- onClick={handleSave}
- disabled={updateMutation.isPending}
- className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-2xl font-black transition-all shadow-xl shadow-red-600/20 active:scale-95 disabled:opacity-50 group"
- >
- {updateMutation.isPending ? (
- <div className="flex items-center gap-2">
- <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
- <span>Saving...</span>
- </div>
- ) : (
- <>
- <Save size={22} className="group-hover:scale-110 transition-transform" />
- <span>Save Changes</span>
- </>
- )}
- </button>
- </div>
+                    {activeTab === 'global' && (
+                        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <section className="space-y-8">
+                                <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                                    <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs ">01</div>
+                                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Search Signals</h3>
+                                </div>
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Site Authority Title</label>
+                                        <input type="text" value={formData.siteTitle} onChange={e => setFormData({ ...formData, siteTitle: e.target.value })}
+                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-black text-slate-900 text-sm tracking-tight" placeholder="Enter site title..." />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Meta Narrative (Description)</label>
+                                        <textarea rows={4} value={formData.metaDescription} onChange={e => setFormData({ ...formData, metaDescription: e.target.value })}
+                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-bold text-slate-800 text-sm leading-relaxed resize-none" placeholder="Describe the site..." />
+                                        <div className="flex justify-between items-center px-1">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Target: 155 Characters</span>
+                                            <span className={`text-[9px] font-black uppercase ${formData.metaDescription.length > 160 ? 'text-red-500' : 'text-emerald-500'}`}>{formData.metaDescription.length}/160</span>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Target Keyword Matrix</label>
+                                        <input type="text" value={formData.keywords} onChange={e => setFormData({ ...formData, keywords: e.target.value })}
+                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-bold text-slate-800 text-sm" placeholder="keyword1, keyword2, keyword3..." />
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    )}
 
- {/* Navigation Tabs */}
- <div className="flex gap-2 bg-white p-2 rounded-2xl shadow-sm border border-gray-100 w-fit">
- {['global', 'social', 'analytics'].map(tab => (
- <button
- key={tab}
- onClick={() => setActiveTab(tab)}
- className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${activeTab === tab ? 'bg-gray-900 text-white shadow-lg scale-[1.02]' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-900'}`}
- >
- {tab} Settings
- </button>
- ))}
- </div>
+                    {activeTab === 'social' && (
+                        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <section className="space-y-8">
+                                <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                                    <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs ">02</div>
+                                    <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Open Graph Identity</h3>
+                                </div>
+                                <div className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Social Image Resource (URL)</label>
+                                        <div className="flex gap-4">
+                                            <input type="text" className="flex-1 px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-mono text-xs text-red-500"
+                                                value={formData.ogImage} onChange={e => setFormData({ ...formData, ogImage: e.target.value })} placeholder="https://..." />
+                                        </div>
+                                    </div>
+                                    {formData.ogImage && (
+                                        <div className="relative aspect-[1.91/1] rounded-[2.5rem] overflow-hidden border border-slate-100 shadow-premium group">
+                                            <img src={formData.ogImage} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent p-10 flex flex-col justify-end">
+                                                <p className="text-white font-black text-xl tracking-tight mb-2 line-clamp-1">{formData.siteTitle}</p>
+                                                <p className="text-white/60 text-xs font-medium line-clamp-2">{formData.metaDescription}</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+                        </div>
+                    )}
 
- <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
- {/* Form Area */}
- <div className="lg:col-span-2 space-y-6">
- {activeTab === 'global' && (
- <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
- <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
- <h2 className="text-xl font-black text-gray-900 flex items-center gap-4">
- <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-600 shadow-sm">
- <Globe size={24} />
- </div>
- Search Engine Context
- </h2>
- </div>
- <div className="p-8 space-y-8">
- <div className="space-y-3">
- <label className="text-sm font-black text-gray-700 uppercase tracking-widest flex items-center gap-2">
- Site Title
- <span className="text-red-500 animate-pulse">*</span>
- </label>
- <div className="relative group">
- <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-600 transition-colors" size={20} />
- <input
- type="text"
- value={formData.siteTitle}
- onChange={e => setFormData({ ...formData, siteTitle: e.target.value })}
- placeholder="Enter site title for SEO..."
- className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:ring-4 focus:ring-red-500/10 focus:bg-white focus:border-red-500 outline-none transition-all font-bold text-sm"
- />
- </div>
- <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest ">Displayed in search results and browser tabs</p>
- </div>
+                    {activeTab === 'analytics' && (
+                        <div className="py-20 flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 shadow-inner">
+                                <CheckCircle size={32} />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Analytics Active</h3>
+                                <p className="text-xs font-medium text-slate-400 max-w-sm mt-2 leading-relaxed">External tracking scripts are managed via global environment variables for maximum performance and security.</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+            renderPreview={() => (
+                <div className="lg:sticky lg:top-12 h-fit space-y-8">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] ">Transmission Preview</h3>
+                        <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center text-white shadow-xl">
+                            <Eye size={18} />
+                        </div>
+                    </div>
 
- <div className="space-y-3">
- <label className="text-sm font-black text-gray-700 uppercase tracking-widest">Meta Description</label>
- <div className="relative group">
- <textarea
- rows="4"
- value={formData.metaDescription}
- onChange={e => setFormData({ ...formData, metaDescription: e.target.value })}
- placeholder="Describe your site for search engines..."
- className="w-full px-5 py-4 bg-gray-50 border border-transparent rounded-2xl focus:ring-4 focus:ring-red-500/10 focus:bg-white focus:border-red-500 outline-none transition-all resize-none font-bold text-sm leading-relaxed"
- ></textarea>
- </div>
- <div className="flex justify-between items-center px-2">
- <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest ">Range: 150-160 characters</span>
- <div className={`px-3 py-1 rounded-full text-[10px] font-black ${formData.metaDescription.length > 160 ? "bg-red-50 text-red-600 border border-red-100" : "bg-green-50 text-green-600 border border-green-100"}`}>
- {formData.metaDescription.length}/160
- </div>
- </div>
- </div>
+                    <div className="bg-white rounded-[3rem] border border-slate-200 shadow-[0_48px_96px_-12px_rgba(0,0,0,0.12)] p-10 space-y-10">
+                        <div>
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-6">Search Result Snippet</p>
+                            <div className="space-y-3 cursor-default group">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover:text-red-600 group-hover:bg-white transition-all shadow-sm">
+                                        <Globe size={14} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <div className="text-[9px] font-black text-slate-900 truncate uppercase tracking-widest">Travel Lounge</div>
+                                        <div className="text-[9px] text-slate-400 truncate tracking-tight">https://travellounge.mu</div>
+                                    </div>
+                                </div>
+                                <h4 className="text-xl text-[#1a0dab] font-bold tracking-tight hover:underline cursor-pointer line-clamp-2">
+                                    {formData.siteTitle || 'Awaiting Protocol Input...'}
+                                </h4>
+                                <p className="text-[13px] text-slate-600 leading-relaxed line-clamp-3 font-medium opacity-90">
+                                    {formData.metaDescription || 'Detailed site narrative will be displayed here for optimal search engine performance estimation.'}
+                                </p>
+                            </div>
+                        </div>
 
- <div className="space-y-3">
- <label className="text-sm font-black text-gray-700 uppercase tracking-widest">Target Keywords</label>
- <div className="relative group">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-600 transition-colors" size={20} />
- <input
- type="text"
- value={formData.keywords}
- onChange={e => setFormData({ ...formData, keywords: e.target.value })}
- placeholder="travel, luxury, mauritius, holidays..."
- className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:ring-4 focus:ring-red-500/10 focus:bg-white focus:border-red-500 outline-none transition-all font-bold text-sm"
- />
- </div>
- </div>
- </div>
- </div>
- )}
-
- {activeTab === 'social' && (
- <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/50 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
- <div className="p-8 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
- <h2 className="text-xl font-black text-gray-900 flex items-center gap-4">
- <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center text-red-600 shadow-sm">
- <Share2 size={24} />
- </div>
- Open Graph Protocol
- </h2>
- </div>
- <div className="p-8 space-y-8">
- <div className="space-y-4">
- <label className="text-sm font-black text-gray-700 uppercase tracking-widest">OG Image Resource</label>
- <div className="flex gap-4">
- <div className="relative flex-1 group">
- <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition-colors" size={20} />
- <input
- type="text"
- value={formData.ogImage}
- onChange={e => setFormData({ ...formData, ogImage: e.target.value })}
- className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:ring-4 focus:ring-red-500/10 focus:bg-white focus:border-red-500 outline-none transition-all font-bold text-sm"
- placeholder="https://example.com/og-image.jpg"
- />
- </div>
- </div>
- <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest ">Displayed during social media link unfurling</p>
- </div>
-
- {formData.ogImage && (
- <div className="relative w-full aspect-[1.91/1] rounded-3xl overflow-hidden border border-gray-100 shadow-2xl group">
- <img src={formData.ogImage} alt="OG Preview" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
- <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent p-10 flex flex-col justify-end">
- <div className="text-white font-black text-2xl tracking-tight leading-none mb-3 transform transition-transform group-hover:-translate-y-1">{formData.siteTitle}</div>
- <div className="text-white/60 text-sm font-medium line-clamp-2 transform transition-transform delay-75 group-hover:-translate-y-1">{formData.metaDescription}</div>
- </div>
- </div>
- )}
- </div>
- </div>
- )}
-
- {activeTab === 'analytics' && (
- <div className="bg-white rounded-3xl border border-gray-100 shadow-xl shadow-gray-200/50 p-20 text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
- <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-8 text-red-600 shadow-inner">
- <CheckCircle size={48} />
- </div>
- <h3 className="text-2xl font-black text-gray-900 mb-4 tracking-tight">Active Analytics</h3>
- <p className="text-gray-500 max-w-sm mx-auto text-sm leading-relaxed font-medium ">
- Analytics trackers are managed via central security protocols. Global monitoring is currently active and optimized.
- </p>
- </div>
- )}
- </div>
-
- {/* Live Preview Pane */}
- <div className="lg:col-span-1">
- <div className="bg-white rounded-3xl border border-gray-100 shadow-2xl p-8 sticky top-24 space-y-10">
- <div>
- <h3 className="font-black text-gray-400 uppercase text-[10px] tracking-[0.2em] mb-8 border-b border-gray-50 pb-4 ">Google Result Sandbox</h3>
-
- {/* Google Result Preview */}
- <div className="p-6 rounded-3xl border border-gray-50 hover:border-red-100 hover:bg-red-50/10 transition-all group cursor-default shadow-sm hover:shadow-md">
- <div className="flex items-center gap-3 mb-4">
- <div className="w-10 h-10 bg-gray-50 rounded-2xl flex items-center justify-center p-1 border border-gray-200 group-hover:bg-white group-hover:text-red-600 transition-all shadow-sm">
- <Globe size={18} className="text-gray-400 group-hover:rotate-12 transition-transform" />
- </div>
- <div className="min-w-0">
- <div className="text-[10px] font-black text-gray-900 truncate uppercase tracking-widest ">Travel Lounge Mauritius</div>
- <div className="text-[10px] text-gray-400 truncate font-mono opacity-80 uppercase tracking-tighter">https://travellounge.mu</div>
- </div>
- </div>
- <h4 className="text-xl text-[#1a0dab] group-hover:underline font-bold tracking-tight mb-3 line-clamp-2">
- {formData.siteTitle || 'Awaiting Site Title...'}
- </h4>
- <p className="text-[13px] text-gray-600 leading-relaxed line-clamp-3 font-medium opacity-90 ">
- {formData.metaDescription || 'Provide a compelling description of your luxury travel services to see a live snippet preview...'}
- </p>
- </div>
- </div>
-
- <div className="space-y-6">
- <h3 className="font-black text-gray-400 uppercase text-[10px] tracking-[0.2em] border-b border-gray-50 pb-4 text-right">Optimization Pulse</h3>
- <div className="space-y-4">
- <div className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all transform hover:scale-[1.02] ${formData.siteTitle.length >= 30 && formData.siteTitle.length <= 60 ? 'bg-green-50 border-green-100 text-green-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
- <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${formData.siteTitle.length >= 30 && formData.siteTitle.length <= 60 ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
- {formData.siteTitle.length >= 30 && formData.siteTitle.length <= 60 ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
- </div>
- <div className="text-xs">
- <span className="font-black block uppercase tracking-widest text-[10px] mb-0.5">Title Vector</span>
- <span className="font-bold opacity-80 ">
- {formData.siteTitle.length < 1 ? 'Null reference' : formData.siteTitle.length < 30 ? 'Insufficient data' : formData.siteTitle.length <= 60 ? 'Optimal precision' : 'Length overflow'}
- </span>
- </div>
- </div>
-
- <div className={`flex items-center gap-4 p-5 rounded-2xl border-2 transition-all transform hover:scale-[1.02] ${formData.metaDescription.length >= 120 && formData.metaDescription.length <= 160 ? 'bg-green-50 border-green-100 text-green-700' : 'bg-red-50 border-red-100 text-red-700'}`}>
- <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${formData.metaDescription.length >= 120 && formData.metaDescription.length <= 160 ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
- {formData.metaDescription.length >= 120 && formData.metaDescription.length <= 160 ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
- </div>
- <div className="text-xs">
- <span className="font-black block uppercase tracking-widest text-[10px] mb-0.5">Snippet Integrity</span>
- <span className="font-bold opacity-80 ">
- {formData.metaDescription.length < 1 ? 'Null reference' : formData.metaDescription.length < 120 ? 'Weak engagement potential' : formData.metaDescription.length <= 160 ? 'Maximum visibility' : 'Likely truncated'}
- </span>
- </div>
- </div>
- </div>
- </div>
- </div>
- </div>
- </div>
- </div>
- );
+                        <div className="pt-10 border-t border-slate-50 space-y-6">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest ">Optimization Pulse</p>
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className={`p-5 rounded-[2rem] border-2 transition-all flex items-center gap-4 ${formData.siteTitle.length >= 30 && formData.siteTitle.length <= 60 ? 'bg-emerald-50/50 border-emerald-100 text-emerald-700' : 'bg-red-50/50 border-red-100 text-red-700'}`}>
+                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${formData.siteTitle.length >= 30 && formData.siteTitle.length <= 60 ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'}`}>
+                                        {formData.siteTitle.length >= 30 && formData.siteTitle.length <= 60 ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                                    </div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest">{formData.siteTitle.length <= 60 ? 'Title Precision Optimal' : 'Title Length Excessive'}</div>
+                                </div>
+                                <div className={`p-5 rounded-[2rem] border-2 transition-all flex items-center gap-4 ${formData.metaDescription.length >= 120 && formData.metaDescription.length <= 160 ? 'bg-emerald-50/50 border-emerald-100 text-emerald-700' : 'bg-red-50/50 border-red-100 text-red-700'}`}>
+                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${formData.metaDescription.length >= 120 && formData.metaDescription.length <= 160 ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'}`}>
+                                        {formData.metaDescription.length >= 120 && formData.metaDescription.length <= 160 ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                                    </div>
+                                    <div className="text-[10px] font-black uppercase tracking-widest">{formData.metaDescription.length <= 160 ? 'Narrative Density Optimal' : 'Narrative Likely Truncated'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        />
+    );
 };
 
 export default SEOManager;

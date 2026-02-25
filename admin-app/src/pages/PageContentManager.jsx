@@ -22,25 +22,36 @@ import {
     Heading1,
     Heading2,
     List as ListIcon,
-    Link as MarkdownLink
+    Link as MarkdownLink,
+    Monitor,
+    Smartphone,
+    Eye,
+    Zap,
+    Aperture,
+    ArrowLeft,
+    SearchX
 } from 'lucide-react';
+import ManagerLayout from '../components/ManagerLayout';
 
 const PageContentManager = () => {
     const queryClient = useQueryClient();
-    const [selectedPageSlug, setSelectedPageSlug] = useState('about');
+    const [view, setView] = useState('list');
+    const [editingId, setEditingId] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [previewMode, setPreviewMode] = useState('desktop');
 
-    // Local state for editing form
-    const [editForm, setEditForm] = useState({
+    const initialFormState = {
         title: '',
         slug: '',
         headline: '',
-        body: ''
-    });
+        body: '',
+        metadata: {}
+    };
 
-    const [isCreating, setIsCreating] = useState(false);
+    const [formData, setFormData] = useState(initialFormState);
 
     // Fetch all pages
-    const { data: pages, isLoading, isError, error: queryError } = useQuery({
+    const { data: pages = [], isLoading, isError, error: queryError } = useQuery({
         queryKey: ['pages'],
         queryFn: async () => {
             const { data, error } = await supabase.from('pages').select('*').order('slug');
@@ -52,29 +63,6 @@ const PageContentManager = () => {
         }
     });
 
-    useEffect(() => {
-        if (isError && queryError) {
-            toast.error(`Failed to load pages: ${queryError.message}`);
-        }
-    }, [isError, queryError]);
-
-    // Get currently selected page object
-    const selectedPage = pages?.find(p => p.slug === selectedPageSlug);
-
-    // Track the last page slug to know when to reset the form
-    const [lastSlug, setLastSlug] = useState('about');
-
-    // Update local form when selection changes (Render phase update pattern)
-    if (selectedPage && selectedPageSlug !== lastSlug && !isCreating) {
-        setEditForm({
-            title: selectedPage.title || '',
-            slug: selectedPage.slug || '',
-            headline: selectedPage.content?.headline || '',
-            body: selectedPage.content?.body || ''
-        });
-        setLastSlug(selectedPageSlug);
-    }
-
     const createMutation = useMutation({
         mutationFn: async (newPage) => {
             const { data, error } = await supabase
@@ -85,284 +73,283 @@ const PageContentManager = () => {
                     content: {
                         headline: newPage.headline,
                         body: newPage.body
-                    }
+                    },
+                    metadata: newPage.metadata || {}
                 }])
                 .select();
             if (error) throw error;
             return data;
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             queryClient.invalidateQueries(['pages']);
-            toast.success('New page created successfully');
-            setIsCreating(false);
-            if (data?.[0]) setSelectedPageSlug(data[0].slug);
-        },
-        onError: (err) => toast.error('Failed to create page: ' + err.message)
+            toast.success('Page created successfully');
+            resetForm();
+        }
     });
 
     const updateMutation = useMutation({
-        mutationFn: async (updates) => {
+        mutationFn: async ({ id, updates }) => {
             const { data, error } = await supabase
                 .from('pages')
                 .update({
                     title: updates.title,
+                    slug: updates.slug,
                     content: {
                         headline: updates.headline,
                         body: updates.body
-                    }
+                    },
+                    metadata: updates.metadata || {}
                 })
-                .eq('slug', selectedPageSlug);
-
+                .eq('id', id);
             if (error) throw error;
             return data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['pages']);
-            toast.success('Page content updated successfully');
-        },
-        onError: (err) => toast.error('Failed to update page: ' + err.message)
+            toast.success('Page content updated');
+            resetForm();
+        }
     });
 
     const deleteMutation = useMutation({
-        mutationFn: async (slug) => {
-            const { error } = await supabase
-                .from('pages')
-                .delete()
-                .eq('slug', slug);
+        mutationFn: async (id) => {
+            const { error } = await supabase.from('pages').delete().eq('id', id);
             if (error) throw error;
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['pages']);
-            toast.success('Page deleted successfully');
-            setSelectedPageSlug('about');
-        },
-        onError: (err) => toast.error('Failed to delete page: ' + err.message)
+            toast.success('Page deleted');
+        }
     });
 
-    const handleSave = () => {
-        if (isCreating) {
-            if (!editForm.slug) {
-                toast.error('Slug is required');
-                return;
-            }
-            createMutation.mutate(editForm);
-        } else {
-            updateMutation.mutate(editForm);
-        }
+    const resetForm = () => {
+        setFormData(initialFormState);
+        setEditingId(null);
+        setView('list');
     };
 
-    const handleDeleteTrigger = () => {
-        if (window.confirm(`Are you sure you want to permanently delete the "${selectedPage?.title}" page?`)) {
-            deleteMutation.mutate(selectedPageSlug);
-        }
-    };
-
-    const startNewPage = () => {
-        setIsCreating(true);
-        setSelectedPageSlug(null);
-        setEditForm({
-            title: '',
-            slug: '',
-            headline: '',
-            body: ''
+    const handleEdit = (page) => {
+        setFormData({
+            title: page.title || '',
+            slug: page.slug || '',
+            headline: page.content?.headline || '',
+            body: page.content?.body || '',
+            metadata: page.metadata || {}
         });
+        setEditingId(page.id);
+        setView('edit');
     };
 
-    const getPageIcon = (slug) => {
-        switch (slug) {
-            case 'about': return Info;
-            case 'contact': return Phone;
-            case 'services': return Layout;
-            case 'faq': return HelpCircle;
-            default: return FileText;
+    const handleSave = () => {
+        if (editingId) {
+            updateMutation.mutate({ id: editingId, updates: formData });
+        } else {
+            createMutation.mutate(formData);
         }
     };
+
+    const filteredPages = pages.filter(p =>
+        p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.slug?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const stats = [
+        { label: 'Published Pages', value: pages.length, icon: FileText, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Content Health', value: '100%', icon: Zap, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'Active Routes', value: pages.length, icon: Globe, color: 'text-blue-600', bg: 'bg-blue-50' }
+    ];
+
+    const columns = [
+        { header: 'Narrative Identity' },
+        { header: 'Resource Path' },
+        { header: 'Status', align: 'center' },
+        { header: 'Last Modified', align: 'center' },
+        { header: 'Actions', align: 'right' }
+    ];
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 h-[calc(100vh-140px)]">
-            {/* Sidebar Page List */}
-            <div className="lg:col-span-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-                <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
-                    <div>
-                        <h2 className="font-display font-bold text-lg text-gray-900 ">Pages</h2>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Select page to edit</p>
-                    </div>
-                    <button
-                        onClick={startNewPage}
-                        className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-lg shadow-red-600/20 transition-all active:scale-95"
-                        title="Create New Page"
-                    >
-                        <Plus size={18} />
-                    </button>
-                </div>
-
-                {isLoading ? (
-                    <div className="flex justify-center p-12"><Loader className="animate-spin text-red-600" /></div>
-                ) : (
-                    <div className="flex-1 overflow-y-auto p-4 space-y-2">
-                        {pages?.length > 0 ? pages.map((page) => {
-                            const Icon = getPageIcon(page.slug);
-                            return (
-                                <button
-                                    key={page.id}
-                                    onClick={() => {
-                                        setSelectedPageSlug(page.slug);
-                                        setIsCreating(false);
-                                    }}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${selectedPageSlug === page.slug ? 'bg-red-600 text-white shadow-lg shadow-red-600/30' : 'hover:bg-gray-50 text-gray-600'}`}
-                                >
-                                    <div className={`p-1.5 rounded-lg ${selectedPageSlug === page.slug ? 'bg-white/20' : 'bg-gray-100 group-hover:bg-white'} transition-colors`}>
-                                        <Icon size={16} />
-                                    </div>
-                                    <span className="font-bold text-sm capitalize ">{page.title}</span>
-                                    <ChevronRight size={14} className={`ml-auto transition-transform ${selectedPageSlug === page.slug ? 'translate-x-0' : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'}`} />
-                                </button>
-                            );
-                        }) : (
-                            <div className="text-center p-4 text-gray-400 text-xs font-bold">No pages found.</div>
-                        )}
-                    </div>
-                )}
-            </div>
-
-            {/* Editor Area */}
-            <div className="lg:col-span-3 bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500">
-                <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-red-600 shadow-inner border border-red-100/50">
-                            <FileText size={24} />
+        <ManagerLayout
+            title="Narrative Architect"
+            subtitle="Compose and manage landing experiences and global content layers"
+            icon={FileText}
+            stats={stats}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            searchPlaceholder="Search pages by title or slug..."
+            onAdd={() => { resetForm(); setView('edit'); }}
+            addLabel="Create Page"
+            view={view}
+            setView={setView}
+            editingId={editingId}
+            onSubmit={handleSave}
+            isSaving={createMutation.isLoading || updateMutation.isLoading}
+            isLoading={isLoading}
+            columns={columns}
+            data={filteredPages}
+            renderRow={(page) => (
+                <tr key={page.id} className="transition-all hover:bg-slate-50 group align-middle">
+                    <td className="py-6 px-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
+                                <FileText size={18} />
+                            </div>
+                            <span className="font-black text-slate-900 text-sm uppercase tracking-tight">{page.title}</span>
                         </div>
-                        <div>
-                            <h2 className="font-bold text-xl text-gray-900 leading-none">
-                                {isCreating ? 'Creating New Page' : (selectedPage?.title || 'Loading...')}
-                            </h2>
-                            <div className="flex items-center gap-2 mt-2">
-                                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border ${isCreating ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-green-100 text-green-700 border-green-200'}`}>
-                                    Status: {isCreating ? 'Draft' : 'Live'}
+                    </td>
+                    <td className="py-6 px-8">
+                        <code className="text-[10px] font-black text-red-500 uppercase bg-red-50 px-2 py-1 rounded-lg">/{page.slug}</code>
+                    </td>
+                    <td className="py-6 px-8 text-center">
+                        <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border bg-emerald-50 text-emerald-700 border-emerald-100">
+                            Live
+                        </span>
+                    </td>
+                    <td className="py-6 px-8 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                        {page.updated_at ? new Date(page.updated_at).toLocaleDateString() : 'TBA'}
+                    </td>
+                    <td className="py-6 px-8 text-right">
+                        <div className="flex items-center justify-end gap-2 transition-all duration-300">
+                            <button onClick={() => handleEdit(page)} className="p-2.5 bg-white text-slate-900 border border-slate-100 hover:bg-slate-950 hover:text-white rounded-xl transition-all shadow-premium-sm" title="Edit Page"><Edit3 size={16} /></button>
+                            <button onClick={() => { if (window.confirm('Delete this page?')) deleteMutation.mutate(page.id); }}
+                                className="p-2.5 bg-white text-red-600 border border-slate-100 hover:bg-red-600 hover:text-white rounded-xl transition-all shadow-premium-sm" title="Delete"><Trash2 size={16} /></button>
+                        </div>
+                    </td>
+                </tr>
+            )}
+            renderGrid={() => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+                    {filteredPages.map((page) => (
+                        <div key={page.id} className="bg-white rounded-[2.5rem] border border-gray-100 p-8 flex flex-col group relative hover:shadow-2xl hover:border-indigo-100 transition-all duration-500">
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center transition-transform group-hover:scale-110 border border-indigo-100">
+                                    <FileText size={20} />
+                                </div>
+                                <div className="flex gap-2">
+                                    <button onClick={() => handleEdit(page)} className="p-2 text-slate-400 hover:text-slate-900 transition-colors"><Edit3 size={18} /></button>
+                                    <button onClick={() => { if (window.confirm('Delete this page?')) deleteMutation.mutate(page.id); }} className="p-2 text-red-300 hover:text-red-600 transition-colors"><Trash2 size={18} /></button>
+                                </div>
+                            </div>
+                            <h3 className="font-black text-slate-900 uppercase tracking-tight text-lg mb-1">{page.title}</h3>
+                            <code className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-6">/{page.slug}</code>
+
+                            <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+                                <span className={`px-3 py-1 rounded-xl text-[8px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-700 border border-emerald-100`}>
+                                    Published
                                 </span>
-                                {!isCreating && <span className="text-[10px] text-gray-400 font-mono">/{selectedPage?.slug}</span>}
+                                <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center font-serif italic text-xs text-slate-300">
+                                    TL
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex gap-3">
-                        {!isCreating && (
-                            <button
-                                onClick={handleDeleteTrigger}
-                                disabled={deleteMutation.isPending}
-                                className="p-3 bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-xl border border-gray-100 transition-all"
-                                title="Delete This Page"
-                            >
-                                <Trash2 size={20} />
-                            </button>
-                        )}
-                        <button
-                            onClick={handleSave}
-                            disabled={updateMutation.isPending || createMutation.isPending || (isCreating && !editForm.title)}
-                            className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg shadow-red-600/30 active:scale-95 disabled:opacity-50 flex items-center gap-2"
-                        >
-                            {(updateMutation.isPending || createMutation.isPending) ? <Loader size={18} className="animate-spin" /> : <Save size={18} />}
-                            {isCreating ? 'Publish Page' : 'Save Changes'}
-                        </button>
-                    </div>
+                    ))}
                 </div>
-
-                <div className="flex-1 p-8 overflow-y-auto bg-gray-50/30">
-                    {(selectedPage || isCreating) ? (
-                        <div className="max-w-4xl mx-auto space-y-10">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-3">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Info size={14} className="text-red-500" />
-                                        Page Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={editForm.title}
-                                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none font-bold text-sm transition-all"
-                                        placeholder="Internal page name..."
-                                    />
+            )}
+            renderForm={() => (
+                <div className="space-y-12">
+                    <section className="space-y-8">
+                        <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs ">01</div>
+                            <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Contextual Framework</h3>
+                        </div>
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-2 col-span-2 md:col-span-1">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Page Authority Title</label>
+                                <input type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })}
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-black text-slate-900 text-sm tracking-tight" placeholder="e.g. About Our Journey" />
+                            </div>
+                            <div className="space-y-2 col-span-2 md:col-span-1">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Universal Resource slug</label>
+                                <div className="relative">
+                                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 font-black text-sm">/</span>
+                                    <input type="text" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })}
+                                        className="w-full pl-8 pr-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-black text-red-500 text-sm tracking-tighter" placeholder="about-us" />
                                 </div>
+                            </div>
+                        </div>
+                    </section>
 
-                                <div className="space-y-3">
-                                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Globe size={14} className="text-red-500" />
-                                        URL Path (Slug)
-                                    </label>
-                                    {isCreating ? (
-                                        <input
-                                            type="text"
-                                            value={editForm.slug}
-                                            onChange={(e) => setEditForm({ ...editForm, slug: e.target.value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') })}
-                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none font-mono text-sm transition-all"
-                                            placeholder="e.g. visa-requirements"
-                                        />
-                                    ) : (
-                                        <div className="px-4 py-3 bg-gray-100 rounded-xl text-sm font-mono text-gray-500 border border-gray-200 cursor-not-allowed">
-                                            /{selectedPageSlug}
-                                        </div>
-                                    )}
+                    <section className="space-y-8">
+                        <div className="flex items-center gap-3 pb-2 border-b border-gray-100">
+                            <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-black text-xs ">02</div>
+                            <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em]">Narrative Payload</h3>
+                        </div>
+                        <div className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Primary Headline</label>
+                                <input type="text" value={formData.headline} onChange={e => setFormData({ ...formData, headline: e.target.value })}
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-black text-slate-900 text-lg tracking-tight" placeholder="A compelling header..." />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Contextual Body (Markdown/HTML Support)</label>
+                                <textarea rows={12} value={formData.body} onChange={e => setFormData({ ...formData, body: e.target.value })}
+                                    className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none font-bold text-slate-800 text-sm leading-relaxed resize-none" placeholder="Draft the master narrative here..." />
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            )}
+            renderPreview={() => (
+                <div className="lg:sticky lg:top-12 h-fit space-y-8">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-black text-gray-400 uppercase tracking-[0.2em] ">Experience Simulation</h3>
+                        <div className="flex p-1 bg-gray-100 rounded-2xl border border-gray-200">
+                            <button onClick={() => setPreviewMode('desktop')} className={`px-4 py-2 rounded-xl transition-all ${previewMode === 'desktop' ? 'bg-white text-red-600 shadow-premium border border-gray-200' : 'text-gray-400 hover:text-gray-600'}`}><Monitor size={18} /></button>
+                            <button onClick={() => setPreviewMode('mobile')} className={`px-4 py-2 rounded-xl transition-all ${previewMode === 'mobile' ? 'bg-white text-red-600 shadow-premium border border-gray-200' : 'text-gray-400 hover:text-gray-600'}`}><Smartphone size={18} /></button>
+                        </div>
+                    </div>
+
+                    <div className={`relative mx-auto bg-slate-900 shadow-[0_48px_96px_-12px_rgba(0,0,0,0.3)] overflow-hidden transition-all duration-700 border-8 border-slate-900 flex items-center justify-center p-12
+                        ${previewMode === 'desktop' ? 'w-full aspect-[4/3] rounded-[48px]' : 'w-[320px] h-[640px] rounded-[64px]'}`}>
+
+                        <div className="w-full h-full bg-white rounded-[24px] overflow-auto flex flex-col no-scrollbar">
+                            {/* Simulator Navbar */}
+                            <div className="shrink-0 h-16 border-b border-slate-50 flex items-center justify-between px-8">
+                                <div className="text-[10px] font-black tracking-tighter">TRAVEL LOUNGE</div>
+                                <div className="flex gap-4">
+                                    <div className="w-4 h-[1px] bg-slate-200"></div>
+                                    <div className="w-4 h-[1px] bg-slate-200"></div>
                                 </div>
                             </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                    <Layout size={14} className="text-red-500" />
-                                    Main Page Headline (H1)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={editForm.headline}
-                                    onChange={(e) => setEditForm({ ...editForm, headline: e.target.value })}
-                                    className="w-full px-6 py-4 bg-white border border-gray-200 rounded-2xl focus:ring-4 focus:ring-red-500/10 focus:border-red-500 outline-none text-xl font-bold transition-all shadow-sm"
-                                    placeholder="Enter eye-catching headline..."
-                                />
+                            {/* Simulator Hero */}
+                            <div className="bg-slate-50 p-12 text-center space-y-4">
+                                <p className="text-[8px] font-black text-red-500 uppercase tracking-[0.4em]">{formData.title || 'PAGE CATEGORY'}</p>
+                                <h1 className="text-2xl font-black text-slate-950 tracking-tight leading-tight uppercase font-display">{formData.headline || 'Awaiting Narrative Headline'}</h1>
+                                <div className="w-12 h-1 bg-slate-950 mx-auto rounded-full mt-6"></div>
                             </div>
 
-                            <div className="space-y-3">
-                                <label className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                    <Edit3 size={14} className="text-red-500" />
-                                    Content Editor (Markdown)
-                                </label>
-                                <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden min-h-[500px] flex flex-col shadow-sm focus-within:ring-4 focus-within:ring-red-500/10 focus-within:border-red-500 transition-all">
-                                    <div className="bg-gray-50 border-b border-gray-100 p-4 flex items-center justify-between">
-                                        <div className="flex gap-2">
-                                            {[
-                                                { icon: Bold, label: 'Bold' },
-                                                { icon: Italic, label: 'Italic' },
-                                                { icon: Heading1, label: 'H1' },
-                                                { icon: Heading2, label: 'H2' },
-                                                { icon: MarkdownLink, label: 'Link' },
-                                                { icon: ListIcon, label: 'List' }
-                                            ].map(tool => (
-                                                <button key={tool.label} type="button" className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-200 text-gray-500 transition-colors">
-                                                    <tool.icon size={14} />
-                                                </button>
-                                            ))}
-                                        </div>
-                                        <span className="text-[10px] font-black text-gray-300 uppercase tracking-tighter ">Preview Mode Disabled</span>
+                            {/* Simulator Content */}
+                            <div className="p-12 prose prose-slate max-w-none">
+                                {formData.body ? (
+                                    <div className="text-[13px] text-slate-600 leading-relaxed font-medium space-y-4 whitespace-pre-wrap">
+                                        {formData.body}
                                     </div>
-                                    <textarea
-                                        className="flex-1 w-full p-8 outline-none resize-none font-mono text-sm leading-relaxed text-gray-700 bg-white"
-                                        value={editForm.body}
-                                        onChange={(e) => setEditForm({ ...editForm, body: e.target.value })}
-                                        placeholder="Start writing your page content here..."
-                                    ></textarea>
-                                </div>
-                                <p className="text-[10px] text-gray-400 font-medium ">Rich text is rendered as HTML on the frontend. Use Markdown syntax for formatting.</p>
+                                ) : (
+                                    <div className="space-y-4 opacity-10">
+                                        {[...Array(6)].map((_, i) => (
+                                            <div key={i} className={`h-2 bg-slate-900 rounded-full ${i % 3 === 0 ? 'w-full' : i % 3 === 1 ? 'w-4/5' : 'w-2/3'}`}></div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Simulator Footer */}
+                            <div className="mt-auto p-12 bg-slate-950 text-white text-[8px] font-black uppercase tracking-widest text-center opacity-40">
+                                © 2026 TRAVEL LOUNGE PROTOCOL
                             </div>
                         </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-4">
-                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                                <Layout size={32} className="text-gray-300" />
-                            </div>
-                            <p className="font-bold ">Select a page from the sidebar to start editing its content.</p>
+                    </div>
+
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex gap-4 text-slate-400">
+                        <Zap size={24} className="shrink-0 mt-1" />
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-900 mb-1">Architecture Note</p>
+                            <p className="text-[11px] font-medium leading-relaxed">This simulation renders the core narrative payload. Advanced layout modules will be applied dynamically during live environment transmission.</p>
                         </div>
-                    )}
+                    </div>
                 </div>
-            </div>
-        </div>
+            )}
+        />
     );
 };
 

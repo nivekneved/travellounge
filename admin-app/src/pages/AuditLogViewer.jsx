@@ -1,174 +1,144 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
-import { History, User, Terminal, Loader2, Search, ArrowUpDown } from 'lucide-react';
+import { History, User, Terminal, Loader2, Search, ArrowUpDown, ShieldAlert, Activity, GitCommit } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import ManagerLayout from '../components/ManagerLayout';
 
 const AuditLogViewer = () => {
- const [logs, setLogs] = useState([]);
- const [loading, setLoading] = useState(false);
- const [searchTerm, setSearchTerm] = useState('');
- const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
+    const [logs, setLogs] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [view, setView] = useState('list');
 
- useEffect(() => {
- fetchLogs();
- }, []);
+    useEffect(() => {
+        fetchLogs();
+    }, []);
 
- const fetchLogs = async () => {
- setLoading(true);
- try {
- const { data, error } = await supabase
- .from('bookings')
- .select('*')
- .order('created_at', { ascending: false })
- .limit(100);
+    const fetchLogs = async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('bookings')
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(100);
 
- if (error) throw error;
+            if (error) throw error;
 
- if (data) {
- const mappedLogs = data.map(booking => ({
- id: booking.id,
- created_at: booking.created_at,
- performer: booking.customer_info?.name || 'Guest User',
- action: 'NEW_BOOKING_REQUEST',
- details: `Status: ${booking.status} | Total: ${booking.total_amount || 'N/A'}`
- }));
- setLogs(mappedLogs);
- }
- } catch (error) {
- toast.error(`Failed to load audit logs: ${error.message}`);
- } finally {
- setLoading(false);
- }
- };
+            if (data) {
+                const mappedLogs = data.map(booking => ({
+                    id: booking.id,
+                    created_at: booking.created_at,
+                    performer: booking.customer_info?.name || 'Guest User',
+                    action: 'NEW_BOOKING_REQUEST',
+                    details: `Status: ${booking.status} | Total: ${booking.total_amount || 'N/A'}`
+                }));
+                setLogs(mappedLogs);
+            }
+        } catch (error) {
+            toast.error(`Failed to load audit logs: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
 
- const filteredAndSortedLogs = logs.filter(log => {
- const searchStr = searchTerm.toLowerCase();
- return (
- log.performer?.toLowerCase().includes(searchStr) ||
- log.action?.toLowerCase().includes(searchStr) ||
- log.details?.toLowerCase().includes(searchStr)
- );
- }).sort((a, b) => {
- const key = sortConfig.key;
- const valA = a[key];
- const valB = b[key];
+    const filteredLogs = logs.filter(log => {
+        const searchStr = searchTerm.toLowerCase();
+        return (
+            log.performer?.toLowerCase().includes(searchStr) ||
+            log.action?.toLowerCase().includes(searchStr) ||
+            log.details?.toLowerCase().includes(searchStr)
+        );
+    });
 
- if (typeof valA === 'string' && typeof valB === 'string') {
- return sortConfig.direction === 'asc'
- ? valA.localeCompare(valB)
- : valB.localeCompare(valA);
- }
+    const stats = [
+        { label: 'System Events', value: logs.length, icon: Activity, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Security Status', value: 'Nominal', icon: ShieldAlert, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'Recent Anomalies', value: '0', icon: Terminal, color: 'text-amber-600', bg: 'bg-amber-50' }
+    ];
 
- return sortConfig.direction === 'asc' ? valA - valB : valB - valA;
- });
+    const columns = [
+        { header: 'System Timestamp' },
+        { header: 'Performer Identity' },
+        { header: 'Action Trace', align: 'center' },
+        { header: 'Payload Details' }
+    ];
 
- return (
- <div className="space-y-6">
- <div>
- <h1 className="text-3xl font-bold">Audit Logs</h1>
- <p className="text-gray-500">Track all administrative actions and system events (Bookings Feed).</p>
- </div>
+    return (
+        <ManagerLayout
+            title="System Telemetry"
+            subtitle="Monitor real-time administrative actions, security events, and data mutations"
+            icon={Terminal}
+            stats={stats}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            searchPlaceholder="Grep logs by performer, action, or trace details..."
+            view={view}
+            setView={setView}
+            isLoading={loading}
+            columns={columns}
+            data={filteredLogs}
+            renderRow={(log) => (
+                <tr key={log.id} className="transition-all hover:bg-slate-50 group align-middle">
+                    <td className="py-6 px-8 text-[10px] font-mono font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
+                        {new Date(log.created_at).toLocaleString()}
+                    </td>
+                    <td className="py-6 px-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300 shrink-0">
+                                <User size={14} />
+                            </div>
+                            <span className="font-black text-slate-900 text-sm tracking-tight truncate max-w-[150px]">{log.performer}</span>
+                        </div>
+                    </td>
+                    <td className="py-6 px-8 text-center">
+                        <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${log.action.includes('NEW') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                log.action.includes('DELETE') ? 'bg-red-50 text-red-700 border-red-100' :
+                                    'bg-blue-50 text-blue-700 border-blue-100'
+                            }`}>
+                            <GitCommit size={10} className="mr-1.5 opacity-50" />
+                            {log.action}
+                        </span>
+                    </td>
+                    <td className="py-6 px-8">
+                        <div className="text-xs font-mono font-bold text-slate-500 truncate hover:whitespace-normal transition-all max-w-sm cursor-help" title={log.details}>
+                            {log.details}
+                        </div>
+                    </td>
+                </tr>
+            )}
+            renderGrid={() => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+                    {filteredLogs.map((log) => (
+                        <div key={log.id} className="bg-white rounded-[2.5rem] border border-gray-100 p-8 flex flex-col group relative hover:shadow-2xl hover:border-slate-300 transition-all duration-500">
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center transition-transform group-hover:scale-110 border border-slate-100 group-hover:bg-slate-900 group-hover:text-white duration-300">
+                                        <User size={16} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="font-black text-slate-900 uppercase tracking-tight text-xs max-w-[120px] truncate" title={log.performer}>{log.performer}</span>
+                                        <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest">{new Date(log.created_at).toLocaleString()}</span>
+                                    </div>
+                                </div>
+                                <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${log.action.includes('NEW') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                        log.action.includes('DELETE') ? 'bg-red-50 text-red-700 border-red-100' :
+                                            'bg-blue-50 text-blue-700 border-blue-100'
+                                    }`}>
+                                    {log.action}
+                                </span>
+                            </div>
 
- {/* DataTable Search */}
- <div className="bg-white p-4 border border-gray-100 rounded-2xl shadow-sm mb-6 max-w-2xl">
- <div className="relative">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
- <input
- type="text"
- placeholder="Search logs by performer, action, or details..."
- className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-bold text-sm"
- value={searchTerm}
- onChange={(e) => setSearchTerm(e.target.value)}
- />
- </div>
- </div>
-
- {/* Standardized Full Width Table */}
- <div className="overflow-x-auto">
- <table className="w-full text-left border-collapse table-fixed">
- <colgroup>
- <col className="w-[180px]" />
- <col className="w-[200px]" />
- <col className="w-[150px]" />
- <col className="w-[400px]" />
- </colgroup>
- <thead>
- <tr className="border-b border-gray-100 align-middle">
- <th
- className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 transition-colors"
- onClick={() => setSortConfig({ key: 'created_at', direction: sortConfig.key === 'created_at' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
- >
- <div className="flex items-center gap-2">
- Timestamp
- <ArrowUpDown size={12} className={sortConfig.key === 'created_at' ? 'text-primary' : 'opacity-20'} />
- </div>
- </th>
- <th
- className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 transition-colors"
- onClick={() => setSortConfig({ key: 'performer', direction: sortConfig.key === 'performer' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
- >
- <div className="flex items-center gap-2">
- Performer
- <ArrowUpDown size={12} className={sortConfig.key === 'performer' ? 'text-primary' : 'opacity-20'} />
- </div>
- </th>
- <th
- className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center cursor-pointer hover:text-gray-600 transition-colors"
- onClick={() => setSortConfig({ key: 'action', direction: sortConfig.key === 'action' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
- >
- <div className="flex items-center justify-center gap-2">
- Action
- <ArrowUpDown size={12} className={sortConfig.key === 'action' ? 'text-primary' : 'opacity-20'} />
- </div>
- </th>
- <th className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Details</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-gray-50">
- {loading ? (
- <tr>
- <td colSpan="4" className="py-20 text-center text-gray-400">
- <div className="flex justify-center items-center gap-2">
- <Loader2 size={16} className="animate-spin text-primary" /> Loading system logs...
- </div>
- </td>
- </tr>
- ) : (
- filteredAndSortedLogs.map((log) => (
- <tr key={log.id} className="transition-all even:bg-gray-50/50 hover:bg-gray-50 align-top group transition-colors">
- <td className="py-4 px-4 text-[10px] font-mono text-gray-400 uppercase tracking-tight">
- {new Date(log.created_at).toLocaleString()}
- </td>
- <td className="py-4 px-4">
- <div className="flex items-center gap-2 text-gray-900 font-bold ">
- <User size={14} className="text-primary shrink-0" />
- <span className="text-sm truncate">{log.performer}</span>
- </div>
- </td>
- <td className="py-4 px-4 text-center">
- <span className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${log.action.includes('NEW') ? 'bg-green-100 text-green-700 border-green-200' : 'bg-blue-100 text-blue-700 border-blue-200'
- }`}>
- {log.action}
- </span>
- </td>
- <td className="py-4 px-4">
- <div className="text-sm text-gray-600 font-mono truncate hover:whitespace-normal transition-all" title={log.details}>
- {log.details}
- </div>
- </td>
- </tr>
- ))
- )}
- {!loading && filteredAndSortedLogs.length === 0 && (
- <tr>
- <td colSpan="4" className="py-20 text-center text-gray-400 ">No logs found matching your criteria.</td>
- </tr>
- )}
- </tbody>
- </table>
- </div>
- </div>
- );
+                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 font-mono text-[10px] text-slate-600 leading-relaxed font-bold break-all mt-auto h-24 overflow-y-auto custom-scrollbar">
+                                > {log.details}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+            renderForm={() => null}
+        />
+    );
 };
 
 export default AuditLogViewer;

@@ -1,225 +1,190 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
-import { Star, CheckCircle, XCircle, User, MessageSquare, Loader2, Search, ArrowUpDown, Trash2 } from 'lucide-react';
+import { Star, CheckCircle, XCircle, User, MessageSquare, Loader2, Search, ArrowUpDown, Trash2, ShieldCheck, Zap, TrendingUp, AlertCircle, Eye } from 'lucide-react';
+import ManagerLayout from '../components/ManagerLayout';
 
 const ReviewModerator = () => {
- const [reviews, setReviews] = useState([]);
- const [loading, setLoading] = useState(false);
- const [searchTerm, setSearchTerm] = useState('');
- const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [view, setView] = useState('list');
 
- useEffect(() => {
- fetchReviews();
- }, []);
+    useEffect(() => {
+        fetchReviews();
+    }, []);
 
- const fetchReviews = async () => {
- setLoading(true);
- try {
- const { data, error } = await supabase
- .from('reviews')
- .select('*')
- .order('created_at', { ascending: false });
+    const fetchReviews = async () => {
+        setLoading(true);
+        try {
+            const { data, error } = await supabase
+                .from('reviews')
+                .select('*')
+                .order('created_at', { ascending: false });
 
- if (error) throw error;
- setReviews(data || []);
- } catch (error) {
- toast.error(`Error fetching reviews: ${error.message}`);
- } finally {
- setLoading(false);
- }
- };
+            if (error) throw error;
+            setReviews(data || []);
+        } catch (error) {
+            toast.error(`Error fetching reviews: ${error.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
 
- const deleteReview = async (id) => {
- if (!window.confirm('Are you sure you want to delete this review?')) return;
- try {
- const { error } = await supabase.from('reviews').delete().eq('id', id);
- if (error) throw error;
- toast.success('Review deleted');
- fetchReviews();
- } catch (error) {
- toast.error(`Error deleting review: ${error.message}`);
- }
- };
+    const deleteReview = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this review?')) return;
+        try {
+            const { error } = await supabase.from('reviews').delete().eq('id', id);
+            if (error) throw error;
+            toast.success('Review deleted');
+            fetchReviews();
+        } catch (error) {
+            toast.error(`Error deleting review: ${error.message}`);
+        }
+    };
 
- const filteredAndSortedReviews = reviews.filter(r => {
- const searchStr = searchTerm.toLowerCase();
- return (
- r.customer_name?.toLowerCase().includes(searchStr) ||
- r.comment?.toLowerCase().includes(searchStr) ||
- r.status?.toLowerCase().includes(searchStr)
- );
- }).sort((a, b) => {
- const key = sortConfig.key;
- const valA = a[key];
- const valB = b[key];
+    const moderateReview = async (id, status) => {
+        try {
+            const { error } = await supabase
+                .from('reviews')
+                .update({ status })
+                .eq('id', id);
 
- if (typeof valA === 'string' && typeof valB === 'string') {
- return sortConfig.direction === 'asc'
- ? valA.localeCompare(valB)
- : valB.localeCompare(valA);
- }
+            if (error) throw error;
 
- return sortConfig.direction === 'asc' ? valA - valB : valB - valA;
- });
+            toast.success(`Review ${status}`);
+            fetchReviews();
+        } catch (error) {
+            toast.error(`Error updating review: ${error.message}`);
+        }
+    };
 
- const moderateReview = async (id, status) => {
- try {
- const { error } = await supabase
- .from('reviews')
- .update({ status })
- .eq('id', id);
+    const filteredReviews = reviews.filter(r => {
+        const searchStr = searchTerm.toLowerCase();
+        return (
+            r.customer_name?.toLowerCase().includes(searchStr) ||
+            r.comment?.toLowerCase().includes(searchStr) ||
+            r.status?.toLowerCase().includes(searchStr)
+        );
+    });
 
- if (error) throw error;
+    const stats = [
+        { label: 'Pending Audit', value: reviews.filter(r => r.status === 'pending').length, icon: AlertCircle, color: 'text-amber-600', bg: 'bg-amber-50' },
+        { label: 'Approval Rating', value: '94%', icon: Star, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        { label: 'Social Velocity', value: '+18', icon: TrendingUp, color: 'text-blue-600', bg: 'bg-blue-50' }
+    ];
 
- toast.success(`Review ${status}`);
- fetchReviews();
- } catch (error) {
- toast.error(`Error updating review: ${error.message}`);
- }
- };
+    const columns = [
+        { header: 'Transmitter Identity' },
+        { header: 'Rating Integrity', align: 'center' },
+        { header: 'Narrative Segment' },
+        { header: 'Protocol Status', align: 'center' },
+        { header: 'Actions', align: 'right' }
+    ];
 
- return (
- <div className="space-y-6">
- <div>
- <h1 className="text-3xl font-bold">Review Moderation</h1>
- <p className="text-gray-500">Approve or reject customer feedback for public display.</p>
- </div>
+    return (
+        <ManagerLayout
+            title="Moderation Matrix"
+            subtitle="Analyze and authenticate global customer feedback signals"
+            icon={ShieldCheck}
+            stats={stats}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            searchPlaceholder="Search reviews by customer or content..."
+            view={view}
+            setView={setView}
+            isLoading={loading}
+            columns={columns}
+            data={filteredReviews}
+            renderRow={(review) => (
+                <tr key={review.id} className="transition-all hover:bg-slate-50 group align-middle">
+                    <td className="py-6 px-8">
+                        <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100 group-hover:bg-slate-900 group-hover:text-white transition-all duration-300">
+                                <User size={18} />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-black text-slate-900 text-sm uppercase tracking-tight">{review.customer_name || 'Anonymous Signal'}</span>
+                                <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">{new Date(review.created_at).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td className="py-6 px-8">
+                        <div className="flex justify-center gap-0.5 text-amber-400">
+                            {[...Array(5)].map((_, i) => (
+                                <Star key={i} size={10} fill={i < (review.rating || 0) ? 'currentColor' : 'none'} strokeWidth={i < (review.rating || 0) ? 0 : 2} />
+                            ))}
+                        </div>
+                    </td>
+                    <td className="py-6 px-8 max-w-xs">
+                        <p className="text-xs font-bold text-slate-600 line-clamp-2 leading-relaxed" title={review.comment}>"{review.comment}"</p>
+                    </td>
+                    <td className="py-6 px-8 text-center">
+                        <span className={`inline-flex items-center px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${review.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                review.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-100' :
+                                    'bg-amber-50 text-amber-700 border-amber-100'
+                            }`}>
+                            {review.status}
+                        </span>
+                    </td>
+                    <td className="py-6 px-8 text-right">
+                        <div className="flex items-center justify-end gap-2 transition-all duration-300">
+                            {review.status !== 'approved' && (
+                                <button onClick={() => moderateReview(review.id, 'approved')} className="p-2.5 bg-white text-emerald-600 border border-slate-100 hover:bg-emerald-600 hover:text-white rounded-xl transition-all shadow-premium-sm" title="Approve"><CheckCircle size={16} /></button>
+                            )}
+                            {review.status !== 'rejected' && (
+                                <button onClick={() => moderateReview(review.id, 'rejected')} className="p-2.5 bg-white text-red-600 border border-slate-100 hover:bg-red-600 hover:text-white rounded-xl transition-all shadow-premium-sm" title="Reject"><XCircle size={16} /></button>
+                            )}
+                            <button onClick={() => deleteReview(review.id)} className="p-2.5 bg-white text-slate-400 border border-slate-100 hover:bg-red-600 hover:text-white rounded-xl transition-all shadow-premium-sm" title="Delete"><Trash2 size={16} /></button>
+                        </div>
+                    </td>
+                </tr>
+            )}
+            renderGrid={() => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+                    {filteredReviews.map((review) => (
+                        <div key={review.id} className="bg-white rounded-[2.5rem] border border-gray-100 p-8 flex flex-col group relative hover:shadow-2xl hover:border-indigo-100 transition-all duration-500">
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center transition-transform group-hover:scale-110 border border-slate-100 group-hover:bg-slate-900 group-hover:text-white duration-300">
+                                    <User size={20} />
+                                </div>
+                                <div className="flex gap-2">
+                                    {review.status !== 'approved' && (
+                                        <button onClick={() => moderateReview(review.id, 'approved')} className="p-2 text-emerald-400 hover:text-emerald-600 transition-colors"><CheckCircle size={18} /></button>
+                                    )}
+                                    {review.status !== 'rejected' && (
+                                        <button onClick={() => moderateReview(review.id, 'rejected')} className="p-2 text-red-400 hover:text-red-600 transition-colors"><XCircle size={18} /></button>
+                                    )}
+                                    <button onClick={() => deleteReview(review.id)} className="p-2 text-slate-300 hover:text-red-600 transition-colors"><Trash2 size={18} /></button>
+                                </div>
+                            </div>
 
- {/* DataTable Search */}
- <div className="bg-white p-4 border border-gray-100 rounded-2xl shadow-sm mb-6 max-w-2xl">
- <div className="relative">
- <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
- <input
- type="text"
- placeholder="Search reviews by customer, comment, or status..."
- className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all font-bold text-sm"
- value={searchTerm}
- onChange={(e) => setSearchTerm(e.target.value)}
- />
- </div>
- </div>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="font-black text-slate-900 uppercase tracking-tight text-lg truncate">{review.customer_name || 'Anonymous'}</h3>
+                                <div className="flex gap-0.5 text-amber-400">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} size={10} fill={i < (review.rating || 0) ? 'currentColor' : 'none'} strokeWidth={i < (review.rating || 0) ? 0 : 2} />
+                                    ))}
+                                </div>
+                            </div>
 
- {/* Standardized Full Width Table */}
- <div className="overflow-x-auto">
- <table className="w-full text-left border-collapse table-fixed">
- <colgroup>
- <col className="w-[180px]" />
- <col className="w-[120px]" />
- <col className="w-[350px]" />
- <col className="w-[120px]" />
- <col className="w-[200px]" />
- </colgroup>
- <thead>
- <tr className="border-b border-gray-100 align-middle">
- <th
- className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider cursor-pointer hover:text-gray-600 transition-colors"
- onClick={() => setSortConfig({ key: 'customer_name', direction: sortConfig.key === 'customer_name' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
- >
- <div className="flex items-center gap-2">
- Customer
- <ArrowUpDown size={12} className={sortConfig.key === 'customer_name' ? 'text-primary' : 'opacity-20'} />
- </div>
- </th>
- <th
- className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center cursor-pointer hover:text-gray-600 transition-colors"
- onClick={() => setSortConfig({ key: 'rating', direction: sortConfig.key === 'rating' && sortConfig.direction === 'asc' ? 'desc' : 'asc' })}
- >
- <div className="flex items-center justify-center gap-2">
- Rating
- <ArrowUpDown size={12} className={sortConfig.key === 'rating' ? 'text-primary' : 'opacity-20'} />
- </div>
- </th>
- <th className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider">Comment</th>
- <th className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-center">Status</th>
- <th className="py-4 px-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-gray-50">
- {loading ? (
- <tr>
- <td colSpan="5" className="py-20 text-center text-gray-400">
- <div className="flex justify-center items-center gap-2">
- <Loader2 size={16} className="animate-spin text-primary" /> Loading reviews...
- </div>
- </td>
- </tr>
- ) : reviews.length === 0 ? (
- <tr>
- <td colSpan="5" className="py-20 text-center text-gray-400 ">
- <div className="flex flex-col items-center gap-2">
- <MessageSquare size={32} className="text-gray-200" />
- <span>No reviews found in the system.</span>
- </div>
- </td>
- </tr>
- ) : (
- filteredAndSortedReviews.map((review) => (
- <tr key={review.id} className="transition-all even:bg-gray-50/50 hover:bg-gray-50 align-top group transition-colors">
- <td className="py-4 px-4">
- <div className="flex items-center gap-3">
- <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
- <User size={14} className="text-gray-400" />
- </div>
- <div className="flex flex-col min-w-0">
- <span className="font-bold text-gray-900 truncate ">{review.customer_name || 'Anonymous'}</span>
- <span className="text-[10px] text-gray-400 font-mono uppercase tracking-tight">{new Date(review.created_at).toLocaleDateString()}</span>
- </div>
- </div>
- </td>
- <td className="py-4 px-4">
- <div className="flex justify-center gap-0.5 text-yellow-500">
- {[...Array(5)].map((_, i) => (
- <Star key={i} size={10} fill={i < (review.rating || 0) ? 'currentColor' : 'none'} strokeWidth={i < (review.rating || 0) ? 0 : 2} />
- ))}
- </div>
- </td>
- <td className="py-4 px-4">
- <p className="text-sm text-gray-600 truncate" title={review.comment}>"{review.comment}"</p>
- </td>
- <td className="py-4 px-4 text-center">
- <span className={`inline-flex items-center px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider border ${review.status === 'approved' ? 'bg-green-100 text-green-700 border-green-200' :
- review.status === 'rejected' ? 'bg-red-100 text-red-700 border-red-200' :
- 'bg-yellow-100 text-yellow-700 border-yellow-200'
- }`}>
- {review.status}
- </span>
- </td>
- <td className="py-4 px-4 text-right">
- <div className="flex items-center justify-end gap-1.5">
- {review.status !== 'approved' && (
- <button
- onClick={() => moderateReview(review.id, 'approved')}
- className="flex items-center gap-1.5 px-3 py-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-all font-bold text-xs"
- >
- <CheckCircle size={14} /> Approve
- </button>
- )}
- {review.status !== 'rejected' && (
- <button
- onClick={() => moderateReview(review.id, 'rejected')}
- className="flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all font-bold text-xs"
- >
- <XCircle size={14} /> Reject
- </button>
- )}
- <button
- onClick={() => deleteReview(review.id)}
- className="flex items-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all font-bold text-xs"
- title="Delete Review"
- >
- <Trash2 size={14} />
- </button>
- </div>
- </td>
- </tr>
- ))
- )}
- </tbody>
- </table>
- </div>
- </div>
- );
+                            <p className="text-xs font-bold text-slate-500 leading-relaxed mb-6 line-clamp-3">"{review.comment}"</p>
+
+                            <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
+                                <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border ${review.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
+                                        review.status === 'rejected' ? 'bg-red-50 text-red-700 border-red-100' :
+                                            'bg-amber-50 text-amber-700 border-amber-100'
+                                    }`}>
+                                    {review.status}
+                                </span>
+                                <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{new Date(review.created_at).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        />
+    );
 };
 
 export default ReviewModerator;

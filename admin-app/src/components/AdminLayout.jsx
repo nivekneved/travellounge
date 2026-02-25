@@ -50,7 +50,8 @@ const AdminLayout = ({ children }) => {
     const menuItems = [
         {
             section: 'Overview', items: [
-                { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+                { path: '/', label: 'Overview', icon: LayoutDashboard },
+                { path: '/analytics', label: 'Analytics Hub', icon: TrendingUp },
             ]
         },
         {
