@@ -130,3 +130,29 @@
 - `web-app/src/pages/ServiceDetails.jsx`
 - `scripts/enrichHotelRooms.js` (New)
 - `docs/AGENTS.md`
+
+## [2026-02-25] - Phase 12: Standardizing Admin Managers
+
+**Status**: Completed (Push pending credentials)
+
+### Changes Implemented
+
+- **UI Unification**: Refactored the following manager pages to utilize the `ManagerLayout` component for a consistent, premium SaaS-style aesthetic.
+- **Data Handling**: Standardized forms, previews, list/grid views, and filtering logic across all refactored managers.
+- **Components Refactored**: `FlightManager`, `EmailTemplateManager`, `NewsletterManager`, `PageContentManager`, `SEOManager`, `MenuManager`, `FooterManager`, `ReviewModerator`, `AuditLogViewer`, `LandActivityManager`, `SeaActivityManager`.
+
+### Modified Files
+
+- `admin-app/src/pages/FlightManager.jsx`
+- `admin-app/src/pages/EmailTemplateManager.jsx`
+- `admin-app/src/pages/NewsletterManager.jsx`
+- `admin-app/src/pages/PageContentManager.jsx`
+- `admin-app/src/pages/SEOManager.jsx`
+- `admin-app/src/pages/MenuManager.jsx`
+- `admin-app/src/pages/FooterManager.jsx`
+- `admin-app/src/pages/ReviewModerator.jsx`
+- `admin-app/src/pages/AuditLogViewer.jsx`
+- `admin-app/src/pages/LandActivityManager.jsx`
+- `admin-app/src/pages/SeaActivityManager.jsx`
+- `admin-app/src/components/ManagerLayout.jsx`
+- `docs/AGENTS.md`

@@ -125,7 +125,8 @@ exports.createBooking = async (req, res) => {
             if (customerEmail) {
                 await notificationService.sendEmail(customerEmail, 'Paradise Confirmed!', `Total: ${finalPrice} MUR. Property: ${productName}`);
             }
-            await notificationService.sendEmail('admin@travellounge.mu', 'INCOME ALERT!', `Reservation for ${productName}. Value: ${finalPrice} MUR`);
+            // Centralize admin notifications
+            await notificationService.sendEmail('admin@travellounge.mu', 'INCOME ALERT: New Booking Request', `A new reservation has been received for ${productName}. Value: ${finalPrice} MUR. Customer: ${customer_info?.name || 'Unknown'}`);
         } catch (e) {
             console.error('Notification failed', e);
         }
@@ -212,7 +213,7 @@ exports.createPackageRequest = async (req, res) => {
         // Notifications
         try {
             await notificationService.sendEmail(customer.email, 'Bespoke Package Request Received!', 'Our agents will review your vision and contact you with a tailormade quote.');
-            await notificationService.sendEmail('admin@travellounge.mu', 'NEW PACKAGE BUILDER REQUEST', `Customer ${customer.name} wants a custom ${package_details.duration} trip to ${package_details.destination}`);
+            await notificationService.sendEmail('admin@travellounge.mu', 'NEW PACKAGE BUILDER REQUEST', `Customer ${customer.name} wants a custom ${package_details.duration} trip to ${package_details.destination}. Please review and provide a quote.`);
         } catch (e) {
             console.error('Notification failed', e);
         }
@@ -232,7 +233,7 @@ exports.notifyBooking = async (req, res) => {
         // Notifications
         try {
             await notificationService.sendEmail(customer.email, 'Paradise Confirmed!', `Total: ${totalPrice} MUR. Property: ${productName}`);
-            await notificationService.sendEmail('admin@travellounge.mu', 'INCOME ALERT!', `Reservation #${booking_id} for ${productName}. Value: ${totalPrice} MUR`);
+            await notificationService.sendEmail('admin@travellounge.mu', 'INCOME ALERT: Booking Notification', `Manual notification triggered for Reservation #${booking_id} (${productName}). Value: ${totalPrice} MUR`);
             res.json({ success: true, message: 'Notifications sent' });
         } catch (e) {
             console.error('Notification failed', e);
