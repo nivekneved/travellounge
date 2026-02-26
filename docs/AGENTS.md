@@ -156,3 +156,11 @@
 - `admin-app/src/pages/SeaActivityManager.jsx`
 - `admin-app/src/components/ManagerLayout.jsx`
 - `docs/AGENTS.md`
+
+## [2026-02-26] - Phase 13: Comprehensive Ecosystem Seeding
+**Status**: Completed & Pushed
+### Changes Implemented
+- **Master Seed Script**: Created and running a massive 06_master_ecosystem_seed.sql script to unify data.
+- **Premium Data**: Seeded hotels, luxury cruises, Morocco group tours, activities, plus settings, pages, and testimonials.
+### Modified Files
+- supabase/06_master_ecosystem_seed.sql
