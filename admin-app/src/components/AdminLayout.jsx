@@ -42,8 +42,6 @@ const AdminLayout = ({ children }) => {
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
         navigate('/login');
     };
 

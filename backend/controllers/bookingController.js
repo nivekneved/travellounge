@@ -159,7 +159,7 @@ exports.updateBookingStatus = async (req, res) => {
 
         // Audit Log
         await supabase.from('audit_logs').insert([{
-            admin_id: req.user?.id,
+            admin_id: req.admin?.id,
             action: 'UPDATE_BOOKING_STATUS',
             target_type: 'BOOKING',
             target_id: req.params.id,

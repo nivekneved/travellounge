@@ -264,7 +264,7 @@ exports.updateService = async (req, res) => {
 
         // Audit Log
         await supabase.from('audit_logs').insert([{
-            admin_id: req.user?.id,
+            admin_id: req.admin?.id,
             action: 'UPDATE_SERVICE',
             target_type: 'SERVICE',
             target_id: id,
@@ -392,7 +392,7 @@ exports.bulkUpdateInventory = async (req, res) => {
 
             // Audit Log
             await supabase.from('audit_logs').insert([{
-                admin_id: req.user?.id,
+                admin_id: req.admin?.id,
                 action: 'BULK_UPDATE_INVENTORY',
                 target_type: 'SERVICE',
                 target_id: req.params.id,
@@ -443,26 +443,11 @@ exports.updateInventoryBlock = async (req, res) => {
     try {
         const { room_id, date, is_blocked, price } = req.body;
 
-        // Check-then-act logic for persistence
-        const { data: existing } = await supabase
+        const { error } = await supabase
             .from('room_daily_prices')
-            .select('id')
-            .eq('room_id', room_id)
-            .eq('date', date)
-            .single();
+            .upsert([{ room_id, date, is_blocked, price }], { onConflict: 'room_id,date' });
 
-        if (existing) {
-            const { error } = await supabase
-                .from('room_daily_prices')
-                .update({ is_blocked, price })
-                .eq('id', existing.id);
-            if (error) throw error;
-        } else {
-            const { error } = await supabase
-                .from('room_daily_prices')
-                .insert([{ room_id, date, is_blocked, price }]);
-            if (error) throw error;
-        }
+        if (error) throw error;
 
         res.json({ success: true });
     } catch (error) {
@@ -498,7 +483,7 @@ exports.deleteService = async (req, res) => {
 
         // Audit Log
         await supabase.from('audit_logs').insert([{
-            admin_id: req.user?.id,
+            admin_id: req.admin?.id,
             action: 'DELETE_SERVICE',
             target_type: 'SERVICE',
             target_id: id,

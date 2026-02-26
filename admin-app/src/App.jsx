@@ -52,12 +52,7 @@ const PrivateRoute = ({ children }) => {
         } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
 
-            // Update legacy token for backward compat if needed, or clear it
-            if (session) {
-                localStorage.setItem('adminToken', session.access_token);
-            } else {
-                localStorage.removeItem('adminToken');
-            }
+            // Local storage tokens removed for security - using built-in session state
         });
 
         return () => subscription.unsubscribe();

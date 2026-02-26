@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image, SafeAreaView, ScrollView, TextInput, Linking } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, ScrollView, TextInput, Linking, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin, ArrowRight, Search, Heart, Activity, Compass } from 'lucide-react-native';
 import { useQuery } from '@tanstack/react-query';
 import { theme } from '../constants/theme';

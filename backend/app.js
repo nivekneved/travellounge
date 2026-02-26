@@ -13,18 +13,35 @@ const app = express();
 
 // Security Middleware
 app.use(helmet());
-app.use(cors());
+
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production' 
+        ? [process.env.FRONTEND_URL, process.env.ADMIN_URL, 'https://travellounge.mu', 'https://admin.travellounge.mu'].filter(Boolean)
+        : '*',
+    credentials: true,
+};
+app.use(cors(corsOptions));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(logger('dev'));
 
 // Rate Limiting
-const limiter = rateLimit({
+const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100 // limit each IP to 100 requests per windowMs
+    max: 20, // stricter limit for auth
+    message: { message: 'Too many requests from this IP, please try again after 15 minutes' }
 });
-app.use('/api/', limiter);
+
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, 
+    max: 100 
+});
+
+app.use('/api/admin/login', authLimiter);
+app.use('/api/auth/', authLimiter);
+app.use('/api/', apiLimiter);
 
 // Routes
 const indexRouter = require('./routes/index');

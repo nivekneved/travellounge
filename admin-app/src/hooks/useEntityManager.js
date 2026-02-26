@@ -16,22 +16,33 @@ export const useEntityManager = (tableName, options = {}) => {
         queryKey = [tableName],
         orderColumn = 'created_at',
         ascending = false,
-        callbacks = {}
+        callbacks = {},
+        page = null,
+        pageSize = null
     } = options;
 
     const queryClient = useQueryClient();
 
     // Fetch data
     const query = useQuery({
-        queryKey,
+        queryKey: [...queryKey, page, pageSize].filter(Boolean),
         queryFn: async () => {
-            const { data, error } = await supabase
+            let queryBuilder = supabase
                 .from(tableName)
-                .select('*')
-                .order(orderColumn, { ascending });
+                .select('*', { count: 'exact' });
+
+            if (page && pageSize) {
+                const from = (page - 1) * pageSize;
+                const to = from + pageSize - 1;
+                queryBuilder = queryBuilder.range(from, to);
+            } else {
+                queryBuilder = queryBuilder.limit(1000);
+            }
+
+            const { data, count, error } = await queryBuilder.order(orderColumn, { ascending });
 
             if (error) throw error;
-            return data;
+            return { data, count };
         }
     });
 
@@ -100,7 +111,8 @@ export const useEntityManager = (tableName, options = {}) => {
     });
 
     return {
-        data: query.data || [],
+        data: query.data?.data || [],
+        count: query.data?.count || 0,
         isLoading: query.isLoading,
         error: query.error,
         createMutation,
