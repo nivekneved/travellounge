@@ -8,6 +8,7 @@ import Button from './Button';
 import QuickActions from './QuickActions';
 import Breadcrumb from './Breadcrumb';
 import BackToTop from './BackToTop';
+import CookieConsent from './CookieConsent';
 import { useWishlist } from '../context/WishlistContext';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation } from 'react-router-dom';
@@ -526,6 +527,7 @@ const Layout = ({ children }) => {
                     &copy; 2026 Travel Lounge Mauritius. {t('footer.rights')} Developed by EBOX.
                 </div>
             </footer>
+            <CookieConsent />
         </div>
     );
 };

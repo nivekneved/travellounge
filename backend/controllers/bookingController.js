@@ -42,32 +42,18 @@ exports.createBooking = async (req, res) => {
 
         if (room_id) {
             // Room specific booking
-            const { data: inventory, error: invError } = await supabase
-                .from('room_daily_prices')
-                .select('*')
-                .eq('room_id', room_id)
-                .gte('date', checkIn)
-                .lt('date', checkOut); // Exclude checkout day price usually
+            // Fix: Use atomic RPC function to prevent overbooking race condition
+            const { data: invUpdate, error: invError } = await supabase.rpc('decrement_room_inventory', {
+                p_room_id: room_id,
+                p_check_in: checkIn,
+                p_check_out: checkOut
+            });
 
-            if (invError || !inventory || inventory.length === 0) {
-                return res.status(400).json({ message: 'Pricing not set for these dates' });
+            if (invError || !invUpdate || !invUpdate.success) {
+                return res.status(400).json({ message: invUpdate?.message || 'Dates unavailable or conflict occurred' });
             }
 
-            // Strict Availability & Conflict Check
-            const isBlocked = inventory.some(day => day.is_blocked || (day.available_units !== undefined && day.available_units <= 0));
-            if (isBlocked) {
-                return res.status(400).json({ message: 'Conflict: One or more dates are fully booked' });
-            }
-
-            finalPrice = inventory.reduce((sum, day) => sum + Number(day.price), 0);
-
-            // Decrement Inventory
-            const updates = inventory.map(day => ({
-                ...day,
-                available_units: (day.available_units || 1) - 1,
-                is_blocked: (day.available_units || 1) - 1 <= 0
-            }));
-            await supabase.from('room_daily_prices').upsert(updates, { onConflict: 'room_id,date' });
+            finalPrice = invUpdate.total_price || 0;
 
         } else if (service_id && service_id !== 'static-inquiry') {
             // General service booking
@@ -225,7 +211,7 @@ exports.createPackageRequest = async (req, res) => {
 };
 // @desc    Trigger email notification (without creating booking)
 // @route   POST /api/bookings/notify
-// @access  Public (should be protected in prod, but public for now to match flow)
+// @access  Private/Admin
 exports.notifyBooking = async (req, res) => {
     try {
         const { booking_id, customer, productName, totalPrice } = req.body;

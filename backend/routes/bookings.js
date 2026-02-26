@@ -9,7 +9,7 @@ const {
 } = require('../controllers/bookingController');
 const { protect, authorize } = require('../middleware/auth');
 
-router.post('/notify', notifyBooking);
+router.post('/notify', protect, authorize('admin', 'staff'), notifyBooking);
 router.post('/package-request', createPackageRequest);
 
 router.route('/')

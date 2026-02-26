@@ -16,7 +16,7 @@ const serviceSchema = Joi.object({
     location: Joi.string().allow('', null).optional(),
     images: Joi.array().items(Joi.string()).optional(),
     inventory: Joi.object().unknown(true).optional(),
-    itinerary: Joi.array().items(Joi.object()).unknown(true).optional(),
+    itinerary: Joi.array().items(Joi.object().unknown(true)).optional(),
     features: Joi.array().items(Joi.string()).optional(),
     inclusions: Joi.array().items(Joi.string()).optional(),
     exclusions: Joi.array().items(Joi.string()).optional(),
@@ -31,7 +31,7 @@ const serviceSchema = Joi.object({
 // @access  Public
 exports.getProducts = async (req, res) => {
     try {
-        console.log('[getProducts] Query Params:', req.query);
+        // console.log('[getProducts] Query Params:', req.query);
         const { category, search, minPrice, maxPrice, checkIn, checkOut, featured, page = 1, limit = 10 } = req.query;
 
         // Calculate pagination range
@@ -42,12 +42,12 @@ exports.getProducts = async (req, res) => {
         let query = supabase.from('services').select('*', { count: 'exact' });
 
         if (category) {
-            console.log('[getProducts] Filtering by category:', category);
+            // console.log('[getProducts] Filtering by category:', category);
             query = query.eq('category', category);
         }
 
         if (featured === 'true' || featured === true) {
-            console.log('[getProducts] Filtering for featured items');
+            // console.log('[getProducts] Filtering for featured items');
             query = query.eq('is_featured', true);
         }
 
@@ -259,7 +259,7 @@ exports.updateService = async (req, res) => {
         const newPrice = data.pricing?.basePrice;
         if (oldPrice && newPrice && newPrice < oldPrice * 0.9) {
             // Emit a 'price_drop' event or just confirm it happened
-            console.log(`PRICE DROP DETECTED for ${data.name}: ${oldPrice} -> ${newPrice}`);
+            // console.log(`PRICE DROP DETECTED for ${data.name}: ${oldPrice} -> ${newPrice}`);
         }
 
         // Audit Log

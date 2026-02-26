@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, ArrowLeft, ChevronRight, ChevronDown, GripVertical, Code, LayoutList, ArrowUp, ArrowDown, Menu, Settings2, XCircle, Zap, Globe, TrendingUp } from 'lucide-react';
+import { Save, Plus, Trash2, ArrowLeft, ChevronRight, ChevronDown, GripVertical, Code, LayoutList, ArrowUp, ArrowDown, Menu, Settings2, XCircle, Zap, Globe, TrendingUp, Edit3, Eye } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
 import ManagerLayout from '../components/ManagerLayout';

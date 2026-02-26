@@ -36,6 +36,8 @@ const FooterManager = () => {
 
     useEffect(() => {
         if (settings && Object.keys(settings).length > 0) {
+            // Disable warning as we intentionally map initial API load to local state
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             setFormData({
                 contact_phone: settings.contact_phone || '',
                 contact_email: settings.contact_email || '',

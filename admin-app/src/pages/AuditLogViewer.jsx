@@ -93,8 +93,8 @@ const AuditLogViewer = () => {
                     </td>
                     <td className="py-6 px-8 text-center">
                         <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-[8px] font-black uppercase tracking-widest border transition-all ${log.action.includes('NEW') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                                log.action.includes('DELETE') ? 'bg-red-50 text-red-700 border-red-100' :
-                                    'bg-blue-50 text-blue-700 border-blue-100'
+                            log.action.includes('DELETE') ? 'bg-red-50 text-red-700 border-red-100' :
+                                'bg-blue-50 text-blue-700 border-blue-100'
                             }`}>
                             <GitCommit size={10} className="mr-1.5 opacity-50" />
                             {log.action}
@@ -122,15 +122,15 @@ const AuditLogViewer = () => {
                                     </div>
                                 </div>
                                 <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest border ${log.action.includes('NEW') ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                                        log.action.includes('DELETE') ? 'bg-red-50 text-red-700 border-red-100' :
-                                            'bg-blue-50 text-blue-700 border-blue-100'
+                                    log.action.includes('DELETE') ? 'bg-red-50 text-red-700 border-red-100' :
+                                        'bg-blue-50 text-blue-700 border-blue-100'
                                     }`}>
                                     {log.action}
                                 </span>
                             </div>
 
                             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 font-mono text-[10px] text-slate-600 leading-relaxed font-bold break-all mt-auto h-24 overflow-y-auto custom-scrollbar">
-                                > {log.details}
+                                {">"} {log.details}
                             </div>
                         </div>
                     ))}

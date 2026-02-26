@@ -56,41 +56,7 @@ exports.login = async (req, res) => {
 
 // @desc    Create first admin (Development only)
 // @route   POST /api/admin/setup
-// @access  Public
+// @access  Disabled in Production
 exports.setup = async (req, res) => {
-    try {
-        const { data: countData, error: countError } = await supabase
-            .from('admins')
-            .select('id', { count: 'exact', head: true });
-
-        if (countError) throw countError;
-        if (countData && countData.length > 0) {
-            return res.status(400).json({ message: 'Setup already completed' });
-        }
-
-        const { username, email, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 12);
-
-        const { data: admin, error: insertError } = await supabase
-            .from('admins')
-            .insert([{
-                username,
-                email,
-                password: hashedPassword,
-                role: 'admin'
-            }])
-            .select()
-            .single();
-
-        if (insertError) throw insertError;
-
-        res.status(201).json({
-            _id: admin.id,
-            username: admin.username,
-            email: admin.email,
-            token: generateToken(admin.id),
-        });
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+    return res.status(403).json({ message: 'Setup endpoint disabled for security.' });
 };

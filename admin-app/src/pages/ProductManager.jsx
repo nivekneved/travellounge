@@ -2,11 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useEntityManager } from '../hooks/useEntityManager';
 import ManagerLayout from '../components/ManagerLayout';
 import {
-    Package, Grid, MapPin, Tag, Star, Info, Layers,
-    ImageIcon, Clock, Calendar, Edit2, Trash2,
-    AlertCircle, CheckCircle, ChevronDown, List,
-    Users, TrendingUp, ShieldAlert, Download, Upload,
-    Box, Filter, MoreVertical, Plus
+    Package, MapPin, Edit2, Trash2,
+    AlertCircle, CheckCircle, Plus, Calendar
 } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
@@ -47,7 +44,10 @@ const InventoryManager = ({ serviceId, onClose }) => {
         setIsLoading(false);
     };
 
+    // Disable exhaustive deps as these intentionally trigger distinct data fetches on mount or state change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => { fetchRooms(); }, [serviceId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => { fetchInventory(); }, [selectedRoom, selectedMonth]);
 
     const handleBlockDate = async (dateStr, isBlocked) => {
@@ -243,6 +243,8 @@ const ProductManager = () => {
 
     useEffect(() => {
         if (view === 'inventory' && editingId) {
+            // Disable warning as we want to trigger load only when view explicitly switches to inventory
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             fetchRooms(editingId);
         }
     }, [view, editingId]);

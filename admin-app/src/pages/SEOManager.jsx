@@ -5,15 +5,12 @@ import { toast } from 'react-hot-toast';
 import {
     Search,
     Globe,
-    Share2,
-    ImageIcon,
     Save,
     CheckCircle,
     AlertCircle,
     Loader,
     Eye,
     TrendingUp,
-    Zap,
     Aperture
 } from 'lucide-react';
 import ManagerLayout from '../components/ManagerLayout';
@@ -60,6 +57,8 @@ const SEOManager = () => {
     // Initialize form data when settings are loaded
     useEffect(() => {
         if (seoSettings && !isInitialized) {
+            // Disable warning as we intentionally map initial API load to local state
+            // eslint-disable-next-line react-hooks/exhaustive-deps
             setFormData(seoSettings);
             setIsInitialized(true);
         }
