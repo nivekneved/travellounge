@@ -14,7 +14,8 @@ export const useDestinations = () => {
                     .from('services')
                     .select('*')
                     .eq('category', 'Destination')
-                    .eq('status', 'active');
+                    .eq('status', 'active')
+                    .limit(100);
 
                 if (error) throw error;
 

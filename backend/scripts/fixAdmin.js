@@ -10,7 +10,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 
 async function main() {
     const email = 'admin@travellounge.mu';
-    const password = 'admin123';
+    const password = process.env.ADMIN_PASSWORD || 'default_dev_pass_DO_NOT_USE_IN_PROD';
 
     console.log(`Checking for user: ${email}`);
 

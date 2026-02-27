@@ -14,7 +14,8 @@ export const useTransfers = () => {
                     .from('services')
                     .select('*')
                     .eq('type', 'transport')
-                    .eq('status', 'active');
+                    .eq('status', 'active')
+                    .limit(100);
 
                 if (error) throw error;
 

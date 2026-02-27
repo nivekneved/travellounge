@@ -9,7 +9,7 @@ export const useHotels = (locationFilter = null) => {
     useEffect(() => {
         const fetchHotels = async () => {
             try {
-                let query = supabase.from('services').select('*').eq('type', 'hotel');
+                let query = supabase.from('services').select('*').eq('type', 'hotel').limit(100);
 
                 if (locationFilter) {
                     query = locationFilter === 'Rodrigues'

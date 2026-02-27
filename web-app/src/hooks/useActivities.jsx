@@ -10,7 +10,7 @@ export const useActivities = (categoryFilter = null) => {
         const fetchActivities = async () => {
             try {
 
-                let query = supabase.from('services').select('*').eq('type', 'activity');
+                let query = supabase.from('services').select('*').eq('type', 'activity').limit(100);
 
                 if (categoryFilter) {
                     query = query.eq('category', categoryFilter);

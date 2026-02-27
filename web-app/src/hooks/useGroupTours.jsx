@@ -10,7 +10,7 @@ export const useGroupTours = (categoryFilter = null) => {
         const fetchTours = async () => {
             try {
                 // Fetch where category is 'Group Tours' or type is 'group-tour'
-                let query = supabase.from('services').select('*').or('category.eq.Group Tours,type.eq.group-tour');
+                let query = supabase.from('services').select('*').or('category.eq.Group Tours,type.eq.group-tour').limit(100);
 
                 const { data, error } = await query;
                 if (error) throw error;

@@ -9,7 +9,7 @@ export const useCruises = (categoryFilter = null) => {
     useEffect(() => {
         const fetchCruises = async () => {
             try {
-                let query = supabase.from('services').select('*').eq('type', 'cruise');
+                let query = supabase.from('services').select('*').eq('type', 'cruise').limit(100);
 
                 if (categoryFilter) {
                     query = query.eq('category', categoryFilter);

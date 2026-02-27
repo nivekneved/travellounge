@@ -10,7 +10,7 @@ export const useGuestHouses = (locationFilter = null) => {
         const fetchGuestHouses = async () => {
             try {
                 // Fetch where category is 'Guest House' or type is 'guest-house'
-                let query = supabase.from('services').select('*').or('category.eq.Guest House,type.eq.guest-house');
+                let query = supabase.from('services').select('*').or('category.eq.Guest House,type.eq.guest-house').limit(100);
 
                 if (locationFilter) {
                     // If location filter is provided, we might need to filter by location column

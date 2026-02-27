@@ -14,7 +14,8 @@ export const useExcursions = () => {
                     .from('services')
                     .select('*')
                     .eq('category', 'Excursion')
-                    .eq('status', 'active');
+                    .eq('status', 'active')
+                    .limit(100);
 
                 if (error) throw error;
 
