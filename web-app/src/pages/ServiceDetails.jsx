@@ -73,7 +73,6 @@ const ServiceDetails = () => {
                     filter: `id=eq.${id}`,
                 },
                 (payload) => {
-                    console.log('Realtime service update:', payload);
                     refetch();
                 }
             )
@@ -85,30 +84,6 @@ const ServiceDetails = () => {
     }, [id, refetch]);
 
     const isWishlisted = isInWishlist(product?._id);
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-2xl font-medium text-gray-500">Loading...</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-2xl font-medium text-red-500">Error loading product</div>
-            </div>
-        );
-    }
-
-    if (!product) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-2xl font-medium text-gray-500">Product not found</div>
-            </div>
-        );
-    }
 
     const {
         name,
@@ -155,6 +130,30 @@ const ServiceDetails = () => {
 
         return selectedCabin.price_per_night || basePrice;
     }, [selectedCabin, selectedDate, isHotel, pricing]);
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-2xl font-medium text-gray-500">Loading...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-2xl font-medium text-red-500">Error loading product</div>
+            </div>
+        );
+    }
+
+    if (!product) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-2xl font-medium text-gray-500">Product not found</div>
+            </div>
+        );
+    }
 
     const handleBooking = () => {
         const params = new URLSearchParams({

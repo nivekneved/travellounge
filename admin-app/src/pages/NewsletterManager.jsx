@@ -1,22 +1,14 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
 import {
     Mail,
-    Download,
-    Send,
     Users,
     Calendar,
-    Search,
-    CheckCircle,
-    XCircle,
-    ArrowUpDown,
-    ChevronRight,
-    SearchX,
     Trash2,
     TrendingUp,
-    Globe,
     Zap
 } from 'lucide-react';
 import { format } from 'date-fns';

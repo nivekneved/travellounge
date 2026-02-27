@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useEntityManager } from '../hooks/useEntityManager';
 import ManagerLayout from '../components/ManagerLayout';
 import {
-    Layers, Plus, Edit2, Trash2, Layout,
-    TrendingUp, Globe, Info, ArrowRight,
-    Monitor, Smartphone, ImageIcon
+    Layers, Edit2, Trash2, Layout,
+    TrendingUp, Globe, ArrowRight, ImageIcon
 } from 'lucide-react';
 import MediaPicker from '../components/MediaPicker';
 
@@ -13,7 +12,6 @@ const CategoryManager = () => {
     const [editingId, setEditingId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [isPickerOpen, setIsPickerOpen] = useState(false);
-    const [previewMode, setPreviewMode] = useState('desktop');
 
     const initialFormState = {
         name: '',

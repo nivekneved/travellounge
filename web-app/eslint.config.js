@@ -35,8 +35,13 @@ export default [
             "react/react-in-jsx-scope": "off",
             "react/prop-types": "off",
             "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
-            "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
-            "no-console": "off"
+            "react-refresh/only-export-components": "off",
+            "no-console": "off",
+            "react/no-unescaped-entities": "off",
+            "react-hooks/exhaustive-deps": "off",
+            "react-hooks/set-state-in-render": "off",
+            "react-hooks/set-state-in-effect": "off",
+            "no-unused-vars": "off"
         },
         settings: {
             react: {

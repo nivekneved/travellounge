@@ -1,35 +1,16 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable unused-imports/no-unused-vars */
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
 import {
     FileText,
     Edit3,
-    Check,
-    Layout,
-    HelpCircle,
-    Phone,
-    Info,
-    Save,
-    Loader,
-    ChevronRight,
     Globe,
-    Plus,
     Trash2,
-    X,
-    Bold,
-    Italic,
-    Heading1,
-    Heading2,
-    List as ListIcon,
-    Link as MarkdownLink,
     Monitor,
     Smartphone,
-    Eye,
-    Zap,
-    Aperture,
-    ArrowLeft,
-    SearchX
+    Zap
 } from 'lucide-react';
 import ManagerLayout from '../components/ManagerLayout';
 

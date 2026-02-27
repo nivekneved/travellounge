@@ -1,5 +1,6 @@
 import React from 'react';
-import { Mountain } from 'lucide-react';
+import { Mountain, Star, MapPin } from 'lucide-react';
+import Button from '../components/Button';
 import PageHero from '../components/PageHero';
 import ServiceCard from '../components/ServiceCard';
 import TrustSection from '../components/TrustSection';

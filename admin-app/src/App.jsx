@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 
@@ -28,6 +28,7 @@ import FlightManager from './pages/FlightManager';
 import EmailTemplateManager from './pages/EmailTemplateManager';
 import NewsletterManager from './pages/NewsletterManager';
 import PageContentManager from './pages/PageContentManager';
+import MigrationTool from './pages/MigrationTool'; // Added migration tool import
 
 import AdminLayout from './components/AdminLayout';
 import { Toaster, toast } from 'react-hot-toast';
@@ -131,6 +132,9 @@ function App() {
                                     <Route path="/email-templates" element={<EmailTemplateManager />} />
                                     <Route path="/newsletter" element={<NewsletterManager />} />
                                     <Route path="/pages" element={<PageContentManager />} />
+                                    
+                                    {/* Migration Tool Route */}
+                                    <Route path="/migration" element={<MigrationTool />} />
                                 </Routes>
                             </AdminLayout>
                         </PrivateRoute>

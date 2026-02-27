@@ -1,35 +1,20 @@
-import React, { useState, useMemo } from 'react';
+/* eslint-disable unused-imports/no-unused-vars */
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
 import {
     Plane,
-    List as ListIcon,
-    ArrowUpDown,
-    Plus,
-    Search,
     Calendar,
     Clock,
     Edit2,
     Trash2,
-    MapPin,
-    X,
-    DollarSign,
     ChevronLeft,
     ChevronRight,
     TrendingUp,
     Zap,
-    Loader,
-    Save,
-    Image as ImageIcon,
     Monitor,
-    Smartphone,
-    Eye,
-    Aperture,
-    ArrowLeft,
-    LayoutGrid,
-    SearchX,
-    Building
+    Smartphone
 } from 'lucide-react';
 import { format } from 'date-fns';
 import ManagerLayout from '../components/ManagerLayout';

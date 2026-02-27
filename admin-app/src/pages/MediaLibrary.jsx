@@ -1,9 +1,10 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
-import { Upload, Trash2, Search, Folder, Image as ImageIcon, Film, File, X, CheckSquare, Square } from 'lucide-react';
+import { Upload, Trash2, Search, Folder, Image as ImageIcon, Film, File, CheckSquare, Square } from 'lucide-react';
 
 const MediaLibrary = () => {
  const [searchTerm, setSearchTerm] = useState('');

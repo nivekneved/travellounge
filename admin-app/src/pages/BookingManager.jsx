@@ -3,10 +3,9 @@ import { useEntityManager } from '../hooks/useEntityManager';
 import ManagerLayout from '../components/ManagerLayout';
 import { supabase } from '../utils/supabase';
 import {
-    Calendar, Phone, Mail, CheckCircle, XCircle,
-    Clock, Users, Eye, Search, ArrowUpDown,
-    TrendingUp, CheckSquare, Tag, Trash2,
-    Plus, Edit2, Save, X, Filter, MoreVertical
+    Calendar, Phone, Mail, CheckCircle,
+    Clock, Users, Eye,
+    TrendingUp, Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 

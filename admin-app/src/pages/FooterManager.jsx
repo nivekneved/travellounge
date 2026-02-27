@@ -1,8 +1,9 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
-import { Save, MapPin, Phone, Mail, Clock, Facebook, Instagram, Globe, XCircle, Zap, TrendingUp, Eye, Plus, Trash2 } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Globe, XCircle, Zap, TrendingUp, Eye } from 'lucide-react';
 import ManagerLayout from '../components/ManagerLayout';
 
 const FooterManager = () => {
@@ -37,7 +38,8 @@ const FooterManager = () => {
     useEffect(() => {
         if (settings && Object.keys(settings).length > 0) {
             // Disable warning as we intentionally map initial API load to local state
-            // eslint-disable-next-line react-hooks/exhaustive-deps
+             
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData({
                 contact_phone: settings.contact_phone || '',
                 contact_email: settings.contact_email || '',

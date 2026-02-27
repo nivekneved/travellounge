@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import globals from "globals";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
+import unusedImports from "eslint-plugin-unused-imports";
 
 export default [
     {
@@ -27,6 +28,7 @@ export default [
         plugins: {
             react,
             "react-hooks": reactHooks,
+            "unused-imports": unusedImports,
         },
         rules: {
             ...react.configs.recommended.rules,
@@ -35,11 +37,15 @@ export default [
             "react/prop-types": "off",
             "react/no-unescaped-entities": "off",
             "react/display-name": "off",
-            "no-unused-vars": ["warn", {
-                "argsIgnorePattern": "^_",
-                "varsIgnorePattern": "^React$"
+            "no-unused-vars": "off",
+            "unused-imports/no-unused-imports": "error",
+            "unused-imports/no-unused-vars": ["error", {
+                "vars": "all",
+                "varsIgnorePattern": "^(React|_)",
+                "args": "after-used",
+                "argsIgnorePattern": "^_"
             }],
-            "no-console": ["warn", { allow: ["warn", "error"] }], // Allowing warn/error for now, but we've been removing error logs
+            "no-console": ["warn", { allow: ["warn", "error"] }],
             "no-undef": "error",
         },
         settings: {

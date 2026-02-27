@@ -3,15 +3,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
 import {
-    Search,
     Globe,
-    Save,
     CheckCircle,
     AlertCircle,
-    Loader,
     Eye,
     TrendingUp,
-    Aperture
+    Zap
 } from 'lucide-react';
 import ManagerLayout from '../components/ManagerLayout';
 
@@ -58,7 +55,8 @@ const SEOManager = () => {
     useEffect(() => {
         if (seoSettings && !isInitialized) {
             // Disable warning as we intentionally map initial API load to local state
-            // eslint-disable-next-line react-hooks/exhaustive-deps
+             
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setFormData(seoSettings);
             setIsInitialized(true);
         }

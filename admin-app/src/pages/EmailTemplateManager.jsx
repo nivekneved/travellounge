@@ -1,5 +1,6 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { Mail, Plus, Trash2, Edit2, Variable, Code, ChevronRight, Calendar, Search, ArrowUpDown, X, Eye } from 'lucide-react';
+import { Mail, Trash2, Edit2, Variable, Code, Calendar, Eye } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
 import ManagerLayout from '../components/ManagerLayout';

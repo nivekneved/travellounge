@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
-import { Star, CheckCircle, XCircle, User, MessageSquare, Loader2, Search, ArrowUpDown, Trash2, ShieldCheck, Zap, TrendingUp, AlertCircle, Eye } from 'lucide-react';
+import { Star, CheckCircle, XCircle, User, Trash2, ShieldCheck, TrendingUp, AlertCircle } from 'lucide-react';
 import ManagerLayout from '../components/ManagerLayout';
 
 const ReviewModerator = () => {

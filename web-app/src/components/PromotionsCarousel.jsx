@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/purity */
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';

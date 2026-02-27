@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Quick JS script to analyze JSX nesting in ProductManager.jsx
 const fs = require('fs');
 const path = require('path');

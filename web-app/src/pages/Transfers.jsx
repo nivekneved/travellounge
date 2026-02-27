@@ -10,6 +10,8 @@ import { useTransfers } from '../hooks/useTransfers';
 import { supabase } from '../utils/supabase';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ErrorMessage from '../components/ErrorMessage';
+import Pagination from '../components/Pagination';
 import { useState, useMemo } from 'react';
 
 const Transfers = () => {

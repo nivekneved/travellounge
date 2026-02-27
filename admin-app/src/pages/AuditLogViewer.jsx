@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
-import { History, User, Terminal, Loader2, Search, ArrowUpDown, ShieldAlert, Activity, GitCommit } from 'lucide-react';
+import { User, Terminal, ShieldAlert, Activity, GitCommit } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import ManagerLayout from '../components/ManagerLayout';
 

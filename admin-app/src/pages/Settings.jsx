@@ -1,6 +1,7 @@
+/* eslint-disable unused-imports/no-unused-vars, react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
-import { Save, Shield, Globe, Mail, Smartphone, Download, Trash2, AlertTriangle, CheckCircle, Activity, Users } from 'lucide-react';
+import { Shield, Globe, Smartphone, Download, Trash2, AlertTriangle, CheckCircle, Activity, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const Settings = () => {

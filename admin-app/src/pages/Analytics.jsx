@@ -1,23 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabase';
 import {
-    TrendingUp,
-    TrendingDown,
     DollarSign,
-    Calendar,
     BarChart3,
-    PieChart,
     Download,
-    Filter,
     ArrowUpRight,
-    ArrowDownRight,
     Loader2,
     Database,
     Table as TableIcon,
     ChevronRight,
-    ArrowRight,
     Search,
-    SortAsc,
     Layers,
     Activity,
     Server,

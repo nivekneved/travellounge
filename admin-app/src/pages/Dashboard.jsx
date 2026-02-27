@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabase';
 import {
-    LayoutDashboard,
     TrendingUp,
-    Users,
     Calendar,
     Package,
-    ArrowUpRight,
     MessageSquare,
-    DollarSign,
-    Activity,
     Clock,
     CheckCircle,
     AlertCircle,
@@ -19,7 +14,6 @@ import {
     ShieldCheck
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import PageHeader from '../components/PageHeader';
 import Card from '../components/Card';
 import Button from '../components/Button';
 

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Comprehensive fix for ProductManager.jsx closure issue
 const fs = require('fs');
 const path = require('path');

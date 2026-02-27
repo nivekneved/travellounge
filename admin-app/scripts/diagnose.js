@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Final comprehensive fix for ProductManager.jsx
 const fs = require('fs');
 const path = require('path');

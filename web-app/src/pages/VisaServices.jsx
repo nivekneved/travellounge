@@ -1,6 +1,10 @@
 import { supabase } from '../utils/supabase';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { FileCheck, CheckCircle, Globe, ShieldCheck, Clock } from 'lucide-react';
+import PageHero from '../components/PageHero';
+import CTASection from '../components/CTASection';
+import TrustSection from '../components/TrustSection';
 
 const VisaServices = () => {
     const { data: pageData, isLoading } = useQuery({

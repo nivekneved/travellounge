@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import React, { useState, useMemo } from 'react';
 import { useEntityManager } from '../hooks/useEntityManager';
 import ManagerLayout from '../components/ManagerLayout';

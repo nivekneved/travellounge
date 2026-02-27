@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { useEntityManager } from '../hooks/useEntityManager';
 import ManagerLayout from '../components/ManagerLayout';
 import {
-    Trees, Plus, Edit2, Trash2, MapPin, Clock, Search,
-    TrendingUp, Globe, Info, Star, ArrowRight,
-    Monitor, Smartphone, ImageIcon
+    Trees, Edit2, Trash2, MapPin, Clock,
+    TrendingUp, Globe, ArrowRight
 } from 'lucide-react';
 import MediaPicker from '../components/MediaPicker';
 
@@ -13,7 +12,6 @@ const LandActivityManager = () => {
     const [editingId, setEditingId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [isPickerOpen, setIsPickerOpen] = useState(false);
-    const [previewMode, setPreviewMode] = useState('desktop');
 
     const initialFormState = {
         name: '',

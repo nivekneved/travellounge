@@ -2,9 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { useEntityManager } from '../hooks/useEntityManager';
 import ManagerLayout from '../components/ManagerLayout';
 import {
-    Users, User, Briefcase, Mail, Linkedin,
-    Edit2, Trash2, Plus, Save, Phone, MapPin,
-    LayoutGrid, List as ListIcon, Search
+    Users, User, Briefcase, Mail,
+    Edit2, Trash2
 } from 'lucide-react';
 
 const TeamManager = () => {

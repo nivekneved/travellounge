@@ -1,10 +1,11 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import React, { useState, useMemo } from 'react';
 import { useEntityManager } from '../hooks/useEntityManager';
 import ManagerLayout from '../components/ManagerLayout';
 import {
-    MessageSquare, User, MapPin, Star, ThumbsUp,
-    Edit2, Trash2, Plus, Save, Search, Filter,
-    CheckCircle, XCircle, Clock, Quote
+    MessageSquare, Star, ThumbsUp,
+    Edit2, Trash2,
+    CheckCircle, Quote
 } from 'lucide-react';
 
 const TestimonialManager = () => {

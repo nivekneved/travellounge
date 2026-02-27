@@ -13,25 +13,17 @@ import {
     Activity,
     Star,
     FileText,
-    Package,
-    PauseCircle,
     Plane,
-    PlayCircle,
-    Plus,
-    RefreshCw,
     Search,
     Settings,
     Shield,
-    ShieldAlert,
     TrendingUp,
-    Trash2,
     Users,
-    X,
-    ChevronLeft,
     ChevronRight,
     LogOut,
     ExternalLink,
-    Mail
+    Mail,
+    Database
 } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 
@@ -84,6 +76,11 @@ const AdminLayout = ({ children }) => {
             ]
         },
         {
+            section: 'Tools', items: [
+                { path: '/migration', label: 'Data Migration', icon: Database },
+            ]
+        },
+        {
             section: 'System', items: [
                 { path: '/logs', label: 'Audit Logs', icon: Shield },
                 { path: '/settings', label: 'Settings', icon: Settings },
@@ -109,22 +106,24 @@ const AdminLayout = ({ children }) => {
  `}
             >
                 <div className="h-24 flex items-center px-6 mb-2">
-                    {!collapsed && (
-                        <div className="flex items-center gap-4 animate-fade-in">
-                            <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-glow rotate-[-3deg] hover:rotate-0 transition-transform duration-300">
+                    <div className="flex items-center gap-4 animate-fade-in">
+                        {!collapsed && (
+                            <div className="flex items-center gap-4 animate-fade-in">
+                                <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-glow rotate-[-3deg] hover:rotate-0 transition-transform duration-300">
+                                    <Shield size={22} strokeWidth={2.5} />
+                                </div>
+                                <div className="flex flex-col">
+                                    <h1 className="font-display font-bold text-xl tracking-tight text-slate-900 leading-none">Travel Lounge</h1>
+                                    <p className="text-[10px] text-primary-600 font-black uppercase tracking-[0.2em] mt-1.5 opacity-80">Admin Core</p>
+                                </div>
+                            </div>
+                        )}
+                        {collapsed && (
+                            <div className="mx-auto w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-glow hover:rotate-12 transition-transform duration-300">
                                 <Shield size={22} strokeWidth={2.5} />
                             </div>
-                            <div className="flex flex-col">
-                                <h1 className="font-display font-bold text-xl tracking-tight text-slate-900 leading-none">Travel Lounge</h1>
-                                <p className="text-[10px] text-primary-600 font-black uppercase tracking-[0.2em] mt-1.5 opacity-80">Admin Core</p>
-                            </div>
-                        </div>
-                    )}
-                    {collapsed && (
-                        <div className="mx-auto w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center text-white shadow-glow hover:rotate-12 transition-transform duration-300">
-                            <Shield size={22} strokeWidth={2.5} />
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
 
                 <nav className="flex-1 overflow-y-auto px-4 space-y-6 scrollbar-hide pb-8">
@@ -257,7 +256,7 @@ const AdminLayout = ({ children }) => {
                             href="/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="hidden sm:flex items-center gap-2.5 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-xl transition-all shadow-premium/5 hover:shadow-premium-lg"
+                            className="hidden sm:flex items-center gap-2 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 rounded-xl transition-all shadow-premium/5 hover:shadow-premium-lg"
                         >
                             <ExternalLink size={14} />
                             Preview Site

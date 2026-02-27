@@ -2,10 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useEntityManager } from '../hooks/useEntityManager';
 import ManagerLayout from '../components/ManagerLayout';
 import {
-    LayoutTemplate, Image as ImageIcon, Video,
-    Type, Link as LinkIcon, AlignCenter, AlignLeft, AlignRight,
-    Monitor, Smartphone, Zap, Save, Trash2, Edit2, Play,
-    Eye, Settings2, Plus, Search
+    LayoutTemplate, Image as ImageIcon, Video, AlignCenter, AlignLeft, AlignRight, Zap, Trash2, Edit2
 } from 'lucide-react';
 import MediaPicker from '../components/MediaPicker';
 
@@ -13,7 +10,6 @@ const HeroManager = () => {
     const [view, setView] = useState('grid');
     const [editingId, setEditingId] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [previewMode, setPreviewMode] = useState('desktop');
     const [isPickerOpen, setIsPickerOpen] = useState(false);
     const [pickerTarget, setPickerTarget] = useState('image_url');
 
@@ -84,8 +80,6 @@ const HeroManager = () => {
         { header: 'Status', align: 'center' },
         { header: 'Actions', align: 'right' }
     ];
-
-    const previewMedia = formData.media_type === 'video' ? formData.video_url : formData.image_url;
 
     return (
         <>

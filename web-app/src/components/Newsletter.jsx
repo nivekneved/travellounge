@@ -1,5 +1,8 @@
 import { supabase } from '../utils/supabase';
-
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-hot-toast';
+import { CheckCircle2, Mail, Send } from 'lucide-react';
 // ... imports
 
 const Newsletter = () => {

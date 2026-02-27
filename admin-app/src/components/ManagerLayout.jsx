@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
-    Plus, Search, SearchX, ArrowUpDown, Monitor, Smartphone,
-    ArrowRight, Info, Save
+    Plus, Search, SearchX, Monitor, Smartphone, Info, Save
 } from 'lucide-react';
 
 /**

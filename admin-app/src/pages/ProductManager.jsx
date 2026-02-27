@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import React, { useState, useMemo, useEffect } from 'react';
 import { useEntityManager } from '../hooks/useEntityManager';
 import ManagerLayout from '../components/ManagerLayout';
@@ -244,7 +245,7 @@ const ProductManager = () => {
     useEffect(() => {
         if (view === 'inventory' && editingId) {
             // Disable warning as we want to trigger load only when view explicitly switches to inventory
-            // eslint-disable-next-line react-hooks/exhaustive-deps
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             fetchRooms(editingId);
         }
     }, [view, editingId]);

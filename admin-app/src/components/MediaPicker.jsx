@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../utils/supabase';
 import { toast } from 'react-hot-toast';
 import { useDropzone } from 'react-dropzone';
-import { Upload, X, Search, Image as ImageIcon, Film, File, Check, Loader2 } from 'lucide-react';
+import { Upload, X, Search, Image as ImageIcon, Film, Check, Loader2 } from 'lucide-react';
 
 const MediaPicker = ({ isOpen, onClose, onSelect, type = 'all' }) => {
  const [searchTerm, setSearchTerm] = useState('');
