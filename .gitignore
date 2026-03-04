@@ -28,11 +28,14 @@ ios/
 *.aab
 
 # Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 *.log
+
+# Workspace Specific
 *.txt
+!README.md
+!PROJECT_RULES.md
+!AGENTS.md
+!GEMINI.md
 
 # IDE & System
 .idea/

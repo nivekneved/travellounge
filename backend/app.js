@@ -15,7 +15,7 @@ const app = express();
 app.use(helmet());
 
 const corsOptions = {
-    origin: process.env.NODE_ENV === 'production' 
+    origin: process.env.NODE_ENV === 'production'
         ? [process.env.FRONTEND_URL, process.env.ADMIN_URL, 'https://travellounge.mu', 'https://admin.travellounge.mu'].filter(Boolean)
         : '*',
     credentials: true,
@@ -35,8 +35,8 @@ const authLimiter = rateLimit({
 });
 
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, 
-    max: 100 
+    windowMs: 15 * 60 * 1000,
+    max: 100
 });
 
 app.use('/api/admin/login', authLimiter);
@@ -82,3 +82,10 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+
+if (require.main === module) {
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+        console.log(`Backend server listening on port ${port}`);
+    });
+}

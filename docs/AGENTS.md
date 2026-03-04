@@ -158,9 +158,36 @@
 - `docs/AGENTS.md`
 
 ## [2026-02-26] - Phase 13: Comprehensive Ecosystem Seeding
+
 **Status**: Completed & Pushed
+
 ### Changes Implemented
+
 - **Master Seed Script**: Created and running a massive 06_master_ecosystem_seed.sql script to unify data.
 - **Premium Data**: Seeded hotels, luxury cruises, Morocco group tours, activities, plus settings, pages, and testimonials.
+
 ### Modified Files
+
 - supabase/06_master_ecosystem_seed.sql
+
+## [2026-03-04] - Phase 14: Security Hardening & Deployment Prep
+
+**Status**: Completed & Pushing
+
+### Changes Implemented
+
+- **Security**: Secured `admins` table with RLS, hardened insert policies for `reviews` and `newsletter_subscribers`, and subselect-optimized all RLS policies project-wide.
+- **Stability**: Implemented `ErrorBoundary` in `admin-app` and verified `web-app` coverage.
+- **Backend Optimization**: Refactored `backend` (app.js & package.json) to use a unified entry point compatible with Vercel and local usage.
+- **Cleanup**: Purged redundant logs/txt files and refined project-level `.gitignore`.
+
+### Modified Files
+
+- `admin-app/src/components/ErrorBoundary.jsx` (New)
+- `admin-app/src/main.jsx`
+- `backend/app.js`
+- `backend/package.json`
+- `backend/scripts/fixAdmin.js`
+- `backend/scripts/debug-login.js`
+- `.gitignore`
+- `docs/AGENTS.md`

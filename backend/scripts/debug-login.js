@@ -36,7 +36,11 @@ async function checkAdmin() {
     console.log('Admin found:', admin.email);
     console.log('Stored hash:', admin.password);
 
-    const password = process.env.ADMIN_PASSWORD || 'default_dev_pass_DO_NOT_USE_IN_PROD';
+    const password = process.env.ADMIN_PASSWORD;
+    if (!password) {
+        console.error('ERROR: ADMIN_PASSWORD environment variable is not set.');
+        return;
+    }
 
     // Generate new hash
     const newHash = await bcrypt.hash(password, 12);

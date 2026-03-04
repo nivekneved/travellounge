@@ -10,7 +10,11 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 
 async function main() {
     const email = 'admin@travellounge.mu';
-    const password = process.env.ADMIN_PASSWORD || 'default_dev_pass_DO_NOT_USE_IN_PROD';
+    const password = process.env.ADMIN_PASSWORD;
+    if (!password) {
+        console.error('ERROR: ADMIN_PASSWORD environment variable is not set.');
+        process.exit(1);
+    }
 
     console.log(`Checking for user: ${email}`);
 
