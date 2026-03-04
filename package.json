@@ -9,7 +9,11 @@
     "backend",
     "mobile-app"
   ],
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
+    "build": "npm run build --workspace=web-app",
     "build:web": "npm run build --workspace=web-app",
     "build:admin": "npm run build --workspace=admin-app",
     "start:backend": "npm start --workspace=backend",
