@@ -146,9 +146,7 @@ const BookingForm = ({ serviceId, productName, price, initialCheckIn, initialChe
 
             // Trigger Backend for Emails (Crucial Functionality)
             // We fire-and-forget this to not block the UI success state
-            const notifyUrl = import.meta.env.VITE_API_URL
-                ? `${import.meta.env.VITE_API_URL}/bookings/notify`
-                : 'http://localhost:5000/api/bookings/notify';
+            const notifyUrl = `${import.meta.env.VITE_API_URL}/bookings/notify`;
 
             fetch(notifyUrl, {
                 method: 'POST',

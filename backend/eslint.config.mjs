@@ -7,13 +7,13 @@ export default [
         files: ["**/*.js"],
         languageOptions: {
             ecmaVersion: 2022,
-            sourceType: "module",
+            sourceType: "commonjs",
             globals: {
                 ...globals.node,
             },
         },
         rules: {
-            "no-unused-vars": ["warn", { "argsIgnorePattern": "^(req|res|next|_)$" }],
+            "no-unused-vars": "warn",
             "no-console": "off",
             "no-undef": "error"
         }

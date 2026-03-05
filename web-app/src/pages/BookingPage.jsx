@@ -115,7 +115,7 @@ const BookingPage = () => {
         setStatus('loading');
 
         try {
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+            const apiBase = import.meta.env.VITE_API_URL;
             const response = await fetch(`${apiBase}/bookings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
