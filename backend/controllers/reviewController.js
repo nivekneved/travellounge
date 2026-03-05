@@ -33,7 +33,8 @@ exports.createReview = async (req, res) => {
                 customer_name,
                 rating,
                 comment,
-                is_approved: false // Requires moderation
+                is_approved: false, // Requires moderation
+                user_id: req.user.id // Link to authenticated user
             }])
             .select()
             .single();

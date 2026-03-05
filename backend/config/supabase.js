@@ -23,10 +23,14 @@ if (!supabaseUrl || !supabaseKey) {
             signUp: () => ({ data: {}, error: null }),
             signInWithPassword: () => ({ data: {}, error: null }),
             signOut: () => Promise.resolve(),
-        }
+            getUser: () => ({ data: { user: null }, error: null })
+        },
+        getUser: () => ({ data: { user: null }, error: null })
     };
 } else {
     supabase = createClient(supabaseUrl, supabaseKey);
 }
 
 module.exports = supabase;
+module.exports.supabaseUrl = supabaseUrl;
+module.exports.supabaseKey = supabaseKey;

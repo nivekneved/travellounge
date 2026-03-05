@@ -8,11 +8,13 @@ const {
 } = require('../controllers/reviewController');
 const { protect, authorize } = require('../middleware/auth');
 
-// Public routes
+// Public: View reviews
 router.get('/services/:serviceId', getServiceReviews);
-router.post('/', createReview);
 
-// Admin routes
+// Protected: Create review (User must be logged in)
+router.post('/', protect, createReview);
+
+// Admin: Manage reviews
 router.get('/', protect, authorize('admin', 'staff'), getAllReviews);
 router.put('/:id', protect, authorize('admin'), moderateReview);
 

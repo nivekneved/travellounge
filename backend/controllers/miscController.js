@@ -100,3 +100,29 @@ exports.submitContactForm = async (req, res) => {
         res.status(500).json({ message: 'Failed to send message. Please try again.' });
     }
 };
+// @desc    Log frontend errors
+// @route   POST /api/misc/logs
+// @access  Public
+exports.logFrontendError = async (req, res) => {
+    const { error, info, app } = req.body;
+
+    try {
+        const { error: insertError } = await supabase.from('audit_logs').insert([{
+            action: 'FRONTEND_ERROR',
+            target_type: app || 'UNKNOWN',
+            details: {
+                errorMessage: error,
+                errorInfo: info,
+                url: req.get('referer'),
+                user_agent: req.get('user-agent')
+            }
+        }]);
+
+        if (insertError) throw insertError;
+
+        res.status(200).json({ success: true });
+    } catch (err) {
+        console.error('Failed to log frontend error:', err.message);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};

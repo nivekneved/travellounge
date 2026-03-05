@@ -5,5 +5,6 @@ const { newsletterSignup, submitFeedback, submitContactForm } = require('../cont
 router.post('/newsletter', newsletterSignup);
 router.post('/feedback', submitFeedback);
 router.post('/contact', submitContactForm);
+router.post('/logs', require('../controllers/miscController').logFrontendError);
 
 module.exports = router;

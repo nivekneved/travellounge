@@ -50,53 +50,57 @@ const PageLoader = () => (
   </div>
 );
 
+import ErrorBoundary from './components/ErrorBoundary';
+
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <WishlistProvider>
-        <Toaster position="bottom-right" />
-        <Router>
-          <Layout>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/services/:id" element={<ServiceDetails />} />
-                <Route path="/package-builder" element={<PackageBuilder />} />
-                <Route path="/about" element={<AboutUs />} />
-                <Route path="/team" element={<Team />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/contact" element={<Contact />} />
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <WishlistProvider>
+          <Toaster position="bottom-right" />
+          <Router>
+            <Layout>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/search" element={<SearchPage />} />
+                  <Route path="/services/:id" element={<ServiceDetails />} />
+                  <Route path="/package-builder" element={<PackageBuilder />} />
+                  <Route path="/about" element={<AboutUs />} />
+                  <Route path="/team" element={<Team />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/contact" element={<Contact />} />
 
-                {/* Service Pages */}
-                <Route path="/cruises" element={<Cruises />} />
-                <Route path="/group-tours" element={<GroupTours />} />
-                <Route path="/group-tours/:id" element={<ServiceDetails />} />
-                <Route path="/destinations" element={<Destinations />} />
-                <Route path="/destinations/:id" element={<DestinationDetails />} />
-                <Route path="/flights" element={<Flights />} />
-                <Route path="/day-packages" element={<HotelDayPackages />} />
-                <Route path="/day-packages/:id" element={<ServiceDetails />} />
-                <Route path="/booking" element={<BookingPage />} />
-                <Route path="/activities" element={<Activities />} />
-                <Route path="/activities/:id" element={<ServiceDetails />} />
-                <Route path="/cruises" element={<Cruises />} />
-                <Route path="/cruises/:id" element={<ServiceDetails />} />
-                <Route path="/hotels" element={<MauritiusHotels />} />
-                <Route path="/excursions" element={<Excursions />} />
-                <Route path="/transfers" element={<Transfers />} />
-                <Route path="/rodrigues-guest-houses" element={<RodriguesGuestHouses />} />
-                <Route path="/rodrigues-hotels" element={<RodriguesHotels />} />
-                <Route path="/visa-services" element={<VisaServices />} />
+                  {/* Service Pages */}
+                  <Route path="/cruises" element={<Cruises />} />
+                  <Route path="/group-tours" element={<GroupTours />} />
+                  <Route path="/group-tours/:id" element={<ServiceDetails />} />
+                  <Route path="/destinations" element={<Destinations />} />
+                  <Route path="/destinations/:id" element={<DestinationDetails />} />
+                  <Route path="/flights" element={<Flights />} />
+                  <Route path="/day-packages" element={<HotelDayPackages />} />
+                  <Route path="/day-packages/:id" element={<ServiceDetails />} />
+                  <Route path="/booking" element={<BookingPage />} />
+                  <Route path="/activities" element={<Activities />} />
+                  <Route path="/activities/:id" element={<ServiceDetails />} />
+                  <Route path="/cruises" element={<Cruises />} />
+                  <Route path="/cruises/:id" element={<ServiceDetails />} />
+                  <Route path="/hotels" element={<MauritiusHotels />} />
+                  <Route path="/excursions" element={<Excursions />} />
+                  <Route path="/transfers" element={<Transfers />} />
+                  <Route path="/rodrigues-guest-houses" element={<RodriguesGuestHouses />} />
+                  <Route path="/rodrigues-hotels" element={<RodriguesHotels />} />
+                  <Route path="/visa-services" element={<VisaServices />} />
 
-                <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
-              </Routes>
-            </Suspense>
-          </Layout>
-        </Router>
-      </WishlistProvider>
-    </QueryClientProvider>
+                  <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
+                </Routes>
+              </Suspense>
+            </Layout>
+          </Router>
+        </WishlistProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

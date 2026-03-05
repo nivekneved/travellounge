@@ -31,119 +31,34 @@ const serviceSchema = Joi.object({
 // @access  Public
 exports.getProducts = async (req, res) => {
     try {
-        // console.log('[getProducts] Query Params:', req.query);
         const { category, search, minPrice, maxPrice, checkIn, checkOut, featured, page = 1, limit = 10 } = req.query;
 
-        // Calculate pagination range
-        const from = (page - 1) * limit;
-        const to = from + limit - 1;
-
-        // Start building query
+        // 1. Build Base Query
         let query = supabase.from('services').select('*', { count: 'exact' });
 
-        if (category) {
-            // console.log('[getProducts] Filtering by category:', category);
-            query = query.eq('category', category);
-        }
+        if (category) query = query.eq('category', category);
+        if (featured === 'true' || featured === true) query = query.eq('is_featured', true);
+        if (search) query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+        if (minPrice) query = query.gte('price', Number(minPrice));
+        if (maxPrice) query = query.lte('price', Number(maxPrice));
 
-        if (featured === 'true' || featured === true) {
-            // console.log('[getProducts] Filtering for featured items');
-            query = query.eq('is_featured', true);
-        }
-
-        if (search) {
-            query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
-        }
-
-        if (minPrice) {
-            query = query.gte('price', Number(minPrice));
-        }
-
-        if (maxPrice) {
-            query = query.lte('price', Number(maxPrice));
-        }
-
-        // Apply pagination
+        // 2. Fetch Initial Data (Pagination handled after availability if checkIn/Out present, else now)
+        const from = (page - 1) * limit;
+        const to = from + limit - 1;
         query = query.range(from, to).order('created_at', { ascending: false });
 
         const { data, error, count } = await query;
-
         if (error) throw error;
 
-        // Date-based availability filtering
-        if (checkIn && checkOut) {
-            const start = new Date(checkIn);
-            const end = new Date(checkOut);
-            const serviceIds = data.map(s => s.id);
-
-            // 1. Fetch rooms for these services
-            const { data: rooms } = await supabase
-                .from('hotel_rooms')
-                .select('id, service_id, total_units')
-                .in('service_id', serviceIds);
-
-            if (rooms && rooms.length > 0) {
-                const roomIds = rooms.map(r => r.id);
-
-                // 2. Fetch daily prices for availability check
-                // Note: bookingController implies we need records for every night [checkIn, checkOut)
-                const { data: dailyPrices } = await supabase
-                    .from('room_daily_prices')
-                    .select('room_id, date, is_blocked, available_units')
-                    .in('room_id', roomIds)
-                    .gte('date', checkIn)
-                    .lt('date', checkOut);
-
-                const pricesMap = {};
-                if (dailyPrices) {
-                    dailyPrices.forEach(dp => {
-                        if (!pricesMap[dp.room_id]) pricesMap[dp.room_id] = [];
-                        pricesMap[dp.room_id].push(dp);
-                    });
-                }
-
-                // Calculate required number of nights
-                const oneDay = 24 * 60 * 60 * 1000;
-                const limitDate = new Date(checkOut);
-                // If checkIn === checkOut (day use?), handle gracefully, but usually it's at least 1 night
-                const requiredNights = Math.max(1, Math.round(Math.abs((end - start) / oneDay)));
-
-                // 3. Filter Data
-                const performFilter = (service) => {
-                    const serviceRooms = rooms.filter(r => r.service_id === service.id);
-                    if (serviceRooms.length === 0) return false; // If searching by date, must have rooms
-
-                    // Check if ANY room is available for ALL required nights
-                    return serviceRooms.some(room => {
-                        const roomPrices = pricesMap[room.id] || [];
-                        if (roomPrices.length < requiredNights) return false; // Missing price records = unbookable
-
-                        // Check each record
-                        return roomPrices.every(dp => !dp.is_blocked && (dp.available_units === undefined || dp.available_units > 0));
-                    });
-                };
-
-                // Apply filter
-                const filtered = data.filter(performFilter);
-                // Replace data reference or return subset - reusing 'data' variable name is tricky with const
-                // We will return the filtered array directly
-                return res.json({
-                    services: filtered,
-                    total: count, // Note: This is total BEFORE date filter. 
-                    page: Number(page),
-                    pages: Math.ceil(count / limit)
-                });
-            } else {
-                // If date search matches no rooms at all (and user searched dates), return empty
-                // OR if services found were not hotels? 
-                // Taking strict approach: date search implies looking for bookable inventory.
-                return res.json({
-                    services: [],
-                    total: 0,
-                    page: Number(page),
-                    pages: 0
-                });
-            }
+        // 3. Handle Availability Filtering (Complex Logic Extracted)
+        if (checkIn && checkOut && data.length > 0) {
+            const filteredData = await getAvailableServices(data, checkIn, checkOut);
+            return res.json({
+                services: filteredData,
+                total: count, // Note: Total count is relative to initial filter
+                page: Number(page),
+                pages: Math.ceil(count / limit)
+            });
         }
 
         res.json({
@@ -156,6 +71,48 @@ exports.getProducts = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+/**
+ * Helper: Filters services based on room availability for specific dates
+ * Adheres to '1 function 1 task' principle by isolating inventory logic.
+ */
+async function getAvailableServices(services, checkIn, checkOut) {
+    const serviceIds = services.map(s => s.id);
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const requiredNights = Math.max(1, Math.round(Math.abs((end - start) / (24 * 60 * 60 * 1000))));
+
+    // Fetch rooms
+    const { data: rooms } = await supabase
+        .from('hotel_rooms')
+        .select('id, service_id, total_units')
+        .in('service_id', serviceIds);
+
+    if (!rooms || rooms.length === 0) return [];
+
+    // Fetch daily price/availability records
+    const { data: dailyPrices } = await supabase
+        .from('room_daily_prices')
+        .select('room_id, date, is_blocked, available_units')
+        .in('room_id', rooms.map(r => r.id))
+        .gte('date', checkIn)
+        .lt('date', checkOut);
+
+    const pricesMap = {};
+    dailyPrices?.forEach(dp => {
+        if (!pricesMap[dp.room_id]) pricesMap[dp.room_id] = [];
+        pricesMap[dp.room_id].push(dp);
+    });
+
+    return services.filter(service => {
+        const serviceRooms = rooms.filter(r => r.service_id === service.id);
+        return serviceRooms.some(room => {
+            const roomPrices = pricesMap[room.id] || [];
+            if (roomPrices.length < requiredNights) return false;
+            return roomPrices.every(dp => !dp.is_blocked && (dp.available_units === undefined || dp.available_units > 0));
+        });
+    });
+}
 
 // @desc    Get service by ID
 // @route   GET /api/services/:id

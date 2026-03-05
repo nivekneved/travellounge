@@ -29,99 +29,75 @@ const bookingSchema = Joi.object({
 exports.createBooking = async (req, res) => {
     try {
         const { error: validationError } = bookingSchema.validate(req.body);
-        if (validationError) {
-            return res.status(400).json({ message: validationError.details[0].message });
-        }
+        if (validationError) return res.status(400).json({ message: validationError.details[0].message });
 
         const { customer_info, service_id, service_type, room_id, booking_details, consent, estimated_total } = req.body;
-        const { checkIn, checkOut } = booking_details || {};
-
         if (!consent) return res.status(400).json({ message: 'Consent is required' });
 
-        let finalPrice = 0;
+        // 1. Determine Price & Update Inventory (Atomic)
+        const finalPrice = await resolveBookingPrice(req.body);
 
-        if (room_id) {
-            // Room specific booking
-            // Fix: Use atomic RPC function to prevent overbooking race condition
-            const { data: invUpdate, error: invError } = await supabase.rpc('decrement_room_inventory', {
-                p_room_id: room_id,
-                p_check_in: checkIn,
-                p_check_out: checkOut
-            });
-
-            if (invError || !invUpdate || !invUpdate.success) {
-                return res.status(400).json({ message: invUpdate?.message || 'Dates unavailable or conflict occurred' });
-            }
-
-            finalPrice = invUpdate.total_price || 0;
-
-        } else if (service_id && service_id !== 'static-inquiry') {
-            // General service booking
-            const { data: service, error: svcError } = await supabase
-                .from('services')
-                .select('pricing')
-                .eq('id', service_id)
-                .single();
-
-            if (svcError || !service) {
-                return res.status(400).json({ message: 'Service not found or pricing unavailable' });
-            }
-
-            const basePrice = service.pricing?.price || service.pricing?.base_price || service.pricing?.adult || 0;
-            const start = new Date(checkIn);
-            const end = new Date(checkOut);
-            let nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
-            if (isNaN(nights) || nights < 1) nights = 1;
-
-            finalPrice = basePrice * nights;
-        } else {
-            // Static inquiry or custom package fallback
-            finalPrice = estimated_total || 0;
+        // Anti-manipulation check
+        if (estimated_total !== undefined && finalPrice > 0 && Math.abs(finalPrice - estimated_total) > 100) {
+            return res.status(400).json({ message: 'Price mismatch detected. Please refresh.' });
         }
 
-        // Validate that calculated front-end matches back-end exactly (prevent manipulation)
-        if (estimated_total !== undefined && finalPrice > 0) {
-            if (Math.abs(finalPrice - estimated_total) > 100) {
-                return res.status(400).json({ message: `Price mismatch detected. Expected ${finalPrice}, but received ${estimated_total}. Please refresh and try again.` });
-            }
-        }
-
-        // Create Booking
+        // 2. Create Record
         const { data: booking, error: bookError } = await supabase
             .from('bookings')
-            .insert([{
-                customer_info,
-                service_id,
-                service_type,
-                booking_details,
-                total_price: finalPrice,
-                consent,
-                status: 'pending'
-            }])
+            .insert([{ customer_info, service_id, service_type, booking_details, total_price: finalPrice, consent, status: 'pending', user_id: req.user.id }])
             .select('*')
             .single();
 
         if (bookError) throw bookError;
 
-        // Notifications
-        try {
-            const customerEmail = customer_info?.email || req.body.customer?.email; // Fallback
-            const productName = booking_details?.productName || 'Service';
-
-            if (customerEmail) {
-                await notificationService.sendEmail(customerEmail, 'Paradise Confirmed!', `Total: ${finalPrice} MUR. Property: ${productName}`);
-            }
-            // Centralize admin notifications
-            await notificationService.sendEmail('admin@travellounge.mu', 'INCOME ALERT: New Booking Request', `A new reservation has been received for ${productName}. Value: ${finalPrice} MUR. Customer: ${customer_info?.name || 'Unknown'}`);
-        } catch (e) {
-            console.error('Notification failed', e);
-        }
+        // 3. Trigger Notifications (Async)
+        triggerBookingNotifications(booking, customer_info);
 
         res.status(201).json({ ...booking, finalPrice });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
+/**
+ * Helper: Logic to determine pricing and perform atomic inventory locks
+ */
+async function resolveBookingPrice(payload) {
+    const { room_id, service_id, booking_details, estimated_total } = payload;
+    const { checkIn, checkOut } = booking_details || {};
+
+    if (room_id) {
+        const { data: invUpdate } = await supabase.rpc('decrement_room_inventory', { p_room_id: room_id, p_check_in: checkIn, p_check_out: checkOut });
+        if (!invUpdate?.success) throw new Error(invUpdate?.message || 'Dates unavailable');
+        return invUpdate.total_price || 0;
+    }
+
+    if (service_id && service_id !== 'static-inquiry') {
+        const { data: service } = await supabase.from('services').select('pricing').eq('id', service_id).single();
+        const basePrice = service?.pricing?.price || service?.pricing?.base_price || service?.pricing?.adult || 0;
+        const nights = Math.max(1, Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 86400)) || 1);
+        return basePrice * nights;
+    }
+
+    return estimated_total || 0;
+}
+
+/**
+ * Helper: Decoupled notification triggers
+ */
+async function triggerBookingNotifications(booking, customer_info) {
+    try {
+        const customerEmail = customer_info?.email;
+        const productName = booking.booking_details?.productName || 'Service';
+        if (customerEmail) {
+            await notificationService.sendEmail(customerEmail, 'Paradise Confirmed!', `Total: ${booking.total_price} MUR.`);
+        }
+        await notificationService.sendEmail('admin@travellounge.mu', 'INCOME ALERT', `New booking for ${productName}`);
+    } catch (e) {
+        console.error('Notification failed', e);
+    }
+}
 
 // @desc    Get all bookings
 // @route   GET /api/bookings
@@ -189,7 +165,8 @@ exports.createPackageRequest = async (req, res) => {
                 status: 'pending',
                 total_price: 0, // Quote to be provided
                 consent,
-                is_custom: true
+                is_custom: true,
+                user_id: req.user.id // Link to authenticated user
             }])
             .select('*')
             .single();
