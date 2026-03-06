@@ -54,6 +54,7 @@ const miscRouter = require('./routes/misc');
 const menuRouter = require('./routes/menus');
 const promotionRouter = require('./routes/promotions');
 const heroRouter = require('./routes/hero');
+const dashboardRouter = require('./routes/dashboard');
 const initCronJobs = require('./config/cron');
 
 app.use('/', indexRouter); // Keep the root route
@@ -68,6 +69,8 @@ app.use('/api/menus', menuRouter);
 app.use('/api/promotions', promotionRouter);
 app.use('/api/hero', heroRouter);
 app.use('/api/misc', miscRouter);
+app.use('/dashboard', dashboardRouter);
+app.use('/api/dashboard', dashboardRouter);
 
 // Initialize Cron Jobs
 initCronJobs();
